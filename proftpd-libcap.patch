@@ -1,0 +1,24 @@
+diff -Nur proftpd-1.2.0pre3/Makefile.in proftpd-1.2.0pre3.pld/Makefile.in
+--- proftpd-1.2.0pre3/Makefile.in	Fri Mar  5 17:20:05 1999
++++ proftpd-1.2.0pre3.pld/Makefile.in	Fri May 28 12:11:08 1999
+@@ -14,7 +14,7 @@
+ include ./Make.rules
+ include ./Make.modules
+ 
+-DIRS=@ADDL_DIRS@
++#DIRS=@ADDL_DIRS@
+ BUILD=$(BUILD_OBJS) $(BUILD_MODULES) modules/module_glue.o
+ FTPCOUNT=$(BUILD_FTPCOUNT_OBJS)
+ FTPSHUT=$(BUILD_FTPSHUT_OBJS)
+diff -Nur proftpd-1.2.0pre3/contrib/mod_linuxprivs.c proftpd-1.2.0pre3.pld/contrib/mod_linuxprivs.c
+--- proftpd-1.2.0pre3/contrib/mod_linuxprivs.c	Sun Oct 18 04:24:41 1998
++++ proftpd-1.2.0pre3.pld/contrib/mod_linuxprivs.c	Fri May 28 12:10:52 1999
+@@ -48,7 +48,7 @@
+ #include "conf.h"
+ #include "privs.h"
+ 
+-#include "../contrib/libcap/capability.h"
++#include "/usr/include/sys/capability.h"
+ 
+ static cap_t capabilities = 0;
+ static int use_capabilities = 1;
