@@ -16,11 +16,11 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.9
-Release:	0.%{_rc}.1
+Release:	0.%{_rc}.2
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
-Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}%{_rc}.tar.bz2
+Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}%{_rc}p.tar.bz2
 # Source0-md5:	81beb7c8b418db1725781329921328a5
 Source1:	%{name}.conf
 Source2:	%{name}.logrotate
