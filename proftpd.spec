@@ -109,7 +109,7 @@ gzip -9nf $RPM_BUILD_ROOT%{_mandir}/man[158]/* \
 
 %post 
 touch /var/log/xferlog
-awk 'BEGIN { FS = ":" }; { if($3 < 1000) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
+awk 'BEGIN { FS = ":" }; { if(($3 < 1000)&&($1 != "ftp")) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
 if [ ! -f %{_sysconfdir}/ftpusers ]; then
 	( cd %{_sysconfdir}; mv -f ftpusers.default ftpusers )
 fi
