@@ -92,7 +92,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %attr(755,root,root) /usr/bin/*
 %attr(755,root,root) /usr/sbin/*
-%attr(644,root, man) %{_mandir}/man[158]/*
+%{_mandir}/man[158]/*
 
 %dir /home/ftp
 %dir /home/ftp/pub
