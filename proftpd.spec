@@ -12,7 +12,8 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.2rc1
-Release:	3
+Release:	4
+Epoch:		0
 License:	GPL
 Group:		Daemons
 Group(de):	Server
