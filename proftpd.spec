@@ -35,6 +35,7 @@ Obsoletes:	ftpserver
 Obsoletes:	wu-ftpd
 Obsoletes:	anonftp
 Obsoletes:	ftpd-BSD
+Obsoletes:	linux-ftpd
 
 %define		_sysconfdir	/etc/ftpd
 %define		_localstatedir	/var/run
