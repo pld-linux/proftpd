@@ -2,7 +2,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0rc1
-Release:	2
+Release:	3
 License:	GPL
 Group:		Daemons
 Group(pl):	Serwery
@@ -103,7 +103,7 @@ gzip -9nf $RPM_BUILD_ROOT%{_mandir}/man[158]/* \
 
 %post 
 touch /var/log/xferlog
-awk 'BEGIN { FS = ":" }; { if($3 < 100) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
+awk 'BEGIN { FS = ":" }; { if($3 < 1000) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
 if [ ! -f %{_sysconfdir}/ftpusers ]; then
 	( cd %{_sysconfdir}; mv -f ftpusers.default ftpusers )
 fi
