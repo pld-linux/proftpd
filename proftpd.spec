@@ -91,7 +91,7 @@ autoconf
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %configure \
 	--enable-autoshadow \
-	--with-modules=mod_ratio:mod_readme%{?!bcond_off_pam::mod_pam}%{?bcond_on_ldap::mod_ldap}%{?bcond_on_quota::mod_quota}%{?bcond_on_linuxprivs::mod_linuxprivs}%{?bcond_on_mysql::mod_mysql:mod_sqlpw} \
+	--with-modules=mod_ratio:mod_readme%{?!bcond_off_pam::mod_pam}%{?bcond_on_ldap::mod_ldap}%{?bcond_on_quota::mod_quota}%{?bcond_on_linuxprivs::mod_linuxprivs}%{?bcond_on_mysql::mod_sqlpw:mod_mysql} \
 	%{?!bcond_off_ipv6:--enable-ipv6} \
 	--disable-sendfile
 
