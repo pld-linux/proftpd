@@ -9,7 +9,6 @@
 %bcond_with	quota		# enable quota support
 %bcond_with	linuxprivs	# enable libcap support
 #
-%define		_rc	rc3
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es):	Servidor FTP profesional, con sintaxis de configuraci髇 semejante a la del apache
 Summary(pl):	PROfesionalny serwer FTP
@@ -17,12 +16,12 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.10
-Release:	0.%{_rc}.1
+Release:	0.1
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
-Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}%{_rc}.tar.bz2
-# Source0-md5:	d834bb822816a2ce483cc2ef1a9533e7
+Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
+# Source0-md5:	5feb4a7348e12faefc25e34fd92efdd6
 Source1:	%{name}.conf
 Source2:	%{name}.logrotate
 Source3:	ftp.pamd
@@ -172,7 +171,7 @@ Pliki konfiguracyjne ProFTPD do startowania demona w trybie
 standalone.
 
 %prep
-%setup  -q -n %{name}-%{version}%{_rc}
+%setup -q 
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
