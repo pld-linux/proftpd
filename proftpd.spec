@@ -1,21 +1,23 @@
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
-Version:	1.2.0pre1
-Release:	2d
+Version:	1.2.0pre3
+Release:	1
 Copyright:	GPL
 Group:		Daemons
 Group(pl):	Serwery
 Source0:	ftp://ftp.proftpd.org/distrib/%{name}-%{version}.tar.gz
-Source1:	configuration.html
-Source2:	reference.html
-Source3:	%{name}.conf
-Source4:	%{name}.logrotate
+#Source1:	configuration.html
+#Source2:	reference.html
+Source1:	%{name}.conf
+Source2:	%{name}.logrotate
 Patch0:		%{name}-mdtm-localtime.patch
 Patch1:		%{name}.patch
-Patch2:		%{name}-DoS.patch
-Patch3:		%{name}-glibc.patch
+Patch2:		%{name}-glibc.patch
+Patch3:		%{name}-paths.patch
+Patch4:		%{name}-libcap.patch
 URL:		http://www.proftpd.org
+BuildPrereq:	/lib/libcap.so
 Requires:	logrotate
 Provides:	ftpserver
 Obsoletes:	wu-ftpd
@@ -45,15 +47,17 @@ z dokumentacj± dotycz±c± konfigurowania.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4	-p1
 
 %build
-install %{SOURCE1} %{SOURCE2} .
 autoconf
 CFLAGS="$RPM_OPT_FLAGS" LDFLAGS=-s \
-./configure %{_target} \
-	--prefix=/usr \
+    ./configure \
+	--prefix=%{_prefix} \
 	--sysconfdir=/etc/ftpd \
-	--enable-autoshadow
+	--enable-autoshadow \
+	--with-modules=mod_ratio:mod_pam:mod_linuxprivs:mod_readme \
+	%{_target_platform}
 
 make rundir=/var/run
 
@@ -61,44 +65,65 @@ make rundir=/var/run
 rm -rf $RPM_BUILD_ROOT
 
 install -d $RPM_BUILD_ROOT/{etc/{ftpd,logrotate.d},home/ftp/pub/Incoming}
-install -d $RPM_BUILD_ROOT/{var/run,usr/{bin,sbin,man/{man1,man8}}}
+install -d $RPM_BUILD_ROOT/{var/run,usr/{bin,sbin,share/man/{man1,man8}}}
+install -d $RPM_BUILD_ROOT/var/log
 
 make install \
 	INSTALL_USER=`id -u` \
 	INSTALL_GROUP=`id -g` \
-	prefix=$RPM_BUILD_ROOT/usr \
+	prefix=$RPM_BUILD_ROOT%{_prefix} \
 	rundir=$RPM_BUILD_ROOT/var/run \
 	sysconfdir=$RPM_BUILD_ROOT/etc/ftpd
 
 rm -f $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
-install %{SOURCE3} $RPM_BUILD_ROOT/etc/ftpd
-install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/proftpd
+install %{SOURCE1} $RPM_BUILD_ROOT/etc/ftpd
+install %{SOURCE2} $RPM_BUILD_ROOT/etc/logrotate.d/proftpd
+install contrib/xferstats.* $RPM_BUILD_ROOT%{_bindir}/xferstat
+
+mv contrib/README contrib/README.modules
+
+:> $RPM_BUILD_ROOT/etc/ftpd/ftpusers
+:> $RPM_BUILD_ROOT/var/log/xferlog
+
+ln -s proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 gzip -9fn $RPM_BUILD_ROOT%{_mandir}/man[158]/* 
-bzip2 -9  sample-configurations/{virtual,anonymous}.conf changelog README
+gzip -9fn sample-configurations/{virtual,anonymous}.conf changelog README
+gzip -9fn README.linux-* contrib/README.modules
+
+%post 
+cat /etc/passwd | cut -d: -f1 | grep -v ftp >> /etc/ftpd/ftpusers
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc changelog.bz2 README.bz2
-%doc sample-configurations/{virtual,anonymous}.conf.bz2 *.html
+%doc {changelog,README*}.gz contrib/README.modules.gz
+%doc sample-configurations/{virtual,anonymous}.conf.gz 
 
 %attr(750,root,root) %dir /etc/ftpd
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/ftpd/*.conf
-%attr(640,root,root) %config %verify(not md5 mtime size) /etc/logrotate.d/*
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/ftpd/*
+%attr(640,root,root) /etc/logrotate.d/*
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /var/log/*
 
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
+
 %{_mandir}/man[158]/*
 
-%dir /home/ftp
 %dir /home/ftp/pub
 %attr(711,root,root) %dir /home/ftp/pub/Incoming
 
 %changelog
+* Fri May 28 1999 Wojtek ¦lusarczyk <wojtek@shadow.eu.org>
+  [1.2.0pre3-1]
+- /var/log/*,
+- added ftpusers,
+- /usr/bin/xferstat,
+- build with contrib modules && more... more.. changes 
+
 * Sun Dec 20 1998 Wojtek ¦lusarczyk <wojtek@shadow.eu.org>
   [1.2.0-2d]
 - added missing logrotate. 
@@ -139,30 +164,3 @@ rm -rf $RPM_BUILD_ROOT
 - Conflicts: replaced by Obsoletes: in headre (more automated replacing
   other ftpserver) also added to list anonftp as not neccesary under proftpd,
 - added noreplace %config parameter for /etc/proftpd.conf.
-
-* Sat Aug 01 1998 Arne Coucheron <arneco@online.no>
-  [1.1.6pre2-1]
-
-* Thu Jul 23 1998 Arne Coucheron <arneco@online.no>
-  [1.1.5pl4-1]
-- making use of shadow libraries
-  (Thanks to Mike McHendry <mmchen@ally.minn.net> for the hint)
-- added beroftpd to Conflicts:
-- added configuration and reference docs to the package
-
-* Sun Jun 28 1998 Arne Coucheron <arneco@online.no>
-  [1.0.3pl1-2]
-- using $RPM_OPT_FLAGS
-- using %%{name} and %%{version} macros
-- using %defattr macro in filelist, ordinary users can build now 
-- using install -d instead of mkdir -p
-- made proftpd.conf chmod 600 for security
-- added -q parameter to %setup
-- added %config to /etc/proftpd.conf in filelist
-- added Conflicts: wu-ftpd ncftpd
-- installing util programs in %{_bindir} instead of %{_sbindir}
-- changed name of spec file to proftpd.spec
-
-* Wed May 6 1998 Vladimir Ivanov <vlad@elis.tasur.edu.ru>
-- Fixed bug in mod_auth.c
-- Initial RPM release
