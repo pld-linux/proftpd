@@ -18,7 +18,7 @@
 +  if (!strncmp(c_hash,"{crypt-md5}",11))
 +    if (!strcmp(tmphash,crypt(c_clear, tmphash))) return HANDLED(cmd);
 +  // not sure about that
-+  if (!strncmp(c_hash,"{crypt},7"))
++  if (!strncmp(c_hash,"{crypt}",7))
 +    if (!strcmp(tmphash,crypt(c_clear, tmphash))) return HANDLED(cmd);
 +  // add other types (md5 etc.)  
 +  return ERROR_INT(cmd,AUTH_BADPWD);
