@@ -63,7 +63,6 @@ dotycz±c± konfigurowania.
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
-%patch9 -p1
 
 %build
 autoconf
