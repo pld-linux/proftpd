@@ -29,7 +29,6 @@ Source4:	%{name}.inetd
 Source5:	%{name}.sysconfig
 Source6:	%{name}.init
 Source7:	ftpusers.tar.bz2
-# Source8-md5:	76c80b6ec9f4d079a1e27316edddbe16
 Patch0:		%{name}-umode_t.patch
 Patch1:		%{name}-glibc.patch
 Patch2:		%{name}-paths.patch
