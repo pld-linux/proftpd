@@ -45,7 +45,7 @@ case "$1" in
 	if [ -f /var/lock/subsys/proftpd ]; then
                 msg_stopping ProFTPD
                 killproc proftpd
-                rm -f /var/lock/subsys/proftpd /var/run/proftpd.pid >/dev/null 2>&1
+                rm -f /var/lock/subsys/proftpd /var/run/proftpd* > /dev/null 2>&1
         else
 		msg_Not_Running ProFTPD
 	        exit 1
