@@ -1,4 +1,4 @@
-# 
+#
 # Conditional builds:
 # _without_pam - disable PAM support
 # _with_ldap - enable LDAP suppoer
@@ -10,7 +10,7 @@
 # --without pam --with ldap --with mysql --with quota --with linuxprivs
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
-Summary(pl):	PROfesionalny serwer FTP  
+Summary(pl):	PROfesionalny serwer FTP
 Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Name:		proftpd
 Version:	1.2.5rc1
@@ -97,7 +97,7 @@ replacement for wu-ftpd. Full online documentation is available at
 http://www.proftpd.org/, including a server configuration directive
 reference manual.
 
-%description -l pl common
+%description common -l pl
 ProFTPD jest wysoce konfigurowalnym serwerem ftp dla systemów Unix.
 ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
 dokunentacja jest dostêpna on-line pod http://www.proftpd.org/
@@ -127,7 +127,7 @@ Obsoletes:	wu-ftpd
 %description inetd
 ProFTPD configs for running from inetd.
 
-%description -l pl inetd
+%description inetd -l pl
 Pliki konfiguracyjna ProFTPD do startowania demona poprzez inetd.
 
 %package standalone
@@ -154,18 +154,18 @@ Obsoletes:	wu-ftpd
 %description standalone
 ProFTPD configs for running as a standalone daemon.
 
-%description -l pl standalone
+%description standalone -l pl
 Pliki konfiguracyjne ProFTPD do startowania demona w trybie
 standalone.
 
 %prep
-%setup  -q 
+%setup  -q
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1 
+%patch5 -p1
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
@@ -218,11 +218,11 @@ ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 gzip -9nf sample-configurations/{virtual,anonymous}.conf ChangeLog README \
 	README.linux-* contrib/README.modules README.IPv6 README.PAM README.TLS
- 
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post 
+%post
 touch /var/log/xferlog
 awk 'BEGIN { FS = ":" }; { if(($3 < 1000)&&($1 != "ftp")) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
 if [ ! -f %{_sysconfdir}/ftpusers ]; then
@@ -268,7 +268,7 @@ fi
 %files common
 %defattr(644,root,root,755)
 %doc {ChangeLog,README*}.gz contrib/README.modules.gz
-%doc sample-configurations/{virtual,anonymous}.conf.gz 
+%doc sample-configurations/{virtual,anonymous}.conf.gz
 %doc doc/*html
 
 %attr(750,root,ftp) %dir %{_sysconfdir}
