@@ -1,16 +1,16 @@
 Summary:     PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl): PROfesionalny FTP Demon z podobnym do apache sposobem konfigurowania
 Name:        proftpd
-Version:     1.1.6pl2
+Version:     1.2.0pre1
 Release:     1
-URL:         http://www.proftpd.org/
+Copyright:   GPL
+Group:       Networking/Daemons
 Source0:     ftp://ftp.proftpd.org/distrib/%{name}-%{version}.tar.gz
 Source1:     configuration.html
 Source2:     reference.html
 Patch0:      proftpd-mdtm-localtime.patch
-Patch1:      proftpd-compat_wu-ftpd.patch
-Copyright:   GPL
-Group:       Networking/Daemons
+Patch1:      proftpd.patch
+URL:         http://www.proftpd.org/
 Provides:    ftpserver
 Obsoletes:   wu-ftpd ncftpd beroftpd anonftp
 BuildRoot:   /tmp/%{name}-%{version}-root
@@ -33,7 +33,7 @@ z dokumentacj± dotycz±c± konfigurowania.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1 -b .compat_wu-ftpd
+#%patch1 -p1
 
 %build
 CFLAGS="$RPM_OPT_FLAGS" LDFLAGS=-s \
@@ -45,9 +45,10 @@ make
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/{etc,usr/{bin,sbin,man/{man1,man8}}}
+
 install sample-configurations/basic.conf $RPM_BUILD_ROOT/etc/proftpd.conf
 install -s ftpcount ftpshut $RPM_BUILD_ROOT/usr/bin
-install -s proftpd $RPM_BUILD_ROOT/usr/sbin/in.ftpd
+install -s proftpd $RPM_BUILD_ROOT/usr/sbin/
 install src/*.8 $RPM_BUILD_ROOT/usr/man/man8
 install src/*.1 $RPM_BUILD_ROOT/usr/man/man1
 install %{SOURCE1} %{SOURCE2} .
@@ -66,6 +67,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644, root,  man) /usr/man/man[58]/*
 
 %changelog
+* Sun Nov 15 1998 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
+  [1.2.0pre1-1]
+- removed patch for wu-ftpd compat.
+
 * Sat Aug 22 1998 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
   [1.1.6pre4-2]
 - added proftpd-1.1.6pre4-compat_wu-ftpd.patch (null handling some wu-ftpd
