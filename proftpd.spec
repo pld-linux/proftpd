@@ -11,13 +11,13 @@
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
-Version:	1.2.0rc3
-Release:	2
+Version:	1.2.1
+Release:	0.1
 License:	GPL
 Group:		Daemons
 Group(de):	Server
 Group(pl):	Serwery
-Source0:	ftp://ftp.proftpd.net/pub/proftpd/%{name}-%{version}.tar.gz
+Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
 Source1:	%{name}.conf
 Source2:	%{name}.logrotate
 Source3:	ftp.pamd
@@ -37,7 +37,7 @@ Patch7:		%{name}-betterlog.patch
 Patch8:		%{name}-DESTDIR.patch
 Patch9:		%{name}-wtmp.patch
 Patch10:	%{name}-link.patch
-URL:		http://www.proftpd.net/
+URL:		http://www.proftpd.org/
 %{?!bcond_off_pam:BuildRequires:	pam-devel}
 %{?bcond_on_ldap:BuildRequires:		openldap-devel}
 %{?bcond_on_mysql:BuildRequires:	mysql-devel}
@@ -107,7 +107,7 @@ ProFTPD configs for running as a standalone daemon.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
+%patch5 -p1 
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
@@ -120,7 +120,7 @@ autoconf
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %configure \
 	--enable-autoshadow \
-	--with-modules=mod_ratio:mod_readme%{?!bcond_off_ipv6::mod_tcpd}%{?!bcond_off_pam::mod_pam}%{?bcond_on_ldap::mod_ldap}%{?bcond_on_quota::mod_quota}%{?bcond_on_linuxprivs::mod_linuxprivs}%{?bcond_on_mysql::mod_sqlpw:mod_mysql} \
+	--with-modules=mod_ratio:mod_readme%{?!bcond_off_ipv6::mod_tcpd}%{?!bcond_off_pam::mod_pam}%{?bcond_on_ldap::mod_ldap}%{?bcond_on_quota::mod_quota}%{?bcond_on_linuxprivs::mod_linuxprivs}%{?bcond_on_mysql::mod_sql:mod_sql_mysql} \
 	%{?!bcond_off_ipv6:--enable-ipv6} \
 	%{?bcond_off_ssl:--disable-tls} \
 	--enable-sendfile
