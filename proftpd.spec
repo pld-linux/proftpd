@@ -71,7 +71,7 @@ LDFLAGS="-ldl -s"; export LDFLAGS
 	--enable-autoshadow \
 	--with-modules=mod_ratio:mod_pam:mod_readme
 
-make rundir=/var/run
+%{__make} rundir=/var/run
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -79,7 +79,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/{etc/{logrotate.d,pam.d,sysconfig/rc-inetd},home/ftp/pub/Incoming}
 install -d $RPM_BUILD_ROOT/var/log
 
-make install DESTDIR=$RPM_BUILD_ROOT \
+%{__make} install DESTDIR=$RPM_BUILD_ROOT \
 	INSTALL_USER=`id -u` \
 	INSTALL_GROUP=`id -g`
 
