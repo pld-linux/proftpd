@@ -6,12 +6,13 @@
 # bcond_on_quota - enable quota support
 # bcond_on_linuxprivs - enable libcap support
 # bcond_off_ipv6 - disable IPv6 and TCPD support
+# bcond_off_ssl - disbale TLS/SSL support
 # --without pam --with ldap --with mysql --with quota --with linuxprivs
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
-Version:	1.2.0rc2
-Release:	15
+Version:	1.2.0rc3
+Release:	1
 License:	GPL
 Group:		Daemons
 Group(de):	Server
@@ -24,8 +25,9 @@ Source4:	%{name}.inetd
 Source5:	%{name}.sysconfig
 Source6:	%{name}.init
 Source7:	%{name}-mod_tcpd.c
-Patch0:		%{name}-CVS-20010203.patch.gz
-Patch1:		%{name}-1.2.0rc2cvs-ipv6-20010203.patch.gz
+Patch0:		%{name}-1.2.0rc3-v6-20010206.patch.gz
+# ftp://ftp.runestig.com/pub/proftpd-tls/
+Patch1:		%{name}-1.2.0rc3+v6-tls.20010206.patch.gz
 Patch2:		%{name}-umode_t.patch
 Patch3:		%{name}-glibc.patch
 Patch4:		%{name}-paths.patch
@@ -34,13 +36,11 @@ Patch6:		%{name}-noautopriv.patch
 Patch7:		%{name}-betterlog.patch
 Patch8:		%{name}-DESTDIR.patch
 Patch9:		%{name}-wtmp.patch
-Patch10:	%{name}-mysql.patch
-Patch11:	%{name}-sendfile.patch
-Patch12:	%{name}-ratio.patch
 URL:		http://www.proftpd.net/
 %{?!bcond_off_pam:BuildRequires:	pam-devel}
-%{?bcond_on_ldap:BuildRequires:	openldap-devel}
-%{?bcond_on_mysql:BuildRequires: mysql-devel}
+%{?bcond_on_ldap:BuildRequires:		openldap-devel}
+%{?bcond_on_mysql:BuildRequires:	mysql-devel}
+%{?!bcond_off_ssl:BuildRequires:	openssl-devel}
 Prereq:		awk
 Prereq:		rc-inetd
 Prereq:		fileutils
@@ -111,9 +111,6 @@ ProFTPD configs for running as a standalone daemon.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
 install -m644 %{SOURCE7} contrib/mod_tcpd.c
 
 %build
@@ -123,6 +120,7 @@ RUN_DIR=%{_localstatedir} ; export RUN_DIR
 	--enable-autoshadow \
 	--with-modules=mod_ratio:mod_readme%{?!bcond_off_ipv6::mod_tcpd}%{?!bcond_off_pam::mod_pam}%{?bcond_on_ldap::mod_ldap}%{?bcond_on_quota::mod_quota}%{?bcond_on_linuxprivs::mod_linuxprivs}%{?bcond_on_mysql::mod_sqlpw:mod_mysql} \
 	%{?!bcond_off_ipv6:--enable-ipv6} \
+	%{?bcond_off_ssl:--disable-tls} \
 	--enable-sendfile
 
 %{__make}
@@ -156,7 +154,8 @@ mv -f contrib/README contrib/README.modules
 ln -s proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 gzip -9nf sample-configurations/{virtual,anonymous}.conf ChangeLog README \
-	README.linux-* contrib/README.modules README.IPv6
+	README.linux-* contrib/README.modules README.IPv6 README.PAM \
+	README.TLS
 
 %post 
 touch /var/log/xferlog
