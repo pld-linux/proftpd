@@ -1,0 +1,10 @@
+--- proftpd-1.2.0pre1/include/log.h.noauthpriv	Thu Feb 11 12:10:38 1999
++++ proftpd-1.2.0pre1/include/log.h	Thu Feb 11 12:11:01 1999
+@@ -25,6 +25,7 @@
+ #ifndef __LOG_H
+ #define __LOG_H
+ 
++#undef LOG_AUTHPRIV
+ #ifndef LOG_AUTHPRIV
+ #define LOG_AUTHPRIV LOG_AUTH
+ #endif

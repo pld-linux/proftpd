@@ -1,0 +1,28 @@
+--- proftpd-1.2.0pre1/modules/mod_auth.c.betterlog	Thu Feb 11 14:03:09 1999
++++ proftpd-1.2.0pre1/modules/mod_auth.c	Thu Feb 11 14:03:34 1999
+@@ -514,7 +514,11 @@
+   c = _auth_resolve_user(p,&user,&ourname,&anonname);
+ 
+   if(!user) {
+-    log_pri(LOG_NOTICE,"failed login, '%s' is not a UserAlias.",origuser);
++      log_auth(LOG_NOTICE,"USER %s: user is not a UserAlias from %s [%s] to %s:%i",
++               user,session.c->remote_name,
++	       inet_ascii(p,session.c->remote_ipaddr),
++	       inet_ascii(p,session.c->local_ipaddr),
++	       session.c->local_port);
+     goto auth_failure;
+   }
+ 
+@@ -522,7 +526,11 @@
+   aclp = login_check_limits(main_server->conf,FALSE,TRUE,&i);
+ 
+   if((pw = auth_getpwnam(p,user)) == NULL) {
+-    log_pri(LOG_NOTICE,"failed login, can't find user '%s'",user);
++      log_auth(LOG_NOTICE,"USER %s: no such user found from %s [%s] to %s:%i",
++               user,session.c->remote_name,
++	       inet_ascii(p,session.c->remote_ipaddr),
++	       inet_ascii(p,session.c->local_ipaddr),
++	       session.c->local_port);
+     goto auth_failure;
+   }
+ 
