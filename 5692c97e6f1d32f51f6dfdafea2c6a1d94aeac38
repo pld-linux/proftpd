@@ -1,0 +1,49 @@
+- added using CVS keywords in %changelog (for automating them).
+
+* Fri May 28 1999 Wojtek ¦lusarczyk <wojtek@shadow.eu.org>
+  [1.2.0pre3-1]
+- /var/log/*,
+- added ftpusers,
+- /usr/bin/xferstat,
+- build with contrib modules && more... more.. changes.
+
+* Sun Dec 20 1998 Wojtek ¦lusarczyk <wojtek@shadow.eu.org>
+  [1.2.0-2d]
+- added missing logrotate. 
+
+* Sun Nov 15 1998 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
+  [1.2.0-1d]
+- added default configuration file with hashed configuration for
+  anonymous ftp,
+- config file moved to /etc/ftpd (with 750 permission),
+- added %verify rule for /etc/etc/proftpd,
+- added /home/ftp hierarhy for anonymous ftp resources,
+- rundir must point to /var/run,
+- added level 1 man pages,
+- rewrited %install,
+- removed patch for wu-ftpd compat.
+
+* Sat Oct 10 1998 Marcin Korzonek <mkorz@shadow.eu.org>
+  [1.1.7pl3-1d]
+- removed proftpd-1.1.6pre4-compat_wu-ftpd.patch (-l option is now
+  handled by proftpd)
+- build against glibc 2.1.
+
+* Sat Aug 22 1998 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
+  [1.1.6pre4-2]
+- added proftpd-1.1.6pre4-compat_wu-ftpd.patch (null handling some wu-ftpd
+  cmdl options).
+
+* Thu Aug  6 1998 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
+  [1.1.6pre4-1]
+- added pl translation,
+- removed INSTALL from %doc (install procedure is in spec ;),
+- addded permissions in %files instead setting them in %build (lets make 
+  %buil only build procedure - more logical),
+- renamed %{_sbindir}/in.proftpd to /usr/sbin/in.ftpd (now updating inetd.conf
+  is not neccesary) also removed %post[un] - this is simpler and now proftpd
+  is "real" drop-in wu-ftpd replacement ;>,
+- fiew simplifications in %install and %files,
+- Conflicts: replaced by Obsoletes: in headre (more automated replacing
+  other ftpserver) also added to list anonftp as not neccesary under proftpd,
+- added noreplace %config parameter for /etc/proftpd.conf.
