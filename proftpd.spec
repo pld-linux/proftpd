@@ -39,8 +39,8 @@ URL:		http://www.proftpd.net/
 %{?!bcond_off_pam:BuildRequires:	pam-devel}
 %{?bcond_on_ldap:BuildRequires:	openldap-devel}
 %{?bcond_on_mysql:BuildRequires: mysql-devel}
+Prereq:		awk
 Prereq:		rc-inetd
-Requires:	rc-inetd
 Requires:	logrotate
 %{?!bcond_off_pam:Requires:	pam >= 0.67}
 Requires:	inetdaemon
