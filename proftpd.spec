@@ -12,7 +12,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
 Summary(pl):	PROfesionalny serwer FTP
 Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
-Summary(zh_CN):	Ò×ÓÚ¹ÜÀíµÄ,°²È«µÄ FTP ·şÎñÆ÷.
+Summary(zh_CN):	Ò×ÓÚ¹ÜÀíµÄ,°²È«µÄ FTP ·şÎñÆ÷
 Name:		proftpd
 Version:	1.2.5
 Release:	5
