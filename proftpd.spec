@@ -12,13 +12,15 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
 Summary(pl):	PROfesionalny serwer FTP
 Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
+Summary(zh_CN):	Ò×ÓÚ¹ÜÀíµÄ,°²È«µÄ FTP ·þÎñÆ÷.
 Name:		proftpd
-Version:	1.2.5rc1
-Release:	6
-Epoch:		0
+Version:	1.2.5
+Release:	8
+Epoch:		1
 License:	GPL
 Group:		Daemons
-Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
+Source0:	ftp://ftp.proftpd.org/historic/v1.2/%{name}-%{version}.tar.bz2
+# Source0-md5:	100a374dfcaa4852cb767dc6afeb4277
 Source1:	%{name}.conf
 Source2:	%{name}.logrotate
 Source3:	ftp.pamd
@@ -27,7 +29,8 @@ Source5:	%{name}.sysconfig
 Source6:	%{name}.init
 Source7:	%{name}-mod_tcpd.c
 Source8:	ftpusers.tar.bz2
-Patch0:		%{name}-1.2.2rc3-v6-20010814.patch.gz
+# Source8-md5:  76c80b6ec9f4d079a1e27316edddbe16
+Patch0:		%{name}-1.2.5-v6-20020808.patch.gz
 # ftp://ftp.runestig.com/pub/proftpd-tls/
 Patch1:		%{name}-1.2.2rc3+v6-tls.20010505.patch.gz
 Patch2:		%{name}-umode_t.patch
@@ -39,14 +42,15 @@ Patch7:		%{name}-DESTDIR.patch
 Patch8:		%{name}-wtmp.patch
 Patch9:		%{name}-link.patch
 Patch10:	%{name}-port-65535.patch
-Patch11:	%{name}-v6_fix.patch
+# from debian
+Patch11:	%{name}-mod_sql_postgres.c.diff
 URL:		http://www.proftpd.org/
-%{?!_without_pam:BuildRequires:	pam-devel}
-%{?_with_ldap:BuildRequires:		openldap-devel}
-%{?_with_mysql:BuildRequires:	mysql-devel}
-%{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.6a}
-BuildRequires:	libwrap-devel
 BuildRequires:	autoconf
+BuildRequires:	libwrap-devel
+%{?_with_mysql:BuildRequires:	mysql-devel}
+%{?_with_ldap:BuildRequires:		openldap-devel}
+%{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.6j}
+%{?!_without_pam:BuildRequires:	pam-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir	/etc/ftpd
@@ -113,14 +117,14 @@ Prereq:		rc-inetd
 Provides:	proftpd = %{epoch}:%{version}-%{release}
 Requires:	inetdaemon
 Provides:	ftpserver
-Obsoletes:	proftpd-standalone
-Obsoletes:	ftpserver
 Obsoletes:	anonftp
 Obsoletes:	bftpd
 Obsoletes:	ftpd-BSD
+Obsoletes:	ftpserver
 Obsoletes:	heimdal-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
+Obsoletes:	proftpd-standalone
 Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
 Obsoletes:	vsftpd
@@ -142,14 +146,14 @@ Prereq:		rc-scripts
 Prereq:		/sbin/chkconfig
 Provides:	proftpd = %{epoch}:%{version}-%{release}
 Provides:	ftpserver
-Obsoletes:	proftpd-inetd
-Obsoletes:	ftpserver
 Obsoletes:	anonftp
 Obsoletes:	bftpd
 Obsoletes:	ftpd-BSD
+Obsoletes:	ftpserver
 Obsoletes:	heimdal-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
+Obsoletes:	proftpd-inetd
 Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
 Obsoletes:	vsftpd
@@ -177,6 +181,7 @@ standalone.
 %patch9 -p1
 %patch10 -p0
 %patch11 -p1
+
 install -m644 %{SOURCE7} contrib/mod_tcpd.c
 
 %build
@@ -193,11 +198,11 @@ RUN_DIR=%{_localstatedir} ; export RUN_DIR
 
 %install
 rm -rf $RPM_BUILD_ROOT
-
 install -d $RPM_BUILD_ROOT/etc/{logrotate.d,pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
 	$RPM_BUILD_ROOT/{home/ftp/pub/Incoming,var/log}
 
-%{__make} install DESTDIR=$RPM_BUILD_ROOT \
+%{__make} install \
+	DESTDIR=$RPM_BUILD_ROOT \
 	INSTALL_USER=`id -u` \
 	INSTALL_GROUP=`id -g`
 
@@ -226,9 +231,9 @@ ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post
+%post common
 touch /var/log/xferlog
-awk 'BEGIN { FS = ":" }; { if(($3 < 1000)&&($1 != "ftp")) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
+awk 'BEGIN { FS = ":" }; { if(($3 < 500)&&($1 != "ftp")) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
 if [ ! -f %{_sysconfdir}/ftpusers ]; then
 	( cd %{_sysconfdir}; mv -f ftpusers.default ftpusers )
 fi
