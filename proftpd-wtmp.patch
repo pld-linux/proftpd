@@ -1,6 +1,6 @@
---- ./src/log.c.org	Sun Oct 21 21:11:04 2001
-+++ ./src/log.c	Sun Oct 21 21:20:07 2001
-@@ -131,26 +131,16 @@
+--- proftpd-1.2.10rc3/src/log.c.orig	2004-04-20 04:05:41.000000000 +0200
++++ proftpd-1.2.10rc3/src/log.c	2004-09-01 08:26:12.959741640 +0200
+@@ -54,27 +54,16 @@
  
  int log_wtmp(char *line, const char *name, const char *host,
      pr_netaddr_t *ip) {
@@ -19,12 +19,14 @@
 -  struct utmpx utx;
 -#endif
 -  static int fdx = -1;
-+  static int washere = 0;
- 
--  if (fdx < 0 && (fdx = open(WTMPX_FILE, O_WRONLY|O_APPEND, 0)) < 0) {
--    log_pri(PR_LOG_WARNING, "wtmpx %s: %s", WTMPX_FILE, strerror(errno));
+-
+-  if (fdx < 0 &&
+-      (fdx = open(WTMPX_FILE, O_WRONLY|O_APPEND, 0)) < 0) {
+-    pr_log_pri(PR_LOG_WARNING, "wtmpx %s: %s", WTMPX_FILE, strerror(errno));
 -    return -1;
 -  }
++  static int washere = 0;
++  
 +  if (!washere) {
 +    utmpname(_PATH_WTMP);
 +    washere = 1;
@@ -33,16 +35,17 @@
  
    /* Unfortunately, utmp string fields are terminated by '\0' if they are
     * shorter than the size of the field, but if they are exactly the size of
-@@ -158,43 +148,7 @@
+@@ -82,46 +71,6 @@
     * Insane if you ask me.  Unless there's massive uproar, I prefer to err on
     * the side of caution and always null-terminate our strings.
     */
--  if (fstat(fdx,&buf) == 0) {
--    memset(&utx,0,sizeof(utx));
--    sstrncpy(utx.ut_user,name,sizeof(utx.ut_user));
--    sstrncpy(utx.ut_id, "ftp",sizeof(utx.ut_user));
--    sstrncpy(utx.ut_line,line,sizeof(utx.ut_line));
--    sstrncpy(utx.ut_host,host,sizeof(utx.ut_host));
+-  if (fstat(fdx, &buf) == 0) {
+-    memset(&utx, 0, sizeof(utx));
+-
+-    sstrncpy(utx.ut_user, name, sizeof(utx.ut_user));
+-    sstrncpy(utx.ut_id, "ftp", sizeof(utx.ut_user));
+-    sstrncpy(utx.ut_line, line, sizeof(utx.ut_line));
+-    sstrncpy(utx.ut_host, host, sizeof(utx.ut_host));
 -    utx.ut_syslen = strlen(utx.ut_host)+1;
 -    utx.ut_pid = getpid();
 -#ifdef __sparcv9
@@ -59,41 +62,44 @@
 -    utx.ut_exit.e_termination = 0;
 -    utx.ut_exit.e_exit = 0;
 -#endif /* HAVE_UT_UT_EXIT */
--    if (write(fdx, (char *)&utx,sizeof(utx)) != sizeof(utx))
+-    if (write(fdx, (char *)&utx, sizeof(utx)) != sizeof(utx))
 -      ftruncate(fdx, buf.st_size);
+-
 -  } else {
--    log_debug(DEBUG0, "%s fstat(): %s",WTMPX_FILE,strerror(errno));
+-    pr_log_debug(DEBUG0, "%s fstat(): %s", WTMPX_FILE, strerror(errno));
 -    res = -1;
 -  }
 -
 -#else /* Non-SVR4 systems */
 -
--  if (fd < 0 && (fd = open(WTMP_FILE,O_WRONLY|O_APPEND,0)) < 0) {
--    log_pri(PR_LOG_WARNING, "wtmp %s: %s", WTMP_FILE, strerror(errno));
+-  if (fd < 0 &&
+-      (fd = open(WTMP_FILE, O_WRONLY|O_APPEND, 0)) < 0) {
+-    pr_log_pri(PR_LOG_WARNING, "wtmp %s: %s", WTMP_FILE, strerror(errno));
 -    return -1;
 -  }
- 
--  if (fstat(fd,&buf) == 0) {
-     memset(&ut,0,sizeof(ut));
+-
+-  if (fstat(fd, &buf) == 0) {
+     memset(&ut, 0, sizeof(ut));
  #ifdef HAVE_UTMAXTYPE
- #ifdef LINUX
-@@ -227,13 +181,12 @@
+ # ifdef LINUX
+@@ -158,15 +107,12 @@
  #endif /* HAVE_UT_UT_HOST */
  
      time(&ut.ut_time);
--    if (write(fd, (char *)&ut,sizeof(ut)) != sizeof(ut))
--      ftruncate(fd,buf.st_size);
+-    if (write(fd, (char *)&ut, sizeof(ut)) != sizeof(ut))
+-      ftruncate(fd, buf.st_size);
+-
 -  } else {
--    log_debug(DEBUG0, "%s fstat(): %s",WTMP_FILE,strerror(errno));
+-    pr_log_debug(DEBUG0, "%s fstat(): %s",WTMP_FILE,strerror(errno));
 -    res = -1;
 -  }
 -#endif /* SVR4 */
-+
+ 
 +  setutent();
 +  while ((getutent())) ;
 +  pututline(&ut);
 +  if (!washere)
 +    endutent();
- 
    return res;
  }
+ 
