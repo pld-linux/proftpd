@@ -1,0 +1,11 @@
+--- proftpd-1.2.0rc2/contrib/mod_sqlpw.c.wiget	Mon Jan 22 13:38:34 2001
++++ proftpd-1.2.0rc2/contrib/mod_sqlpw.c	Mon Jan 22 13:40:06 2001
+@@ -636,7 +636,7 @@
+     {
+       query = pstrcat (cmd->tmp_pool, g.sql_fhost, " = '",
+ 		       session.c->remote_name, "', ", g.sql_faddr,
+-		       " = '", inet_ntoa (*session.c->remote_ipaddr),
++		       " = '", INET_NTOA (session.c->remote_ipaddr),
+ 		       "', ", g.sql_ftime, " = now()", NULL);
+       modsql_queryuser (cmd, g.user, query, TRUE);
+     }

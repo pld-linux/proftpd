@@ -1,0 +1,22 @@
+--- proftpd-1.2.0rc2/contrib/mod_mysql.c.wiget	Wed Jan 10 15:42:53 2001
++++ proftpd-1.2.0rc2/contrib/mod_mysql.c	Wed Jan 10 15:44:31 2001
+@@ -34,7 +34,7 @@
+ */
+ 
+ #include "conf.h"
+-#include <mysql.h>
++#include <mysql/mysql.h>
+ 
+ /* *INDENT-OFF* */
+ 
+--- proftpd-1.2.0rc2/contrib/mod_sqlpw.c.wiget	Mon Jan 22 13:28:35 2001
++++ proftpd-1.2.0rc2/contrib/mod_sqlpw.c	Mon Jan 22 13:28:55 2001
+@@ -54,7 +54,7 @@
+ #include <crypt.h>
+ #endif
+ 
+-#include <mysql.h>
++#include <mysql/mysql.h>
+ 
+ /* *INDENT-OFF* */
+ 
