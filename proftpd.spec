@@ -69,7 +69,7 @@ directivas de configuración del servidor.
 %description -l pl
 ProFTPD jest wysoce konfigurowalnym serwerem ftp dla systemów Unix.
 ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
-dokunentacja jest dostêpna on-line pod http://www.proftpd.org/
+dokumentacja jest dostêpna on-line pod http://www.proftpd.org/
 w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 
 %description -l pt_BR
