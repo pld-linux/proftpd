@@ -2,7 +2,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0pre10
-Release:	1
+Release:	2
 License:	GPL
 Group:		Daemons
 Group(pl):	Serwery
@@ -105,6 +105,7 @@ gzip -9nf $RPM_BUILD_ROOT%{_mandir}/man[158]/* \
 	README.linux-* contrib/README.modules
 
 %post 
+touch /var/log/xferlog
 cat /etc/passwd | cut -d: -f1 | grep -v ftp >> %{_sysconfdir}/ftpusers.default
 if [ ! -f %{_sysconfdir}/ftpusers ]; then
 	( cd %{_sysconfdir}; mv -f ftpusers.default ftpusers )
@@ -131,8 +132,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(750,root,root) %dir %{_sysconfdir}
 %attr(640,root,root) /etc/logrotate.d/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /var/log/*
-%attr(640,root,root) %config %verify(not md5 mtime size) /etc/pam.d/*
+%attr(640,root,root) %ghost /var/log/*
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*
 %attr(640,root,root) /etc/sysconfig/rc-inetd/ftpd
 
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
