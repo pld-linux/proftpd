@@ -1,0 +1,8 @@
+# Customized setings for proftpd
+
+# Nice level for apache
+SERVICE_RUN_NICE_LEVEL="+5"
+
+# Cmdline options 
+PROFTPD_OPTS=""
+
