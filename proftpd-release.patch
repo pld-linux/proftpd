@@ -1,16 +1,16 @@
-diff -ur proftpd-1.2.0pre9.orig/src/main.c proftpd-1.2.0pre9/src/main.c
---- proftpd-1.2.0pre9.orig/src/main.c	Mon Oct 11 06:28:50 1999
-+++ proftpd-1.2.0pre9/src/main.c	Thu Oct 28 15:12:26 1999
-@@ -640,7 +640,7 @@
+diff -ur proftpd-1.2.0rc1.orig/src/main.c proftpd-1.2.0rc1/src/main.c
+--- proftpd-1.2.0rc1.orig/src/main.c	Wed Jul 12 20:16:38 2000
++++ proftpd-1.2.0rc1/src/main.c	Wed Jul 12 20:18:42 2000
+@@ -665,7 +665,7 @@
    log_pri(pri, log);
    
-   if(standalone && master)
+   if(standalone && master) {
 -    log_pri(LOG_NOTICE, "ProFTPD %s standalone mode SHUTDOWN", VERSION);
-+    log_pri(LOG_NOTICE, "ProFTPD %s standalone mode SHUTDOWN","PLD Linux");
-   
-   end_login(exitcode);
- }
-@@ -944,9 +944,9 @@
++    log_pri(LOG_NOTICE, "ProFTPD %s standalone mode SHUTDOWN", "PLD Linux");
+     if(!nodaemon) {
+       PRIVS_ROOT;
+       unlink(PID_FILE_PATH);
+@@ -981,9 +981,9 @@
      if(id && id->argc > 1)
        send_response("220","%s",(char*)id->argv[1]);
      else if(get_param_int(server->conf,"DeferWelcome",FALSE) == 1)
@@ -20,18 +20,18 @@ diff -ur proftpd-1.2.0pre9.orig/src/main.c proftpd-1.2.0pre9/src/main.c
 -      send_response("220", "ProFTPD " VERSION " Server (%s) [%s]",
 +      send_response("220", "ProFTPD " "PLD Linux" " Server (%s) [%s]",
             server->ServerName,server->ServerAddress);
-   }
-   else
-@@ -1618,7 +1618,7 @@
-     log_rm_run();
+   } else {
+     send_response("220", "%s FTP server ready.", server->ServerAddress);
+@@ -1676,7 +1676,7 @@
+       unlink(PID_FILE_PATH);
      PRIVS_RELINQUISH
      if(standalone)
 -      log_pri(LOG_NOTICE,"ProFTPD %s standalone mode SHUTDOWN",VERSION);
 +      log_pri(LOG_NOTICE,"ProFTPD %s standalone mode SHUTDOWN","PLD Linux");
    }
  
-   _internal_abort();  
-@@ -1943,7 +1943,7 @@
+ #ifdef DEBUG_CORE
+@@ -2017,7 +2017,7 @@
        addl_bindings(s);
      }
  
@@ -40,9 +40,9 @@ diff -ur proftpd-1.2.0pre9.orig/src/main.c proftpd-1.2.0pre9/src/main.c
    server_loop();
  }
  
-@@ -2098,7 +2098,7 @@
+@@ -2207,7 +2207,7 @@
        break;
-     */
+ #endif /* DEBUG_CORE */
      case 'v':
 -      log_pri(LOG_NOTICE,"ProFTPD Version " VERSION);
 +      log_pri(LOG_NOTICE,"ProFTPD Version " "PLD Linux");
