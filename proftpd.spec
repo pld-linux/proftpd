@@ -1,7 +1,7 @@
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
-Version:	1.2.0pre5
+Version:	1.2.0pre8
 Release:	1
 Copyright:	GPL
 Group:		Daemons
@@ -63,7 +63,7 @@ z dokumentacj± dotycz±c± konfigurowania.
 
 %build
 autoconf
-LDFLAGS="-s"; export LDFLAGS
+LDFLAGS="-ldl -s"; export LDFLAGS
 %configure \
 	--enable-autoshadow \
 	--with-modules=mod_ratio:mod_pam:mod_readme
@@ -96,7 +96,7 @@ mv contrib/README contrib/README.modules
 ln -s proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 gzip -9fn $RPM_BUILD_ROOT%{_mandir}/man[158]/* \
-	sample-configurations/{virtual,anonymous}.conf changelog README \
+	sample-configurations/{virtual,anonymous}.conf ChangeLog README \
 	README.linux-* contrib/README.modules
 
 %post 
@@ -110,7 +110,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc {changelog,README*}.gz contrib/README.modules.gz
+%doc {ChangeLog,README*}.gz contrib/README.modules.gz
 %doc sample-configurations/{virtual,anonymous}.conf.gz 
 
 %attr(750,root,root) %dir /etc/ftpd
