@@ -2,17 +2,19 @@ Summary:     PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl): PROfesionalny FTP Demon z podobnym do apache sposobem konfigurowania
 Name:        proftpd
 Version:     1.2.0pre1
-Release:     1
+Release:     2
 Copyright:   GPL
 Group:       Networking/Daemons
 Source0:     ftp://ftp.proftpd.org/distrib/%{name}-%{version}.tar.gz
 Source1:     configuration.html
 Source2:     reference.html
 Source3:     proftpd.conf
+Source4:     proftpd.logrotate
 Patch0:      proftpd-mdtm-localtime.patch
 Patch1:      proftpd.patch
 URL:         http://www.proftpd.org/
 Provides:    ftpserver
+Requires:    logrotate
 Obsoletes:   wu-ftpd ncftpd beroftpd anonftp
 BuildRoot:   /tmp/%{name}-%{version}-root
 
@@ -34,12 +36,11 @@ z dokumentacj± dotycz±c± konfigurowania.
 %prep
 %setup -q
 %patch0 -p1
-#%patch1 -p1
 
 install %{SOURCE1} %{SOURCE2} .
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" LDFLAGS=-s \
+CFLAGS="$RPM_OPT_FLAGS" LDFLAGS="-s" \
 ./configure \
 	--prefix=/usr \
 	--sysconfdir=/etc/ftpd \
@@ -48,8 +49,8 @@ make rundir=/var/run
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/{etc/ftpd,home/ftp/pub/Incoming}
-install -d $RPM_BUILD_ROOT/{var/run,usr/{bin,sbin,man/{man1,man8}}}
+install -d $RPM_BUILD_ROOT/{etc/logrotate.d,ftpd,home/ftp/pub/Incoming} \
+	$RPM_BUILD_ROOT/{var/run,usr/{bin,sbin,man/{man1,man8}}}
 
 make install \
 	INSTALL_USER=`id -u` \
@@ -60,7 +61,11 @@ make install \
 
 rm -f $RPM_BUILD_ROOT/usr/sbin/in.proftpd
 mv $RPM_BUILD_ROOT/usr/sbin/proftpd $RPM_BUILD_ROOT/usr/sbin/in.ftpd
+
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/ftpd
+install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/proftpd
+
+gzip -9nf $RPM_BUILD_ROOT/usr/man/man{1,5,8}/*
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -71,6 +76,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc sample-configurations/{virtual,anonymous}.conf *.html
 %attr(700, root, root) %dir /etc/ftpd
 %attr(600, root, root) %config(noreplace) %verify(not md5 mtime size) /etc/ftpd/proftpd.conf
+%attr(600, root, root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/proftpd
 %attr(755, root, root) /usr/bin/*
 %attr(755, root, root) /usr/sbin/*
 %attr(644, root,  man) /usr/man/man[158]/*
@@ -79,6 +85,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(711,  ftp,  ftp) %dir /home/ftp/pub/Incoming
 
 %changelog
+* Sat Dec 19 1998 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
+  [1.2.0pre1-2]
+- added gzipping man pages,
+- added missing logrotate %config file,
+- added "Requires: logrotate".
+
 * Sun Nov 15 1998 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
   [1.2.0pre1-1]
 - added default configuration file with hashed configuration for
