@@ -9,7 +9,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0rc2
-Release:	10
+Release:	11
 License:	GPL
 Group:		Daemons
 Group(de):	Server
@@ -82,7 +82,8 @@ RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %configure \
 	--enable-autoshadow \
 	--with-modules=mod_ratio:mod_readme%{?!nopam::mod_pam}%{?ldap::mod_ldap}%{?quota::mod_quota}%{?linuxprivs::mod_linuxprivs} \
-	--enable-ipv6
+	--enable-ipv6 \
+	--disable-sendfile
 
 %{__make}
 
