@@ -115,8 +115,10 @@ else
 fi
 
 %postun
-if [ -f /var/lock/subsys/rc-inetd ]; then
-	/etc/rc.d/init.d/rc-inetd restart
+if [ "$1" = "0" ]; then
+	if [ -f /var/lock/subsys/rc-inetd ]; then
+		/etc/rc.d/init.d/rc-inetd restart
+	fi
 fi
 
 %clean
