@@ -49,6 +49,7 @@ Obsoletes:	ftpserver
 Obsoletes:	anonftp
 Obsoletes:	bftpd
 Obsoletes:	ftpd-BSD
+Obsoletes:	heimdal-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	pure-ftpd
 Obsoletes:	wu-ftpd
