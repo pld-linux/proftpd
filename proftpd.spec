@@ -218,6 +218,7 @@ fi
 if [ "$1" = "0" -a -f /var/lock/subsys/rc-inetd ]; then
 	/etc/rc.d/init.d/rc-inetd reload 1>&2
 fi
+touch /etc/security/blacklist.ftp
 
 %post standalone
 /sbin/chkconfig --add proftpd
@@ -231,6 +232,7 @@ if [ -f /var/lock/subsys/proftpd ]; then
 else
 	echo "Run \"/etc/rc.d/init.d/proftpd start\" to start ProFTPD daemon."
 fi
+/etc/security/blacklist.ftp
 
 %preun standalone
 if [ "$1" = "0" -a -f /var/lock/subsys/proftpd ]; then
