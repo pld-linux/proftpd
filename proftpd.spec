@@ -9,7 +9,9 @@
 # _without_ssl - disbale TLS/SSL support
 # --without pam --with ldap --with mysql --with quota --with linuxprivs
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
+Summary(es):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
 Summary(pl):	PROfesionalny serwer FTP  
+Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Name:		proftpd
 Version:	1.2.5rc1
 Release:	1
@@ -58,11 +60,27 @@ replacement for wu-ftpd. Full online documentation is available at
 http://www.proftpd.org/, including a server configuration directive
 reference manual.
 
+%description -l es
+ProFTPD es un servidor ftp altamente configurable para sistemas
+operativos unix. Está proyectado para ser un substituto directo al
+wu-ftpd. La documentación completa está disponible en
+http://www.proftpd.org, incluido el manual de referencia para las
+directivas de configuración del servidor.
+
 %description -l pl
 ProFTPD jest wysoce konfigurowalnym serwerem ftp dla systemów Unix.
 ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
 dokunentacja jest dostêpna on-line pod http://www.proftpd.org/
 w³±cznie z dokumentacj± dotycz±c± konfigurowania.
+
+%description -l pt_BR
+O ProFTPD é um servidor ftp altamente configurável para sistemas
+operacionais unix.
+
+É projetado para ser um substituto direto para o wu-ftpd. A
+documentação completa está disponível em http://www.proftpd.org,
+incluindo o manual de referência para as diretivas de configuração do
+servidor.
 
 %package common
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax - common files
@@ -145,7 +163,8 @@ Obsoletes:	wu-ftpd
 ProFTPD configs for running as a standalone daemon.
 
 %description -l pl standalone
-Pliki konfiguracyjne ProFTPD do startowania demona w trybie standalone.
+Pliki konfiguracyjne ProFTPD do startowania demona w trybie
+standalone.
 
 %prep
 %setup  -q 
