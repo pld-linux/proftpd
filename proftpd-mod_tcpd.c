@@ -218,7 +218,7 @@ MODRET handle_request(cmd_rec * cmd)
 #ifdef TCPD_ALLOW
 	tcpd_allowlog(&request);
 #else
-	log_pri(priority, "connect from %s", eval_client(&request));
+	log_pri(allow_severity, "connect from %s", eval_client(&request));
 #endif
 
 	return HANDLED(cmd);
