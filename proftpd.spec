@@ -233,7 +233,7 @@ fi
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files
+%files common
 %defattr(644,root,root,755)
 %doc {ChangeLog,README*}.gz contrib/README.modules.gz
 %doc sample-configurations/{virtual,anonymous}.conf.gz 
