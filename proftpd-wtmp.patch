@@ -1,34 +1,39 @@
---- proftpd-1.2.0rc2/src/log.c~	Sat Feb  3 18:19:05 2001
-+++ proftpd-1.2.0rc2/src/log.c	Sat Feb  3 18:21:08 2001
-@@ -533,59 +533,22 @@
+--- ./src/log.c.org	Sun Oct 21 21:11:04 2001
++++ ./src/log.c	Sun Oct 21 21:20:07 2001
+@@ -594,26 +594,16 @@
  
- int log_wtmp(char *line, char *name, char *host, struct sockaddr_storage *ip)
+ int log_wtmp(char *line, char *name, char *host, p_in_addr_t *ip)
  {
 -  struct stat buf;
    struct utmp ut;
    int res = 0;
 -  static int fd = -1;
--
+ 
 -#if (defined(SVR4) || defined(__SVR4)) && \
 -    !(defined(LINUX) || defined(__hpux) || defined (_AIX))
 -  /* This "auxilliary" utmp doesn't exist under linux. */
+-#ifdef __sparcv9
+-  struct futmpx utx;
+-  time_t t;
+-#else
 -  struct utmpx utx;
+-#endif
 -  static int fdx = -1;
--
++  static int washere = 0;
+ 
 -  if(fdx < 0 && (fdx = open(WTMPX_FILE, O_WRONLY | O_APPEND, 0)) < 0) {
 -    log_pri(LOG_WARNING,"wtmpx %s: %s",WTMPX_FILE,strerror(errno));
 -    return -1;
 -  }
-+  static int washere = 0;
- 
 +  if (!washere) {
 +    utmpname(_PATH_WTMP);
 +    washere = 1;
 +  } else
 +    washere = 0;
+ 
    /* Unfortunately, utmp string fields are terminated by '\0' if they are
     * shorter than the size of the field, but if they are exactly the size of
-    * the field they don't have to be terminated at all.  Frankly, this sucks.
+@@ -621,42 +611,8 @@
     * Insane if you ask me.  Unless there's massive uproar, I prefer to err on
     * the side of caution and always null-terminate our strings.
     */
@@ -40,7 +45,12 @@
 -    sstrncpy(utx.ut_host,host,sizeof(utx.ut_host));
 -    utx.ut_syslen = strlen(utx.ut_host)+1;
 -    utx.ut_pid = getpid();
+-#ifdef __sparcv9
+-    time(&t);
+-    utx.ut_tv.tv_sec = (time32_t)t;
+-#else
 -    time(&utx.ut_tv.tv_sec);
+-#endif
 -    if(*name)
 -      utx.ut_type = USER_PROCESS;
 -    else
@@ -63,11 +73,12 @@
 - 
 -  if(fstat(fd,&buf) == 0) {
 -    memset(&ut,0,sizeof(ut));
-+  memset(&ut,0,sizeof(ut));
++
++   memset(&ut,0,sizeof(ut));
  #ifdef HAVE_UTMAXTYPE
  #ifdef LINUX
-     if(ip) {
-@@ -621,13 +584,12 @@
+     if(ip)
+@@ -686,13 +642,12 @@
  #endif /* HAVE_UT_UT_HOST */
  
      time(&ut.ut_time);

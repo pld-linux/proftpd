@@ -1,23 +1,11 @@
-
-Pierwszy fix to:
-
-[misiek@arm proftpd-1.2.2rc3]$ diff -u include/proftpd.h~ include/proftpd.h
---- include/proftpd.h~  Sun Aug 12 18:14:26 2001
-+++ include/proftpd.h   Sun Aug 12 18:27:40 2001
+--- ./include/proftpd.h.org	Sun Oct 21 21:23:17 2001
++++ ./include/proftpd.h	Sun Oct 21 21:23:49 2001
 @@ -99,7 +99,7 @@
  
    long flags;				/* Session & State flags */
-   struct sockaddr_storage data_addr;	/* Remote data address */
+   p_in_addr_t data_addr;		/* Remote data address */
 -  short data_port;			/* Remote data port */
 +  unsigned short data_port;		/* Remote data port */
  
    char *ident_user;			/* User identified by ident protocol */
  
-[misiek@arm proftpd-1.2.2rc3]$ 
-
-Wiadomo, port mo¿e byæ wiêkszy ni¿ 32768. Bug w oficjalnym proftpd.
-
--- 
- Arkadiusz Mi¶kiewicz, AM2-6BONE, 1024/3DB19BBD
- IPv6 ready PLD Linux at http://www.pld.org.pl/
-My jsme Borg. Odpor je marný, budete asimilováni
