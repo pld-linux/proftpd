@@ -1,7 +1,7 @@
-diff -urN proftpd-1.2.0pre8.orig/Makefile.in proftpd-1.2.0pre8/Makefile.in
---- proftpd-1.2.0pre8.orig/Makefile.in	Wed Oct  6 15:59:56 1999
-+++ proftpd-1.2.0pre8/Makefile.in	Wed Oct  6 16:03:05 1999
-@@ -69,38 +69,38 @@
+diff -ur proftpd-1.2.0pre9.orig/Makefile.in proftpd-1.2.0pre9/Makefile.in
+--- proftpd-1.2.0pre9.orig/Makefile.in	Thu Oct 28 15:10:13 1999
++++ proftpd-1.2.0pre9/Makefile.in	Thu Oct 28 15:22:09 1999
+@@ -73,38 +73,38 @@
  	rm -f proftpd ftpcount ftpwho ftpshut core *~
  
  # BSD install -d doesn't work, so ...
@@ -27,11 +27,11 @@ diff -urN proftpd-1.2.0pre8.orig/Makefile.in proftpd-1.2.0pre8/Makefile.in
  
 -install-utils: $(sbindir) $(bindir)
 -	$(INSTALL_BIN) ftpcount $(bindir)/ftpcount
--	(cd $(bindir) ; rm -f ftpwho ; ln -s ftpcount ftpwho)
+-	$(INSTALL_BIN) ftpwho $(bindir)/ftpwho
 -	$(INSTALL_SBIN) ftpshut $(sbindir)/ftpshut
 +install-utils: $(DESTDIR)$(sbindir) $(DESTDIR)$(bindir)
 +	$(INSTALL_BIN) ftpcount $(DESTDIR)$(bindir)/ftpcount
-+	(cd $(DESTDIR)$(bindir) ; rm -f ftpwho ; ln -s ftpcount ftpwho)
++	$(INSTALL_BIN) ftpwho $(DESTDIR)$(bindir)/ftpwho
 +	$(INSTALL_SBIN) ftpshut $(DESTDIR)$(sbindir)/ftpshut
  
 -install-conf: $(sysconfdir)
