@@ -27,9 +27,8 @@ including a server configuration directive reference manual.
 ProFTPD jest wysoce konfigurowalnym demonem ftp dla U*nixów.
 
 ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd.
-ProFTPD is designed to be somewhat of a "drop-in" replacement for wu-ftpd.
 Pe³na dokunentacja jest dostêpna on-line pod http://www.proftpd.org w³±cznie
-z pe³n± dokumentacj± dotycz±c± konfigurowania.
+z dokumentacj± dotycz±c± konfigurowania.
 
 %prep
 %setup -q
