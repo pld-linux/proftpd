@@ -14,7 +14,7 @@ Summary(pl):	PROfesionalny serwer FTP
 Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Name:		proftpd
 Version:	1.2.5rc1
-Release:	2
+Release:	3
 Epoch:		0
 License:	GPL
 Group:		Daemons
@@ -260,10 +260,12 @@ else
 fi
 
 %preun standalone
-if [ "$1" = "0" -a -f /var/lock/subsys/proftpd ]; then
-	/etc/rc.d/init.d/proftpd stop 1>&2
+if [ "$1" = "0" ]; then
+	if [ -f /var/lock/subsys/proftpd ]; then
+		/etc/rc.d/init.d/proftpd stop 1>&2
+	fi
+	/sbin/chkconfig --del proftpd
 fi
-/sbin/chkconfig --del proftpd
 
 %files common
 %defattr(644,root,root,755)
