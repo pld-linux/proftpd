@@ -47,7 +47,7 @@ diff -Nur proftpd-1.2.0pre3/include/default_paths.h proftpd-1.2.0pre3.pld/includ
  #endif /* PROFTPD_PATHS_H */
 --- proftpd-1.2.0rc2/configure.in~	Sun Sep 17 07:09:08 2000
 +++ proftpd-1.2.0rc2/configure.in	Sun Sep 17 07:10:35 2000
-@@ -994,13 +994,6 @@
+@@ -1184,13 +1184,6 @@
  test "x$prefix" = xNONE && prefix=$ac_default_prefix
  test "x$exec_prefix" = xNONE && exec_prefix='${prefix}'
  
@@ -58,6 +58,6 @@ diff -Nur proftpd-1.2.0pre3/include/default_paths.h proftpd-1.2.0pre3.pld/includ
 -AC_DEFINE_UNQUOTED(RUN_DIR,
 -			"`eval echo "${localstatedir}/proftpd"`")
 -
- prefix="$savedPrefix"
- exec_prefix="$savedExecPrefix"
+ prefix="$pr_saved_prefix"
+ exec_prefix="$pr_saved_exec_prefix"
  
