@@ -8,7 +8,7 @@ Source0:     ftp://ftp.proftpd.org/distrib/%{name}-%{version}.tar.gz
 Source1:     configuration.html
 Source2:     reference.html
 Patch0:      proftpd-mdtm-localtime.patch
-Patch1:      proftpd-1.1.6pre4-compat_wu-ftpd.patch
+Patch1:      proftpd-compat_wu-ftpd.patch
 Copyright:   GPL
 Group:       Networking/Daemons
 Provides:    ftpserver
