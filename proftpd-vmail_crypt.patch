@@ -1,0 +1,38 @@
+--- proftpd-1.2.5/contrib/mod_sql.c	Thu Jan  9 17:30:41 2003
++++ proftpd-1.2.5/contrib/mod_sql.c	Thu Jan  9 17:30:33 2003
+@@ -527,6 +527,19 @@
+ }
+ #endif
+ 
++static modret_t *check_auth_vmail_crypt(cmd_rec * cmd, const char *c_clear,
++				  const char *c_hash)
++{
++  int success = 0;
++  while (!((*c_hash=='\0')||(*c_hash=='}'))) c_hash++;
++  if (*c_hash =='}') c_hash++;
++  if (*c_hash == '\0') return ERROR_INT(cmd,AUTH_BADPWD);
++
++  success = !strcmp((char *) crypt(c_clear, c_hash), c_hash);
++
++  return success ? HANDLED(cmd) : ERROR_INT(cmd,AUTH_BADPWD);
++}
++
+ /*
+  * support for general-purpose authentication schemes 
+  */
+@@ -538,6 +551,7 @@
+ #ifdef HAVE_OPENSSL
+ #define OPENSSL_AUTH_FLAG       1<<4
+ #endif
++#define VMAILCRYPT_AUTH_FLAG	1<<5
+ 
+ typedef modret_t *(*auth_func_ptr) (cmd_rec *, const char *, const char *);
+ 
+@@ -557,6 +571,7 @@
+ #ifdef HAVE_OPENSSL
+   {"OpenSSL", check_auth_openssl, OPENSSL_AUTH_FLAG},
+ #endif
++  {"VMail_Crypt", check_auth_vmail_crypt, VMAILCRYPT_AUTH_FLAG},
+   /*
+    * add additional encryption types below 
+    */
