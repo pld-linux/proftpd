@@ -6,7 +6,6 @@ Release:	2
 License:	GPL
 Group:		Daemons
 Group(pl):	Serwery
-Group(pl):	Serwery
 Source0:	ftp://ftp.proftpd.org/distrib/%{name}-%{version}.tar.gz
 #Source1:	configuration.html
 #Source2:	reference.html
