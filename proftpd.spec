@@ -112,7 +112,6 @@ ProFTPD configs for running as a standalone daemon.
 %patch8 -p1
 %patch9 -p1
 install -m644 %{SOURCE7} contrib/mod_tcpd.c
-rm contrib/mod_wrap.c
 
 %build
 autoconf
