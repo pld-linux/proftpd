@@ -1,3 +1,5 @@
+# TODO
+# - why main and -common package descriptions are same?
 #
 # Conditional build:
 %bcond_without	pam		# disable PAM support
@@ -63,20 +65,23 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 ProFTPD is a highly configurable FTP daemon for unix and unix-like
 operating systems. ProFTPD is designed to be somewhat of a "drop-in"
 replacement for wu-ftpd. Full online documentation is available at
-http://www.proftpd.org/, including a server configuration directive
+<http://www.proftpd.org/>, including a server configuration directive
 reference manual.
+
+This package also includes mod_shaper module from
+<http://www.castaglia.org/proftpd/>
 
 %description -l es
 ProFTPD es un servidor FTP altamente configurable para sistemas
 operativos unix. Está proyectado para ser un substituto directo al
 wu-ftpd. La documentación completa está disponible en
-http://www.proftpd.org, incluido el manual de referencia para las
+<http://www.proftpd.org/>, incluido el manual de referencia para las
 directivas de configuración del servidor.
 
 %description -l pl
 ProFTPD jest wysoce konfigurowalnym serwerem FTP dla systemów Unix.
 ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
-dokumentacja jest dostêpna on-line pod http://www.proftpd.org/
+dokumentacja jest dostêpna on-line pod <http://www.proftpd.org/>
 w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 
 %description -l pt_BR
@@ -84,7 +89,7 @@ O ProFTPD é um servidor FTP altamente configurável para sistemas
 operacionais unix.
 
 É projetado para ser um substituto direto para o wu-ftpd. A
-documentação completa está disponível em http://www.proftpd.org,
+documentação completa está disponível em <http://www.proftpd.org/>,
 incluindo o manual de referência para as diretivas de configuração do
 servidor.
 
@@ -102,7 +107,7 @@ Obsoletes:	proftpd < 0:1.2.2rc1-3
 ProFTPD is a highly configurable FTP daemon for unix and unix-like
 operating systems. ProFTPD is designed to be somewhat of a "drop-in"
 replacement for wu-ftpd. Full online documentation is available at
-http://www.proftpd.org/, including a server configuration directive
+<http://www.proftpd.org/>, including a server configuration directive
 reference manual.
 
 %description common -l pl
@@ -201,7 +206,7 @@ CFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I/usr/include/mysql}"
 CPPFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I/usr/include/mysql}"
 %configure \
 	--enable-autoshadow \
-	--with-modules=mod_shaper:mod_ratio:mod_readme%{?with_ssl::mod_tls}%{?with_ipv6::mod_wrap}%{?with_pam::mod_auth_pam}%{?with_ldap::mod_ldap}%{?with_quotafile::mod_quotatab:mod_quotatab_file}%{?with_quotaldap::mod_quotatab:mod_quotatab_ldap}%{?with_quotamysql::mod_quotatab:mod_quotatab_sql}%{?with_quotapgsql:mod_quotatab:mod_quotatab_sql}%{?with_linuxprivs::mod_linuxprivs}%{?with_mysql::mod_sql:mod_sql_mysql}%{?with_pgsql::mod_sql:mod_sql_postgres} \
+	--with-modules=mod_ratio:mod_readme:mod_shaper%{?with_ssl::mod_tls}%{?with_ipv6::mod_wrap}%{?with_pam::mod_auth_pam}%{?with_ldap::mod_ldap}%{?with_quotafile::mod_quotatab:mod_quotatab_file}%{?with_quotaldap::mod_quotatab:mod_quotatab_ldap}%{?with_quotamysql::mod_quotatab:mod_quotatab_sql}%{?with_quotapgsql:mod_quotatab:mod_quotatab_sql}%{?with_linuxprivs::mod_linuxprivs}%{?with_mysql::mod_sql:mod_sql_mysql}%{?with_pgsql::mod_sql:mod_sql_postgres} \
 	%{?with_ipv6:--enable-ipv6} \
 	%{!?with_ssl:--disable-tls} \
 	--enable-ctrls \
@@ -216,8 +221,8 @@ install -d $RPM_BUILD_ROOT/etc/{logrotate.d,pam.d,security,sysconfig/rc-inetd,rc
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
-	INSTALL_USER=`id -u` \
-	INSTALL_GROUP=`id -g`
+	INSTALL_USER=%(id -u) \
+	INSTALL_GROUP=%(id -g)
 
 rm -f $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
