@@ -11,8 +11,8 @@
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
-Version:	1.2.2rc1
-Release:	5
+Version:	1.2.2rc3
+Release:	1
 Epoch:		0
 License:	GPL
 Group:		Daemons
@@ -26,9 +26,9 @@ Source4:	%{name}.inetd
 Source5:	%{name}.sysconfig
 Source6:	%{name}.init
 Source7:	%{name}-mod_tcpd.c
-Patch0:		%{name}-1.2.2rc1-v6-20010406.patch.gz
+Patch0:		%{name}-1.2.2rc3-v6-20010712.patch.gz
 # ftp://ftp.runestig.com/pub/proftpd-tls/
-Patch1:		%{name}-1.2.2rc1+v6-tls.20010401.patch.gz
+Patch1:		%{name}-1.2.2rc3+v6-tls.20010505.patch.gz
 Patch2:		%{name}-umode_t.patch
 Patch3:		%{name}-glibc.patch
 Patch4:		%{name}-paths.patch
@@ -181,7 +181,7 @@ install %{SOURCE2} $RPM_BUILD_ROOT/etc/logrotate.d/ftpd
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/ftpd
 install %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/proftpd
 install %{SOURCE6} $RPM_BUILD_ROOT/etc/rc.d/init.d/proftpd
-install contrib/xferstats.* $RPM_BUILD_ROOT%{_bindir}/xferstat
+install contrib/xferstats.holger-preiss $RPM_BUILD_ROOT%{_bindir}/xferstat
 
 mv -f contrib/README contrib/README.modules
 
