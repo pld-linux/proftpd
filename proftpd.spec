@@ -2,7 +2,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0rc2
-Release:	7
+Release:	8
 License:	GPL
 Group:		Daemons
 Group(de):	Server
@@ -80,8 +80,8 @@ RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %install
 rm -rf $RPM_BUILD_ROOT
 
-install -d $RPM_BUILD_ROOT/{etc/{logrotate.d,pam.d,sysconfig/rc-inetd},home/ftp/pub/Incoming}
-install -d $RPM_BUILD_ROOT/var/log
+install -d $RPM_BUILD_ROOT/etc/{logrotate.d,pam.d,sysconfig/rc-inetd} \
+	$RPM_BUILD_ROOT/{home/ftp/pub/Incoming,var/log}
 
 %{__make} install DESTDIR=$RPM_BUILD_ROOT \
 	INSTALL_USER=`id -u` \
@@ -103,8 +103,7 @@ mv -f contrib/README contrib/README.modules
 
 ln -s proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
-gzip -9nf $RPM_BUILD_ROOT%{_mandir}/man[158]/* \
-	sample-configurations/{virtual,anonymous}.conf ChangeLog README \
+gzip -9nf sample-configurations/{virtual,anonymous}.conf ChangeLog README \
 	README.linux-* contrib/README.modules README.IPv6
 
 %post 
