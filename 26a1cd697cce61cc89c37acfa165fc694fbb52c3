@@ -1,0 +1,4 @@
+- release 2
+- removed IPv6 patch (obsolete, v6 support now in mainline)
+- removed vmail patch (no one seemed to care for a year)
+- added sendfile64 patch (fix large file transfer using sendfile(2))
