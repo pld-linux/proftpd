@@ -8,7 +8,7 @@
 # _without_ipv6		- disable IPv6 and TCPD support
 # _without_ssl		- disbale TLS/SSL support
 #
-%define	_rc	rc2
+%define	_rc	rc3
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es):	Servidor FTP profesional, con sintaxis de configuraci髇 semejante a la del apache
 Summary(pl):	PROfesionalny serwer FTP
@@ -16,12 +16,12 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.9
-Release:	2
+Release:	1
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
-Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}%{_rc}p.tar.bz2
-# Source0-md5:	27e3f62a5615999adbbebcefa92b4510
+Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}%{_rc}.tar.bz2
+# Source0-md5:	5ac74d57bc4349fd71eaf577526e514c
 Source1:	%{name}.conf
 Source2:	%{name}.logrotate
 Source3:	ftp.pamd
