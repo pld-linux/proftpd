@@ -11,7 +11,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0rc2
-Release:	13
+Release:	14
 License:	GPL
 Group:		Daemons
 Group(de):	Server
@@ -34,6 +34,7 @@ Patch9:		%{name}-wtmp.patch
 Patch10:	%{name}-pam.patch
 Patch11:	%{name}-mysql.patch
 Patch12:	%{name}-mod_sqlpw-v6.patch
+Patch13:	%{name}-sendfile.patch
 URL:		http://www.proftpd.net/
 %{?!bcond_off_pam:BuildRequires:	pam-devel}
 %{?bcond_on_ldap:BuildRequires:	openldap-devel}
@@ -85,6 +86,7 @@ w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
+%patch13 -p1
 
 %build
 autoconf
@@ -93,7 +95,7 @@ RUN_DIR=%{_localstatedir} ; export RUN_DIR
 	--enable-autoshadow \
 	--with-modules=mod_ratio:mod_readme%{?!bcond_off_pam::mod_pam}%{?bcond_on_ldap::mod_ldap}%{?bcond_on_quota::mod_quota}%{?bcond_on_linuxprivs::mod_linuxprivs}%{?bcond_on_mysql::mod_sqlpw:mod_mysql} \
 	%{?!bcond_off_ipv6:--enable-ipv6} \
-	--disable-sendfile
+	--enable-sendfile
 
 %{__make}
 
