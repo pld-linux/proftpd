@@ -210,7 +210,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc sample-configurations/{virtual,anonymous}.conf.gz 
 %doc doc/*html
 
-%attr(750,root,root) %dir %{_sysconfdir}
+%attr(750,root,ftp) %dir %{_sysconfdir}
 %attr(640,root,root) /etc/logrotate.d/*
 %attr(640,root,root) %ghost /var/log/*
 %{?!bcond_off_pam:%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*}
