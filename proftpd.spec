@@ -2,7 +2,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0pre3
-Release:	1
+Release:	2
 Copyright:	GPL
 Group:		Daemons
 Group(pl):	Serwery
@@ -16,6 +16,7 @@ Patch1:		%{name}.patch
 Patch2:		%{name}-glibc.patch
 Patch3:		%{name}-paths.patch
 Patch4:		%{name}-libcap.patch
+Patch5:		%{name}-release.patch
 URL:		http://www.proftpd.org
 BuildPrereq:	/lib/libcap.so
 Requires:	logrotate
@@ -48,6 +49,7 @@ z dokumentacj± dotycz±c± konfigurowania.
 %patch2 -p1
 %patch3 -p1
 %patch4	-p1
+%patch5 -p1
 
 %build
 autoconf
@@ -122,7 +124,7 @@ rm -rf $RPM_BUILD_ROOT
 - /var/log/*,
 - added ftpusers,
 - /usr/bin/xferstat,
-- build with contrib modules && more... more.. changes 
+- build with contrib modules && more... more.. changes.
 
 * Sun Dec 20 1998 Wojtek ¦lusarczyk <wojtek@shadow.eu.org>
   [1.2.0-2d]
