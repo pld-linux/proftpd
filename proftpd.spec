@@ -1,13 +1,13 @@
 #
-# Conditional builds:
-# _without_pam - disable PAM support
-# _with_ldap - enable LDAP suppoer
-# _with_mysql - enable MySQL suppoer
-# _with_quota - enable quota support
-# _with_linuxprivs - enable libcap support
-# _without_ipv6 - disable IPv6 and TCPD support
-# _without_ssl - disbale TLS/SSL support
-# --without pam --with ldap --with mysql --with quota --with linuxprivs
+# Conditional build:
+# _without_pam		- disable PAM support
+# _with_ldap		- enable LDAP suppoer
+# _with_mysql		- enable MySQL suppoer
+# _with_quota		- enable quota support
+# _with_linuxprivs	- enable libcap support
+# _without_ipv6		- disable IPv6 and TCPD support
+# _without_ssl		- disbale TLS/SSL support
+#
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
 Summary(pl):	PROfesionalny serwer FTP
@@ -42,12 +42,12 @@ Patch9:		%{name}-link.patch
 Patch10:	%{name}-port-65535.patch
 Patch11:	%{name}-vmail_crypt.patch
 URL:		http://www.proftpd.org/
-%{?!_without_pam:BuildRequires:	pam-devel}
-%{?_with_ldap:BuildRequires:		openldap-devel}
-%{?_with_mysql:BuildRequires:	mysql-devel}
-%{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.6a}
-BuildRequires:	libwrap-devel
 BuildRequires:	autoconf
+BuildRequires:	libwrap-devel
+%{?_with_mysql:BuildRequires:	mysql-devel}
+%{?_with_ldap:BuildRequires:	openldap-devel}
+%{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.6a}
+%{?!_without_pam:BuildRequires:	pam-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir	/etc/ftpd
@@ -86,8 +86,8 @@ servidor.
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax - common files
 Summary(pl):	PROfesionalny serwer FTP  - wspólne pliki
 Group:		Daemons
-Prereq:		awk
-Prereq:		fileutils
+Requires(post):	awk
+Requires(post):	fileutils
 Requires:	logrotate
 %{?!_without_pam:Requires:	pam >= 0.67}
 Obsoletes:	proftpd < 0:1.2.2rc1-3
@@ -109,10 +109,12 @@ w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 Summary:	inetd configs for proftpd
 Summary(pl):	Pliki konfiguracyjne do u¿ycia proftpd poprzez inetd
 Group:		Daemons
-Prereq:		%{name}-common = %{epoch}:%{version}
-Prereq:		rc-inetd
+PreReq:		%{name}-common = %{epoch}:%{version}
+PreReq:		rc-inetd
+Requires(post):	fileutils
+Requires(post):	grep
+Requires(post):	sed
 Provides:	proftpd = %{epoch}:%{version}-%{release}
-Requires:	inetdaemon
 Provides:	ftpserver
 Obsoletes:	proftpd-standalone
 Obsoletes:	ftpserver
@@ -138,9 +140,12 @@ Pliki konfiguracyjna ProFTPD do startowania demona poprzez inetd.
 Summary:	standalone daemon configs for proftpd
 Summary(pl):	Pliki konfiguracyjne do startowania proftpd w trybie standalone
 Group:		Daemons
-Prereq:		%{name}-common = %{version}
-Prereq:		rc-scripts
-Prereq:		/sbin/chkconfig
+PreReq:		%{name}-common = %{version}
+PreReq:		rc-scripts
+Requires(post,preun):	/sbin/chkconfig
+Requires(post):	fileutils
+Requires(post):	grep
+Requires(post):	sed
 Provides:	proftpd = %{epoch}:%{version}-%{release}
 Provides:	ftpserver
 Obsoletes:	proftpd-inetd
@@ -228,13 +233,15 @@ ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 rm -rf $RPM_BUILD_ROOT
 
 %post common
+umask 027
 touch /var/log/xferlog
 awk 'BEGIN { FS = ":" }; { if(($3 < 500)&&($1 != "ftp")) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
 if [ ! -f %{_sysconfdir}/ftpusers ]; then
-	( cd %{_sysconfdir}; mv -f ftpusers.default ftpusers )
+	cp -f %{_sysconfdir}/ftpusers.default %{_sysconfdir}/ftpusers
 fi
 
 %post inetd
+umask 027
 if grep -iEqs "^ServerType[[:space:]]+standalone" %{_sysconfdir}/proftpd.conf ; then
 	cp -a %{_sysconfdir}/proftpd.conf %{_sysconfdir}/proftpd.conf.rpmorig
 	sed -e "s/^ServerType[[:space:]]\+standalone/ServerType			inetd/g" \
