@@ -3,6 +3,7 @@
 # _without_pam		- disable PAM support
 # _with_ldap		- enable LDAP support
 # _with_mysql		- enable MySQL support
+# _with_pgsql		- enable PostgreSQL support
 # _with_quota		- enable quota support
 # _with_linuxprivs	- enable libcap support
 # _without_ipv6		- disable IPv6 and TCPD support
@@ -40,6 +41,7 @@ URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	libwrap-devel
 %{?_with_mysql:BuildRequires:	mysql-devel}
+%{?_with_pgsql:BuildRequires:	postgresql-devel}
 %{?_with_ldap:BuildRequires:	openldap-devel}
 %{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.7c}
 %{?!_without_pam:BuildRequires:	pam-devel}
@@ -171,7 +173,7 @@ standalone.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
+#%patch5 -p1
 # IPv6 support needs major update
 #patch6 -p1
 
@@ -180,7 +182,7 @@ standalone.
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %configure \
 	--enable-autoshadow \
-	--with-modules=mod_ratio:mod_readme%{?!_without_ssl::mod_tls}%{?!_without_ipv6::mod_wrap}%{?!_without_pam::mod_auth_pam}%{?_with_ldap::mod_ldap}%{?_with_quota::mod_quota}%{?_with_linuxprivs::mod_linuxprivs}%{?_with_mysql::mod_sql:mod_sql_mysql} \
+	--with-modules=mod_ratio:mod_readme%{?!_without_ssl::mod_tls}%{?!_without_ipv6::mod_wrap}%{?!_without_pam::mod_auth_pam}%{?_with_ldap::mod_ldap}%{?_with_quota::mod_quota}%{?_with_linuxprivs::mod_linuxprivs}%{?_with_mysql::mod_sql:mod_sql_mysql}%{?_with_pgsql::mod_sql:mod_sql_postgres} \
 	%{?!_without_ipv6:--enable-ipv6} \
 	%{?_without_ssl:--disable-tls} \
 	--enable-sendfile
