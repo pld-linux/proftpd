@@ -217,7 +217,8 @@ ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 :> $RPM_BUILD_ROOT/etc/security/blacklist.ftp
 
 gzip -9nf sample-configurations/{virtual,anonymous}.conf ChangeLog README \
-	README.linux-* contrib/README.modules README.IPv6 README.PAM README.TLS
+	README.linux-* contrib/README.modules README.IPv6 README.PAM \
+	README.TLS README.mod_sql README.LDAP
 
 %clean
 rm -rf $RPM_BUILD_ROOT
