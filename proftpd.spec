@@ -1,8 +1,8 @@
 Summary:     PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl): PROfesionalny FTP Demon z podobnym do apache sposobem konfigurowania
 Name:        proftpd
-Version:     1.1.6pre4
-Release:     2
+Version:     1.1.6pl2
+Release:     1
 URL:         http://www.proftpd.org/
 Source0:     ftp://ftp.proftpd.org/distrib/%{name}-%{version}.tar.gz
 Source1:     configuration.html
