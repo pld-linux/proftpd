@@ -175,7 +175,8 @@ standalone.
 %patch4 -p1
 %patch5 -p0
 %patch6 -p1
-%patch7 -p1
+# IPv6 support needs major update
+#%%patch7 -p1
 
 %build
 %{__autoconf}
