@@ -22,6 +22,7 @@ Patch6:		%{name}-noautopriv.patch
 Patch7:		%{name}-betterlog.patch
 Patch8:		%{name}-DESTDIR.patch
 Patch9:		%{name}-wtmp.patch
+Patch10:	%{name}-pam.patch
 URL:		http://www.proftpd.net/
 %{?!nopam:BuildRequires:	pam-devel}
 %{?ldap:BuildRequires:	openldap-devel}
@@ -66,6 +67,7 @@ w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
 
 %build
 autoconf
