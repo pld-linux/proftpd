@@ -42,7 +42,7 @@ BuildRequires:	autoconf
 BuildRequires:	libwrap-devel
 %{?_with_mysql:BuildRequires:	mysql-devel}
 %{?_with_ldap:BuildRequires:	openldap-devel}
-%{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.7cc}
+%{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.7c}
 %{?!_without_pam:BuildRequires:	pam-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
