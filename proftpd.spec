@@ -15,11 +15,12 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器.
 Name:		proftpd
 Version:	1.2.5
-Release:	6
+Release:	7
 Epoch:		1
 License:	GPL
 Group:		Daemons
-Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
+Source0:	ftp://ftp.proftpd.org/historic/v1.2/%{name}-%{version}.tar.bz2
+# Source0-md5:	100a374dfcaa4852cb767dc6afeb4277
 Source1:	%{name}.conf
 Source2:	%{name}.logrotate
 Source3:	ftp.pamd
@@ -28,6 +29,7 @@ Source5:	%{name}.sysconfig
 Source6:	%{name}.init
 Source7:	%{name}-mod_tcpd.c
 Source8:	ftpusers.tar.bz2
+# Source8-md5:  76c80b6ec9f4d079a1e27316edddbe16
 Patch0:		%{name}-1.2.5-v6-20020808.patch.gz
 # ftp://ftp.runestig.com/pub/proftpd-tls/
 Patch1:		%{name}-1.2.2rc3+v6-tls.20010505.patch.gz
@@ -40,6 +42,8 @@ Patch7:		%{name}-DESTDIR.patch
 Patch8:		%{name}-wtmp.patch
 Patch9:		%{name}-link.patch
 Patch10:	%{name}-port-65535.patch
+# from debian
+Patch11:	%{name}-mod_sql_postgres.c.diff
 URL:		http://www.proftpd.org/
 %{?!_without_pam:BuildRequires:	pam-devel}
 %{?_with_ldap:BuildRequires:		openldap-devel}
@@ -176,6 +180,8 @@ standalone.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p0
+%patch11 -p1
+
 install -m644 %{SOURCE7} contrib/mod_tcpd.c
 
 %build
