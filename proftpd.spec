@@ -210,36 +210,22 @@ if grep -iEqs "^ServerType[[:space:]]+standalone" %{_sysconfdir}/proftpd.conf ; 
 	sed -e "s/^ServerType[[:space:]]\+standalone/ServerType			inetd/g" \
 		%{_sysconfdir}/proftpd.conf.rpmorig >%{_sysconfdir}/proftpd.conf
 fi
-if [ -f /var/lock/subsys/rc-inetd ]; then
-	/etc/rc.d/init.d/rc-inetd reload 1>&2
-else
-	echo "Type \"/etc/rc.d/init.d/rc-inetd start\" to start inet sever" 1>&2
-fi
+%rc_inetd_post
 
 %postun inetd
-if [ "$1" = "0" -a -f /var/lock/subsys/rc-inetd ]; then
-	/etc/rc.d/init.d/rc-inetd reload 1>&2
-fi
+%rc_inetd_postun
 
 %post standalone
-/sbin/chkconfig --add proftpd
 if grep -iEqs "^ServerType[[:space:]]+inetd" %{_sysconfdir}/proftpd.conf ; then
 	cp -a %{_sysconfdir}/proftpd.conf %{_sysconfdir}/proftpd.conf.rpmorig
 	sed -e "s/^ServerType[[:space:]]\+inetd/ServerType			standalone/g" \
 		%{_sysconfdir}/proftpd.conf.rpmorig >%{_sysconfdir}/proftpd.conf
 fi
-if [ -f /var/lock/subsys/proftpd ]; then
-	/etc/rc.d/init.d/proftpd restart 1>&2
-else
-	echo "Run \"/etc/rc.d/init.d/proftpd start\" to start ProFTPD daemon."
-fi
+DESC="ProFTPD daemon"; %chkconfig_add
 /etc/security/blacklist.ftp
 
 %preun standalone
-if [ "$1" = "0" -a -f /var/lock/subsys/proftpd ]; then
-	/etc/rc.d/init.d/proftpd stop 1>&2
-fi
-/sbin/chkconfig --del proftpd
+%chkconfig_del
 
 %clean
 rm -rf $RPM_BUILD_ROOT
