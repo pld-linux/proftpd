@@ -134,7 +134,7 @@ ProFTPD configs for running from inetd.
 Pliki konfiguracyjna ProFTPD do startowania demona poprzez inetd.
 
 %package standalone
-Summary:	standalone daemon configs for proftpd
+Summary:	Standalone daemon configs for proftpd
 Summary(pl):	Pliki konfiguracyjne do startowania proftpd w trybie standalone
 Group:		Daemons
 PreReq:		%{name}-common = %{epoch}:%{version}
