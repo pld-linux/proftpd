@@ -287,12 +287,12 @@ fi
 
 %attr(750,root,ftp) %dir %{_sysconfdir}
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %ghost %{_sysconfdir}/ftpusers
+%attr(640,root,root) %{_sysconfdir}/ftpusers.default
 %attr(640,root,root) /etc/logrotate.d/*
 %attr(640,root,root) %ghost /var/log/*
 %{?!_without_pam:%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*}
 
-%attr(640,root,root) %{_sysconfdir}/ftpusers.default
-%attr(640,root,root) %ghost %{_sysconfdir}/ftpusers
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/security/blacklist.ftp
 
 %attr(755,root,root) %{_bindir}/*
