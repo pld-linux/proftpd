@@ -3,8 +3,9 @@ Summary(pl):	PROfesionalny serwer FTP
 Name:		proftpd
 Version:	1.2.0pre10
 Release:	1
-Copyright:	GPL
+License:	GPL
 Group:		Daemons
+Group(pl):	Serwery
 Group(pl):	Serwery
 Source0:	ftp://ftp.proftpd.org/distrib/%{name}-%{version}.tar.gz
 #Source1:	configuration.html
@@ -30,27 +31,27 @@ Requires:	logrotate
 Requires:	pam >= 0.67
 Requires:	inetdaemon
 Provides:	ftpserver
-Obsoletes:	ftpserver
-Obsoletes:	anonftp
 BuildRoot:	/tmp/%{name}-%{version}-root
+Obsoletes:	ftpserver
+Obsoletes:	wu-ftpd
+Obsoletes:	anonftp
+Obsoletes:	ftpd-BSD
 
 %define		_sysconfdir	/etc/ftpd
 %define		_localstatedir	/var/run
 
 %description
 ProFTPD is a highly configurable ftp daemon for unix and unix-like
-operating systems.
-
-ProFTPD is designed to be somewhat of a "drop-in" replacement for wu-ftpd.
-Full online documentation is available at http://www.proftpd.org/,
-including a server configuration directive reference manual.
+operating systems.  ProFTPD is designed to be somewhat of a "drop-in"
+replacement for wu-ftpd. Full online documentation is available at
+http://www.proftpd.org/, including a server configuration directive
+reference manual.
 
 %description -l pl
 ProFTPD jest wysoce konfigurowalnym serwerem ftp dla systemów Unix.
-
-ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd.
-Pe³na dokunentacja jest dostêpna on-line pod http://www.proftpd.org/ w³±cznie
-z dokumentacj± dotycz±c± konfigurowania.
+ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na dokunentacja
+jest dostêpna on-line pod http://www.proftpd.org/ w³±cznie z dokumentacj±
+dotycz±c± konfigurowania.
 
 %prep
 %setup -q 
@@ -85,28 +86,28 @@ make install DESTDIR=$RPM_BUILD_ROOT \
 
 rm -f $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
-install %{SOURCE1} $RPM_BUILD_ROOT/etc/ftpd
-install %{SOURCE2} $RPM_BUILD_ROOT/etc/logrotate.d/proftpd
+install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}
+install %{SOURCE2} $RPM_BUILD_ROOT/etc/logrotate.d/ftpd
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp
-install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/proftpd
+install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/ftpd
 install contrib/xferstats.* $RPM_BUILD_ROOT%{_bindir}/xferstat
 
 mv contrib/README contrib/README.modules
 
-:> $RPM_BUILD_ROOT/etc/ftpd/ftpusers.default
-:> $RPM_BUILD_ROOT/etc/ftpd/ftpusers
+:> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers.default
+:> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers
 :> $RPM_BUILD_ROOT/var/log/xferlog
 
 ln -s proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
-gzip -9fn $RPM_BUILD_ROOT%{_mandir}/man[158]/* \
+gzip -9nf $RPM_BUILD_ROOT%{_mandir}/man[158]/* \
 	sample-configurations/{virtual,anonymous}.conf ChangeLog README \
 	README.linux-* contrib/README.modules
 
 %post 
-cat /etc/passwd | cut -d: -f1 | grep -v ftp >> /etc/ftpd/ftpusers.default
-if [ ! -f /etc/ftpd/ftpusers ]; then
-	( cd /etc/ftpd; mv -f ftpusers.default ftpusers )
+cat /etc/passwd | cut -d: -f1 | grep -v ftp >> %{_sysconfdir}/ftpusers.default
+if [ ! -f %{_sysconfdir}/ftpusers ]; then
+	( cd %{_sysconfdir}; mv -f ftpusers.default ftpusers )
 fi
 if [ -f /var/lock/subsys/rc-inetd ]; then
 	/etc/rc.d/init.d/rc-inetd restart 1>&2
@@ -115,10 +116,8 @@ else
 fi
 
 %postun
-if [ "$1" = "0" ]; then
-	if [ -f /var/lock/subsys/rc-inetd ]; then
-		/etc/rc.d/init.d/rc-inetd restart
-	fi
+if [ "$1" = "0" -a -f /var/lock/subsys/rc-inetd ]; then
+	/etc/rc.d/init.d/rc-inetd restart
 fi
 
 %clean
@@ -129,15 +128,15 @@ rm -rf $RPM_BUILD_ROOT
 %doc {ChangeLog,README*}.gz contrib/README.modules.gz
 %doc sample-configurations/{virtual,anonymous}.conf.gz 
 
-%attr(750,root,root) %dir /etc/ftpd
+%attr(750,root,root) %dir %{_sysconfdir}
 %attr(640,root,root) /etc/logrotate.d/*
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/ftpd/*.conf
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /var/log/*
 %attr(640,root,root) %config %verify(not md5 mtime size) /etc/pam.d/*
-%attr(640,root,root) /etc/sysconfig/rc-inetd/proftpd
+%attr(640,root,root) /etc/sysconfig/rc-inetd/ftpd
 
-%attr(640,root,root) /etc/ftpd/ftpusers.default
-%attr(640,root,root) %ghost /etc/ftpd/ftpusers
+%attr(640,root,root) %{_sysconfdir}/ftpusers.default
+%attr(640,root,root) %ghost %{_sysconfdir}/ftpusers
 
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
