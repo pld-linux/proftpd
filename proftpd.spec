@@ -11,7 +11,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0rc2
-Release:	12
+Release:	13
 License:	GPL
 Group:		Daemons
 Group(de):	Server
@@ -46,11 +46,12 @@ Requires:	inetdaemon
 Provides:	ftpserver
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Obsoletes:	ftpserver
-Obsoletes:	wu-ftpd
 Obsoletes:	anonftp
+Obsoletes:	bftpd
 Obsoletes:	ftpd-BSD
 Obsoletes:	linux-ftpd
-Obsoletes:	bftpd
+Obsoletes:	pure-ftpd
+Obsoletes:	wu-ftpd
 
 %define		_sysconfdir	/etc/ftpd
 %define		_localstatedir	/var/run
