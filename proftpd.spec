@@ -16,7 +16,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.9
-Release:	1
+Release:	2
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -42,7 +42,7 @@ BuildRequires:	autoconf
 BuildRequires:	libwrap-devel
 %{?_with_mysql:BuildRequires:	mysql-devel}
 %{?_with_ldap:BuildRequires:	openldap-devel}
-%{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.7b}
+%{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.7c}
 %{?!_without_pam:BuildRequires:	pam-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
