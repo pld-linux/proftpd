@@ -1,0 +1,77 @@
+diff -Nur proftpd-1.2.0pre3/src/main.c proftpd-1.2.0pre3.pld/src/main.c
+--- proftpd-1.2.0pre3/src/main.c	Wed Mar 10 02:20:56 1999
++++ proftpd-1.2.0pre3.pld/src/main.c	Fri May 28 15:01:50 1999
+@@ -625,7 +625,7 @@
+ 
+   log_pri(pri,log);
+   if(standalone && master)
+-    log_pri(LOG_NOTICE,"ProFTPD %s standalone mode SHUTDOWN",VERSION);
++    log_pri(LOG_NOTICE,"ProFTPD %s standalone mode SHUTDOWN","PLD Linux");
+   end_login(exitcode);
+ }
+ 
+@@ -894,9 +894,9 @@
+     if(id && id->argc > 1)
+       send_response("220","%s",(char*)id->argv[1]);
+     else if(get_param_int(server->conf,"DeferWelcome",FALSE) == 1)
+-      send_response("220", "ProFTPD " VERSION " Server ready.");
++      send_response("220", "ProFTPD " "PLD Linux" " Server ready.");
+     else
+-      send_response("220", "ProFTPD " VERSION " Server (%s) [%s]",
++      send_response("220", "ProFTPD " "PLD Linux" " Server (%s) [%s]",
+            server->ServerName,server->ServerAddress);
+   }
+   else
+@@ -1505,10 +1505,10 @@
+ {
+ #if 0
+   if(abort_core)
+-    log_pri(LOG_NOTICE,"ProFTPD received SIGABRT signal, generating core file in %s",_prepare_core());
++    log_pri(LOG_NOTICE,"ProFTPD received SIGABRT signal, generating core file in %s",_prepare_core());
+   else
+ #endif
+-    log_pri(LOG_NOTICE,"ProFTPD received SIGABRT signal, no core dump.");
++    log_pri(LOG_NOTICE,"ProFTPD received SIGABRT signal, no core dump.");
+   
+   signal(SIGABRT,SIG_DFL);
+   end_login_noexit();
+@@ -1542,10 +1542,10 @@
+         PRIVS_RELINQUISH
+       }
+ 
+-      log_pri(LOG_NOTICE,"ProFTPD killed (signal %d)",sig);
++      log_pri(LOG_NOTICE,"ProFTPD killed (signal %d)",sig);
+     }
+   } else
+-    log_pri(LOG_ERR,"ProFTPD terminating (signal %d)",sig);
++    log_pri(LOG_ERR,"ProFTPD terminating (signal %d)",sig);
+ 
+   if(master && mpid == getpid()) {
+     PRIVS_ROOT
+@@ -1553,7 +1553,7 @@
+     log_rm_run();
+     PRIVS_RELINQUISH
+     if(standalone)
+-      log_pri(LOG_NOTICE,"ProFTPD %s standalone mode SHUTDOWN",VERSION);
++      log_pri(LOG_NOTICE,"ProFTPD %s standalone mode SHUTDOWN","PLD Linux");
+   }
+ 
+   _internal_abort();  
+@@ -1878,7 +1878,7 @@
+       addl_bindings(s);
+     }
+ 
+-  log_pri(LOG_NOTICE,"ProFTPD %s standalone mode STARTUP",VERSION);
++  log_pri(LOG_NOTICE,"ProFTPD %s standalone mode STARTUP","PLD Linux");
+   server_loop();
+ }
+ 
+@@ -2001,7 +2001,7 @@
+       break;
+     */
+     case 'v':
+-      log_pri(LOG_NOTICE,"ProFTPD Version " VERSION);
++      log_pri(LOG_NOTICE,"ProFTPD Version " "PLD Linux");
+       exit(0);
+     case 'h':
+       show_usage(0);
