@@ -1,8 +1,8 @@
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
-Version:	1.2.0pre10
-Release:	4
+Version:	1.2.0rc1
+Release:	1
 License:	GPL
 Group:		Daemons
 Group(pl):	Serwery
@@ -13,16 +13,14 @@ Source1:	proftpd.conf
 Source2:	proftpd.logrotate
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
-Patch0:		proftpd-mdtm-localtime.patch
-Patch1:		proftpd.patch
-Patch2:		proftpd-glibc.patch
-Patch3:		proftpd-paths.patch
-Patch4:		proftpd-libcap.patch
-Patch5:		proftpd-release.patch
-Patch6:		proftpd-noautopriv.patch
-Patch7:		proftpd-betterlog.patch
-Patch8:		proftpd-DESTDIR.patch
-Patch9:		proftpd-setproctitle.patch
+Patch0:		proftpd.patch
+Patch1:		proftpd-glibc.patch
+Patch2:		proftpd-paths.patch
+Patch3:		proftpd-libcap.patch
+Patch4:		proftpd-release.patch
+Patch5:		proftpd-noautopriv.patch
+Patch6:		proftpd-betterlog.patch
+Patch7:		proftpd-DESTDIR.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	pam-devel
 Prereq:		rc-inetd
@@ -58,13 +56,11 @@ w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
-%patch4	-p1
+%patch3	-p1
+%patch4 -p1
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
-%patch9 -p0
 
 %build
 autoconf
