@@ -1,9 +1,8 @@
-diff -ur proftpd-1.2.0rc2.orig/src/log.c proftpd-1.2.0rc2/src/log.c
---- proftpd-1.2.0rc2.orig/src/log.c	Sat Sep  2 00:36:20 2000
-+++ proftpd-1.2.0rc2/src/log.c	Sat Sep  2 01:01:59 2000
-@@ -530,59 +530,22 @@
+--- proftpd-1.2.0rc2/src/log.c~	Sat Feb  3 18:19:05 2001
++++ proftpd-1.2.0rc2/src/log.c	Sat Feb  3 18:21:08 2001
+@@ -533,59 +533,22 @@
  
- int log_wtmp(char *line, char *name, char *host, p_in_addr_t *ip)
+ int log_wtmp(char *line, char *name, char *host, struct sockaddr_storage *ip)
  {
 -  struct stat buf;
    struct utmp ut;
@@ -67,8 +66,8 @@ diff -ur proftpd-1.2.0rc2.orig/src/log.c proftpd-1.2.0rc2/src/log.c
 +  memset(&ut,0,sizeof(ut));
  #ifdef HAVE_UTMAXTYPE
  #ifdef LINUX
-     if(ip)
-@@ -612,13 +575,12 @@
+     if(ip) {
+@@ -621,13 +584,12 @@
  #endif /* HAVE_UT_UT_HOST */
  
      time(&ut.ut_time);
