@@ -63,6 +63,7 @@ dotycz±c± konfigurowania.
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 
 %build
 autoconf
@@ -118,7 +119,7 @@ fi
 
 %postun
 if [ "$1" = "0" -a -f /var/lock/subsys/rc-inetd ]; then
-	/etc/rc.d/init.d/rc-inetd restart
+	/etc/rc.d/init.d/rc-inetd reload 1>&2
 fi
 
 %clean
