@@ -1,15 +1,17 @@
 # 
 # Conditional builds:
-# nopam - disable PAM support
-# ldap - enable LDAP suppoer
-# quota - enable quota support
-# linuxprivs - enable libcap support
-#
+# bcond_off_pam - disable PAM support
+# bcond_on_ldap - enable LDAP suppoer
+# bcond_on_mysql - enable MySQL suppoer
+# bcond_on_quota - enable quota support
+# bcond_on_linuxprivs - enable libcap support
+# bcond_off_ipv6 - disable IPv6 support
+# --without pam --with ldap --with mysql --with quota --with linuxprivs
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0rc2
-Release:	11
+Release:	12
 License:	GPL
 Group:		Daemons
 Group(de):	Server
@@ -30,13 +32,16 @@ Patch7:		%{name}-betterlog.patch
 Patch8:		%{name}-DESTDIR.patch
 Patch9:		%{name}-wtmp.patch
 Patch10:	%{name}-pam.patch
+Patch11:	%{name}-mysql.patch
+Patch12:	%{name}-mod_sqlpw-v6.patch
 URL:		http://www.proftpd.net/
-%{?!nopam:BuildRequires:	pam-devel}
-%{?ldap:BuildRequires:	openldap-devel}
+%{?!bcond_off_pam:BuildRequires:	pam-devel}
+%{?bcond_on_ldap:BuildRequires:	openldap-devel}
+%{?bcond_on_mysql:BuildRequires: mysql-devel}
 Prereq:		rc-inetd
 Requires:	rc-inetd
 Requires:	logrotate
-%{?!nopam:Requires:	pam >= 0.67}
+%{?!bcond_off_pam:Requires:	pam >= 0.67}
 Requires:	inetdaemon
 Provides:	ftpserver
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -76,14 +81,16 @@ w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
+%patch12 -p1
 
 %build
 autoconf
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %configure \
 	--enable-autoshadow \
-	--with-modules=mod_ratio:mod_readme%{?!nopam::mod_pam}%{?ldap::mod_ldap}%{?quota::mod_quota}%{?linuxprivs::mod_linuxprivs} \
-	--enable-ipv6 \
+	--with-modules=mod_ratio:mod_readme%{?!bcond_off_pam::mod_pam}%{?bcond_on_ldap::mod_ldap}%{?bcond_on_quota::mod_quota}%{?bcond_on_linuxprivs::mod_linuxprivs}%{?bcond_on_mysql::mod_mysql:mod_sqlpw} \
+	%{?!bcond_off_ipv6:--enable-ipv6} \
 	--disable-sendfile
 
 %{__make}
@@ -102,7 +109,7 @@ rm -f $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/logrotate.d/ftpd
-%{?!nopam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
+%{?!bcond_off_pam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/ftpd
 install contrib/xferstats.* $RPM_BUILD_ROOT%{_bindir}/xferstat
 
@@ -148,7 +155,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(640,root,root) /etc/logrotate.d/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
 %attr(640,root,root) %ghost /var/log/*
-%{?!nopam:%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*}
+%{?!bcond_off_pam:%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*}
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/rc-inetd/ftpd
 
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
