@@ -43,6 +43,7 @@ URL:		http://www.proftpd.net/
 %{?bcond_on_mysql:BuildRequires: mysql-devel}
 Prereq:		awk
 Prereq:		rc-inetd
+Prereq:		fileutils
 Requires:	logrotate
 %{?!bcond_off_pam:Requires:	pam >= 0.67}
 Requires:	%{name}-setup = %{version}
