@@ -55,12 +55,23 @@ case "$1" in
 	status proftpd
 	exit $?
 	;;
-  restart|reload)
+  restart)
 	$0 stop
 	$0 start
 	;;
+  reload)
+	if [ -f /var/lock/subsys/proftpd ]; then
+		msg_reloading
+		busy
+		killproc proftpd -HUP
+		RETVAL=$?
+	else
+		msg_not_running ProFTPD
+		exit 1
+	fi	  
+
   *)
-	msg_usage "$0 {start|stop|restart|status}"
+	msg_usage "$0 {start|stop|restart|reload|status}"
 	exit 1
 	;;
 esac
