@@ -1,0 +1,7 @@
+- release 3
+- rename proftpd subpackage to proftpd-common and move Obsoletes roules
+  to -inetd/-standalone subpackages
+- -inetd/-standalone subpackages provides ftpdaemon and proftpd =
+  %{epoch}:%{version}-%{release}
+- moved /etc/ftpd/*.conf files to -common (no more *rpmsave files if
+  switch from one to other "frontend")
