@@ -43,6 +43,7 @@ URL:		http://www.proftpd.org/
 %{?bcond_on_ldap:BuildRequires:		openldap-devel}
 %{?bcond_on_mysql:BuildRequires:	mysql-devel}
 %{?!bcond_off_ssl:BuildRequires:	openssl-devel}
+BuildRequires:	libwrap-devel
 Prereq:		awk
 Prereq:		rc-inetd
 Prereq:		fileutils
