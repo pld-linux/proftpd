@@ -1,22 +1,28 @@
-Summary:     PROfessional FTP Daemon with apache-like configuration syntax
-Summary(pl): PROfesionalny FTP Demon z podobnym do apache sposobem konfigurowania
-Name:        proftpd
-Version:     1.2.0pre1
-Release:     2
-Copyright:   GPL
-Group:       Networking/Daemons
-Source0:     ftp://ftp.proftpd.org/distrib/%{name}-%{version}.tar.gz
-Source1:     configuration.html
-Source2:     reference.html
-Source3:     proftpd.conf
-Source4:     proftpd.logrotate
-Patch0:      proftpd-mdtm-localtime.patch
-Patch1:      proftpd.patch
-URL:         http://www.proftpd.org/
-Provides:    ftpserver
-Requires:    logrotate
-Obsoletes:   wu-ftpd ncftpd beroftpd anonftp
-BuildRoot:   /tmp/%{name}-%{version}-root
+Summary:	PROfessional FTP Daemon with apache-like configuration syntax
+Summary(pl):	PROfesionalny serwer FTP  
+Name:		proftpd
+Version:	1.2.0pre1
+Release:	2d
+Copyright:	GPL
+Group:		Daemons
+Group(pl):	Serwery
+Source0:	ftp://ftp.proftpd.org/distrib/%{name}-%{version}.tar.gz
+Source1:	configuration.html
+Source2:	reference.html
+Source3:	%{name}.conf
+Source4:	%{name}.logrotate
+Patch0:		%{name}-mdtm-localtime.patch
+Patch1:		%{name}.patch
+Patch2:		%{name}-DoS.patch
+Patch3:		%{name}-glibc.patch
+URL:		http://www.proftpd.org
+Requires:	logrotate
+Provides:	ftpserver
+Obsoletes:	wu-ftpd
+Obsoletes:	ncftpd
+Obsoletes:	beroftpd
+Obsoletes:	anonftp
+BuildRoot:	/tmp/%{name}-%{version}-root
 
 %description
 ProFTPD is a highly configurable ftp daemon for unix and unix-like
@@ -27,30 +33,35 @@ Full online documentation is available at http://www.proftpd.org,
 including a server configuration directive reference manual.
 
 %description -l pl
-ProFTPD jest wysoce konfigurowalnym demonem ftp dla U*nixów.
+ProFTPD jest wysoce konfigurowalnym demonem ftp dla systemów Unix.
 
 ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd.
 Pe³na dokunentacja jest dostêpna on-line pod http://www.proftpd.org w³±cznie
 z dokumentacj± dotycz±c± konfigurowania.
 
 %prep
-%setup -q
+%setup -q 
 %patch0 -p1
-
-install %{SOURCE1} %{SOURCE2} .
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" LDFLAGS="-s" \
+install %{SOURCE1} %{SOURCE2} .
+autoconf
+CFLAGS="$RPM_OPT_FLAGS" LDFLAGS=-s \
 ./configure \
 	--prefix=/usr \
 	--sysconfdir=/etc/ftpd \
 	--enable-autoshadow
+
 make rundir=/var/run
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/{etc/logrotate.d,ftpd,home/ftp/pub/Incoming} \
-	$RPM_BUILD_ROOT/{var/run,usr/{bin,sbin,man/{man1,man8}}}
+
+install -d $RPM_BUILD_ROOT/{etc/{ftpd,logrotate.d},home/ftp/pub/Incoming}
+install -d $RPM_BUILD_ROOT/{var/run,usr/{bin,sbin,man/{man1,man8}}}
 
 make install \
 	INSTALL_USER=`id -u` \
@@ -60,48 +71,55 @@ make install \
 	sysconfdir=$RPM_BUILD_ROOT/etc/ftpd
 
 rm -f $RPM_BUILD_ROOT/usr/sbin/in.proftpd
-mv $RPM_BUILD_ROOT/usr/sbin/proftpd $RPM_BUILD_ROOT/usr/sbin/in.ftpd
 
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/ftpd
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/proftpd
 
-gzip -9nf $RPM_BUILD_ROOT/usr/man/man{1,5,8}/*
+gzip -9fn $RPM_BUILD_ROOT/usr/man/man[158]/* 
+bzip2 -9  sample-configurations/{virtual,anonymous}.conf changelog README
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
-%defattr(644, root, root, 755)
-%doc changelog README
-%doc sample-configurations/{virtual,anonymous}.conf *.html
-%attr(700, root, root) %dir /etc/ftpd
-%attr(600, root, root) %config(noreplace) %verify(not md5 mtime size) /etc/ftpd/proftpd.conf
-%attr(600, root, root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/proftpd
-%attr(755, root, root) /usr/bin/*
-%attr(755, root, root) /usr/sbin/*
-%attr(644, root,  man) /usr/man/man[158]/*
-%attr(755,  ftp,  ftp) %dir /home/ftp
-%attr(755,  ftp,  ftp) %dir /home/ftp/pub
-%attr(711,  ftp,  ftp) %dir /home/ftp/pub/Incoming
+%defattr(644,root,root,755)
+%doc changelog.bz2 README.bz2
+%doc sample-configurations/{virtual,anonymous}.conf.bz2 *.html
+
+%attr(750,root,root) %dir /etc/ftpd
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/ftpd/*.conf
+%attr(640,root,root) %config %verify(not md5 mtime size) /etc/logrotate.d/*
+
+%attr(755,root,root) /usr/bin/*
+%attr(755,root,root) /usr/sbin/*
+%attr(644,root, man) /usr/man/man[158]/*
+
+%dir /home/ftp
+%dir /home/ftp/pub
+%attr(711,root,root) %dir /home/ftp/pub/Incoming
 
 %changelog
-* Sat Dec 19 1998 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
-  [1.2.0pre1-2]
-- added gzipping man pages,
-- added missing logrotate %config file,
-- added "Requires: logrotate".
+* Sun Dec 20 1998 Wojtek ¦lusarczyk <wojtek@shadow.eu.org>
+  [1.2.0-2d]
+- added missing logrotate. 
 
 * Sun Nov 15 1998 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
-  [1.2.0pre1-1]
+  [1.2.0-1d]
 - added default configuration file with hashed configuration for
   anonymous ftp,
-- config file moved to /etc/ftpd (with 700 permission),
+- config file moved to /etc/ftpd (with 750 permission),
 - added %verify rule for /etc/etc/proftpd,
 - added /home/ftp hierarhy for anonymous ftp resources,
 - rundir must point to /var/run,
 - added level 1 man pages,
 - rewrited %install,
 - removed patch for wu-ftpd compat.
+
+* Sat Oct 10 1998 Marcin Korzonek <mkorz@shadow.eu.org>
+  [1.1.7pl3-1d]
+- removed proftpd-1.1.6pre4-compat_wu-ftpd.patch (-l option is now
+  handled by proftpd)
+- build against glibc 2.1.
 
 * Sat Aug 22 1998 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
   [1.1.6pre4-2]
