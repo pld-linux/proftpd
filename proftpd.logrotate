@@ -1,4 +1,2 @@
 /var/log/xferlog {
-    weekly
-    rotate 1
 }
