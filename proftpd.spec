@@ -40,6 +40,7 @@ Patch7:		%{name}-DESTDIR.patch
 Patch8:		%{name}-wtmp.patch
 Patch9:		%{name}-link.patch
 Patch10:	%{name}-port-65535.patch
+Patch11:	%{name}-vmail_crypt.patch
 URL:		http://www.proftpd.org/
 %{?!_without_pam:BuildRequires:	pam-devel}
 %{?_with_ldap:BuildRequires:		openldap-devel}
@@ -176,6 +177,7 @@ standalone.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p0
+%patch11 -p1
 install -m644 %{SOURCE7} contrib/mod_tcpd.c
 
 %build
