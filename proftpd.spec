@@ -291,7 +291,8 @@ sed -i -e 's/AuthPAMAuthoritative\b/AuthPAM/' /etc/ftpd/proftpd.conf
 %files common
 %defattr(644,root,root,755)
 %doc sample-configurations/*.conf CREDITS ChangeLog NEWS RELEASE_NOTES
-%doc README README.LDAP README.PAM README.capabilities README.modules
+%doc README README.LDAP README.PAM README.capabilities README.classes README.controls README.IPv6
+%doc README.modules
 %doc doc/*html contrib/*.html
 
 %attr(750,root,ftp) %dir %{_sysconfdir}
