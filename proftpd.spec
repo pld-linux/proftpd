@@ -16,7 +16,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.9
-Release:	0.%{_rc}.1
+Release:	0.%{_rc}.2
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -137,7 +137,7 @@ Pliki konfiguracyjna ProFTPD do startowania demona poprzez inetd.
 Summary:	standalone daemon configs for proftpd
 Summary(pl):	Pliki konfiguracyjne do startowania proftpd w trybie standalone
 Group:		Daemons
-PreReq:		%{name}-common = %{version}
+PreReq:		%{name}-common = %{epoch}:%{version}
 PreReq:		rc-scripts
 Requires(post,preun):	/sbin/chkconfig
 Requires(post):	fileutils
