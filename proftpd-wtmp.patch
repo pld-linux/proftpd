@@ -5,7 +5,7 @@ diff -ur proftpd-1.2.0rc2.orig/src/log.c proftpd-1.2.0rc2/src/log.c
   *   Also added a command line argument (-d,--debug) to alter the
   *   debug level at runtime.  See main.c.
   */
-+#ifdef linux
++#ifdef __linux__
 +#define __USE_GNU
 +#endif
  
