@@ -11,8 +11,8 @@
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
-Version:	1.2.2rc3
-Release:	7
+Version:	1.2.4
+Release:	1
 Epoch:		0
 License:	GPL
 Group:		Daemons
@@ -38,6 +38,7 @@ Patch7:		%{name}-DESTDIR.patch
 Patch8:		%{name}-wtmp.patch
 Patch9:		%{name}-link.patch
 Patch10:	%{name}-port-65535.patch
+Patch11:	%{name}-v6_fix.patch
 URL:		http://www.proftpd.org/
 %{?!_without_pam:BuildRequires:	pam-devel}
 %{?_with_ldap:BuildRequires:		openldap-devel}
@@ -159,6 +160,7 @@ Pliki konfiguracyjne ProFTPD do startowania demona w trybie standalone.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p0
+%patch11 -p1
 install -m644 %{SOURCE7} contrib/mod_tcpd.c
 
 %build
