@@ -192,7 +192,7 @@ MODRET handle_request(cmd_rec * cmd)
 
 	fromhost(&request);
 
-	if (hosts_access(&request) != TCPD_ALLOW) {
+	if (!hosts_access(&request)) {
 		add_response_err(R_550,
 				 "Unable to connect to %s: connection refused",
 				 cmd->server->ServerFQDN);
