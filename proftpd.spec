@@ -2,7 +2,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0pre8
-Release:	2
+Release:	3
 Copyright:	GPL
 Group:		Daemons
 Group(pl):	Serwery
@@ -116,7 +116,7 @@ fi
 
 %postun
 if [ -f /var/lock/subsys/rc-inetd ]; then
-	/etc/rc.d/init.d/rc-inetd stop
+	/etc/rc.d/init.d/rc-inetd restart
 fi
 
 %clean
