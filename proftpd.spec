@@ -13,8 +13,8 @@ Summary(es):	Servidor FTP profesional, con sintaxis de configuración semejante a
 Summary(pl):	PROfesionalny serwer FTP
 Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Name:		proftpd
-Version:	1.2.5rc1
-Release:	6
+Version:	1.2.5
+Release:	1
 Epoch:		0
 License:	GPL
 Group:		Daemons
@@ -27,7 +27,7 @@ Source5:	%{name}.sysconfig
 Source6:	%{name}.init
 Source7:	%{name}-mod_tcpd.c
 Source8:	ftpusers.tar.bz2
-Patch0:		%{name}-1.2.2rc3-v6-20010814.patch.gz
+Patch0:		%{name}-1.2.5-v6-20020808.patch.gz
 # ftp://ftp.runestig.com/pub/proftpd-tls/
 Patch1:		%{name}-1.2.2rc3+v6-tls.20010505.patch.gz
 Patch2:		%{name}-umode_t.patch
@@ -39,7 +39,6 @@ Patch7:		%{name}-DESTDIR.patch
 Patch8:		%{name}-wtmp.patch
 Patch9:		%{name}-link.patch
 Patch10:	%{name}-port-65535.patch
-Patch11:	%{name}-v6_fix.patch
 URL:		http://www.proftpd.org/
 %{?!_without_pam:BuildRequires:	pam-devel}
 %{?_with_ldap:BuildRequires:		openldap-devel}
@@ -176,7 +175,6 @@ standalone.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p0
-%patch11 -p1
 install -m644 %{SOURCE7} contrib/mod_tcpd.c
 
 %build
