@@ -68,7 +68,7 @@ diff -ur proftpd-1.2.0rc2.orig/src/log.c proftpd-1.2.0rc2/src/log.c
 -    log_debug(DEBUG0,"%s fstat(): %s",WTMP_FILE,strerror(errno));
 -    res = -1;
 -  }
-+    updwtmp(_PATH_WTMP, &utx);
++    updwtmp(_PATH_WTMP, &ut);
  
    return res;
  }
