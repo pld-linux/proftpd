@@ -2,7 +2,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0pre10
-Release:	3
+Release:	4
 License:	GPL
 Group:		Daemons
 Group(pl):	Serwery
@@ -22,6 +22,7 @@ Patch5:		proftpd-release.patch
 Patch6:		proftpd-noautopriv.patch
 Patch7:		proftpd-betterlog.patch
 Patch8:		proftpd-DESTDIR.patch
+Patch8:		proftpd-setproctitle.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	pam-devel
 Prereq:		rc-inetd
