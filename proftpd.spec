@@ -12,7 +12,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.2rc1
-Release:	1
+Release:	2
 License:	GPL
 Group:		Daemons
 Group(de):	Server
@@ -25,9 +25,9 @@ Source4:	%{name}.inetd
 Source5:	%{name}.sysconfig
 Source6:	%{name}.init
 Source7:	%{name}-mod_tcpd.c
-Patch0:		%{name}-1.2.1-v6-20010303.patch.gz
+Patch0:		%{name}-1.2.2rc1-v6-20010406.patch.gz
 # ftp://ftp.runestig.com/pub/proftpd-tls/
-Patch1:		%{name}-1.2.1+v6-tls.20010303.patch.gz
+Patch1:		%{name}-1.2.2rc1+v6-tls.20010401.patch.gz
 Patch2:		%{name}-umode_t.patch
 Patch3:		%{name}-glibc.patch
 Patch4:		%{name}-paths.patch
@@ -102,8 +102,8 @@ ProFTPD configs for running as a standalone daemon.
 
 %prep
 %setup  -q 
-#%patch0 -p1
-#%patch1 -p1
+%patch0 -p1
+%patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
@@ -155,8 +155,7 @@ mv -f contrib/README contrib/README.modules
 ln -s proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 gzip -9nf sample-configurations/{virtual,anonymous}.conf ChangeLog README \
-	README.linux-* contrib/README.modules  		  README.PAM 
-#	README.linux-* contrib/README.modules README.IPv6 README.PAM README.TLS
+	README.linux-* contrib/README.modules README.IPv6 README.PAM README.TLS
 	 
 
 %post 
