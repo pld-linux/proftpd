@@ -1,0 +1,48 @@
+--- proftpd-1.2.5/contrib/mod_sql.c	Thu Jan  9 17:30:41 2003
++++ proftpd-1.2.5/contrib/mod_sql.c	Thu Jan  9 17:30:33 2003
+@@ -517,6 +517,26 @@
+ }
+ #endif
+ 
++static modret_t *check_auth_vmail(cmd_rec * cmd, const char *c_clear,
++                                 const char *c_hash)
++{
++  int success = 0;
++  char * tmphash;
++  tmphash=c_hash
++  while (!((*tmphash=='\0')||(*tmphash=='}'))) tmphash++;
++  if (*tmphash =='}') tmphash++;
++  if (*tmphash == '\0') return ERROR_INT(cmd,AUTH_BADPWD);
++  if (!strncmp(c_hash,"{plaintext}",11))
++    if (!strcmp(tmphash,c_clear)) return HANDLED(cmd);
++  if (!strncmp(c_hash,"{crypt-md5}",11))
++    if (!strcmp(tmphash,crypt(c_clear, tmphash))) return HANDLED(cmd);
++  // not sure about that
++  if (!strncmp(c_hash,"{crypt},7"))
++    if (!strcmp(tmphash,crypt(c_clear, tmphash))) return HANDLED(cmd);
++  // add other types (md5 etc.)  
++  return ERROR_INT(cmd,AUTH_BADPWD);
++}
++
+ /*
+  * support for general-purpose authentication schemes 
+  */
+@@ -528,6 +548,8 @@
+ #ifdef HAVE_OPENSSL
+ #define OPENSSL_AUTH_FLAG       1<<4
+ #endif
++#define VMAIL_AUTH_FLAG   1<<5
++
+ 
+ typedef modret_t *(*auth_func_ptr) (cmd_rec *, const char *, const char *);
+ 
+@@ -546,6 +568,9 @@
+ #ifdef HAVE_OPENSSL
+   {"OpenSSL", check_auth_openssl, OPENSSL_AUTH_FLAG},
+ #endif
++  {"VMail", check_auth_vmail, VMAIL_AUTH_FLAG},
++  // backwards compatibility, somebody's using it? 
++  {"VMail_Crypt", check_auth_vmail, VMAIL_AUTH_FLAG},
+   /*
+    * add additional encryption types below 
+    */
