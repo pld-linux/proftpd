@@ -233,7 +233,6 @@ if [ -f /var/lock/subsys/proftpd ]; then
 else
 	echo "Run \"/etc/rc.d/init.d/proftpd start\" to start ProFTPD daemon."
 fi
-/etc/security/blacklist.ftp
 
 %preun standalone
 if [ "$1" = "0" -a -f /var/lock/subsys/proftpd ]; then
