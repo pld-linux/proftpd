@@ -3,7 +3,7 @@
 # proftpd	ProFTPD ftp server
 #
 # chkconfig:	345 85 15
-# description:	ProFTPD is a highly configurable ftp daemon for unix and unix-like
+# description:	ProFTPD is a highly configurable ftp daemon for unix and unix-like \
 #		operating systems.
 # processname:	proftpd
 # pidfile:	/var/run/proftpd.pid
