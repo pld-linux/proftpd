@@ -86,6 +86,7 @@ w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 
 %package inetd
 Summary:	inetd configs for proftpd
+Summary(pl):	Pliki konfiguracyjne do u¿ycia proftpd poprzez inetd
 Group:		Daemons
 Group(de):	Server
 Group(pl):	Serwery
@@ -107,8 +108,12 @@ Obsoletes:	wu-ftpd
 %description inetd
 ProFTPD configs for running from inetd.
 
+%description -l pl inetd
+Pliki konfiguracyjna ProFTPD do startowania demona poprzez inetd.
+
 %package standalone
 Summary:	standalone daemon configs for proftpd
+Summary(pl):	Pliki konfiguracyjne do startowania proftpd w trybie standalone
 Group:		Daemons
 Group(de):	Server
 Group(pl):	Serwery
@@ -128,6 +133,9 @@ Obsoletes:	wu-ftpd
 
 %description standalone
 ProFTPD configs for running as a standalone daemon.
+
+%description -l pl standalone
+Pliki konfiguracyjne ProFTPD do startowania demona w trybie standalone.
 
 %prep
 %setup  -q 
