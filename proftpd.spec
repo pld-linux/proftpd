@@ -18,8 +18,6 @@ Release:	1
 Epoch:		0
 License:	GPL
 Group:		Daemons
-Group(de):	Server
-Group(pl):	Serwery
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
 Source1:	%{name}.conf
 Source2:	%{name}.logrotate
@@ -86,8 +84,6 @@ servidor.
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax - common files
 Summary(pl):	PROfesionalny serwer FTP  - wspólne pliki
 Group:		Daemons
-Group(de):	Server
-Group(pl):	Serwery
 Prereq:		awk
 Prereq:		fileutils
 Requires:	logrotate
@@ -111,8 +107,6 @@ w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 Summary:	inetd configs for proftpd
 Summary(pl):	Pliki konfiguracyjne do u¿ycia proftpd poprzez inetd
 Group:		Daemons
-Group(de):	Server
-Group(pl):	Serwery
 Prereq:		%{name}-common = %{epoch}:%{version}
 Prereq:		rc-inetd
 Provides:	proftpd = %{epoch}:%{version}-%{release}
@@ -140,8 +134,6 @@ Pliki konfiguracyjna ProFTPD do startowania demona poprzez inetd.
 Summary:	standalone daemon configs for proftpd
 Summary(pl):	Pliki konfiguracyjne do startowania proftpd w trybie standalone
 Group:		Daemons
-Group(de):	Server
-Group(pl):	Serwery
 Prereq:		%{name}-common = %{version}
 Prereq:		rc-scripts
 Prereq:		/sbin/chkconfig
