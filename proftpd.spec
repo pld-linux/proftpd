@@ -2,25 +2,26 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0rc1
-Release:	3
+Release:	4
 License:	GPL
 Group:		Daemons
 Group(pl):	Serwery
 Source0:	ftp://ftp.proftpd.org/distrib/%{name}-%{version}.tar.gz
 #Source1:	configuration.html
 #Source2:	reference.html
-Source1:	proftpd.conf
-Source2:	proftpd.logrotate
+Source1:	%{name}.conf
+Source2:	%{name}.logrotate
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
-Patch0:		proftpd.patch
-Patch1:		proftpd-glibc.patch
-Patch2:		proftpd-paths.patch
-Patch3:		proftpd-libcap.patch
-Patch4:		proftpd-release.patch
-Patch5:		proftpd-noautopriv.patch
-Patch6:		proftpd-betterlog.patch
-Patch7:		proftpd-DESTDIR.patch
+Patch0:		%{name}.patch
+Patch1:		%{name}-glibc.patch
+Patch2:		%{name}-paths.patch
+Patch3:		%{name}-libcap.patch
+Patch4:		%{name}-release.patch
+Patch5:		%{name}-noautopriv.patch
+Patch6:		%{name}-betterlog.patch
+Patch7:		%{name}-DESTDIR.patch
+Patch8:		%{name}-nocmd.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	pam-devel
 Prereq:		rc-inetd
@@ -61,15 +62,17 @@ w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
 
 %build
 autoconf
-LDFLAGS="-ldl -s"; export LDFLAGS
+#LDFLAGS="-ldl -s"; export LDFLAGS
+LDFLAGS=""; export LDFLAGS
 %configure \
 	--enable-autoshadow \
 	--with-modules=mod_ratio:mod_pam:mod_readme
 
-%{__make} rundir=/var/run
+%{__make} rundir=/var/run CFLAGS="-g"
 
 %install
 rm -rf $RPM_BUILD_ROOT
