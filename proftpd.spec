@@ -16,7 +16,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.10
-Release:	1.2
+Release:	1.3
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -198,11 +198,11 @@ CPPFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 
 %install
 rm -rf $RPM_BUILD_ROOT
-
 install -d $RPM_BUILD_ROOT/etc/{logrotate.d,pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
 	$RPM_BUILD_ROOT/var/{lib/ftp/pub/Incoming,log}
 
-%{__make} install DESTDIR=$RPM_BUILD_ROOT \
+%{__make} install \
+	DESTDIR=$RPM_BUILD_ROOT \
 	INSTALL_USER=`id -u` \
 	INSTALL_GROUP=`id -g`
 
@@ -282,11 +282,19 @@ fi
 echo "Changing deprecated config uptions"
 cp /etc/ftpd/proftpd.conf /etc/ftpd/proftpd.conf.backup
 sed -i -e 's/AuthPAMAuthoritative\b/AuthPAM/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TCPDServiceName/TCPServiceName/' /etc/ftpd/proftpd.conf
+grep -v UseTCPD /etc/ftpd/proftpd.conf > /etc/ftpd/proftpd.conf.tmp
+mv -f /etc/ftpd/proftpd.conf.tmp /etc/ftpd/proftpd.conf
+chmod 640 /etc/ftpd/proftpd.conf
 
 %triggerpostun -- %{name}-standalone <= 1.2.10-1
-echo "Changing deprecated config uption"
+echo "Changing deprecated config uptions"
 cp /etc/ftpd/proftpd.conf /etc/ftpd/proftpd.conf.backup
 sed -i -e 's/AuthPAMAuthoritative\b/AuthPAM/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TCPDServiceName/TCPServiceName/' /etc/ftpd/proftpd.conf
+grep -v UseTCPD /etc/ftpd/proftpd.conf > /etc/ftpd/proftpd.conf.tmp
+mv -f /etc/ftpd/proftpd.conf.tmp /etc/ftpd/proftpd.conf
+chmod 640 /etc/ftpd/proftpd.conf
 
 %files common
 %defattr(644,root,root,755)
