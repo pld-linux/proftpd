@@ -41,16 +41,16 @@ Obsoletes:	ftpd-BSD
 
 %description
 ProFTPD is a highly configurable ftp daemon for unix and unix-like
-operating systems.  ProFTPD is designed to be somewhat of a "drop-in"
+operating systems. ProFTPD is designed to be somewhat of a "drop-in"
 replacement for wu-ftpd. Full online documentation is available at
 http://www.proftpd.org/, including a server configuration directive
 reference manual.
 
 %description -l pl
 ProFTPD jest wysoce konfigurowalnym serwerem ftp dla systemów Unix.
-ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na dokunentacja
-jest dostêpna on-line pod http://www.proftpd.org/ w³±cznie z dokumentacj±
-dotycz±c± konfigurowania.
+ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
+dokunentacja jest dostêpna on-line pod http://www.proftpd.org/
+w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 
 %prep
 %setup -q 
