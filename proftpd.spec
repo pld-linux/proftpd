@@ -31,7 +31,7 @@ Requires:	logrotate
 Requires:	pam >= 0.67
 Requires:	inetdaemon
 Provides:	ftpserver
-BuildRoot:	/tmp/%{name}-%{version}-root
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Obsoletes:	ftpserver
 Obsoletes:	wu-ftpd
 Obsoletes:	anonftp
