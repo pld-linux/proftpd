@@ -16,7 +16,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.9
-Release:	2
+Release:	3
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -42,10 +42,11 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libwrap-devel
 %{?_with_mysql:BuildRequires:	mysql-devel}
-%{?_with_pgsql:BuildRequires:	postgresql-devel}
+BuildRequires:	ncurses-devel
 %{?_with_ldap:BuildRequires:	openldap-devel}
 %{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.7c}
 %{?!_without_pam:BuildRequires:	pam-devel}
+%{?_with_pgsql:BuildRequires:	postgresql-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir	/etc/ftpd
@@ -182,6 +183,8 @@ standalone.
 cp -f /usr/share/automake/config.sub .
 %{__autoconf}
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
+CFLAGS="%{rpmcflags} -I/usr/include/ncurses"
+CPPFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 %configure \
 	--enable-autoshadow \
 	--with-modules=mod_ratio:mod_readme%{?!_without_ssl::mod_tls}%{?!_without_ipv6::mod_wrap}%{?!_without_pam::mod_auth_pam}%{?_with_ldap::mod_ldap}%{?_with_quota::mod_quota}%{?_with_linuxprivs::mod_linuxprivs}%{?_with_mysql::mod_sql:mod_sql_mysql}%{?_with_pgsql::mod_sql:mod_sql_postgres} \
