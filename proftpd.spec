@@ -105,10 +105,11 @@ gzip -9nf $RPM_BUILD_ROOT%{_mandir}/man[158]/* \
 
 %post 
 touch /var/log/xferlog
-cat /etc/passwd | cut -d: -f1 | grep -v ftp >> %{_sysconfdir}/ftpusers.default
+awk 'BEGIN { FS = ":" }; { if($3 < 100) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
 if [ ! -f %{_sysconfdir}/ftpusers ]; then
 	( cd %{_sysconfdir}; mv -f ftpusers.default ftpusers )
 fi
+
 if [ -f /var/lock/subsys/rc-inetd ]; then
 	/etc/rc.d/init.d/rc-inetd restart 1>&2
 else
