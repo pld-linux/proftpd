@@ -44,7 +44,7 @@ BuildRequires:	libwrap-devel
 %{?with_mysql:BuildRequires:	mysql-devel}
 BuildRequires:	ncurses-devel
 %{?with_ldap:BuildRequires:	openldap-devel}
-%{?with_ssl:BuildRequires:	openssl-devel >= 0.9.7c}
+%{?with_ssl:BuildRequires:	openssl-devel >= 0.9.7d}
 %{?with_pam:BuildRequires:	pam-devel}
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
