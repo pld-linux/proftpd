@@ -22,7 +22,7 @@ Patch5:		proftpd-release.patch
 Patch6:		proftpd-noautopriv.patch
 Patch7:		proftpd-betterlog.patch
 Patch8:		proftpd-DESTDIR.patch
-Patch8:		proftpd-setproctitle.patch
+Patch9:		proftpd-setproctitle.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	pam-devel
 Prereq:		rc-inetd
