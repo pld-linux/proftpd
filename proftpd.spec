@@ -13,6 +13,7 @@ Summary(pl):	PROfesionalny serwer FTP
 Name:		proftpd
 Version:	1.2.2rc1
 Release:	5
+Epoch:		0
 License:	GPL
 Group:		Daemons
 Group(de):	Server
