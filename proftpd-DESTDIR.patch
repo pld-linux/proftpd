@@ -1,7 +1,7 @@
-diff -Nru proftpd-1.2.0pre4/Makefile.in proftpd-1.2.0pre4.new/Makefile.in
---- proftpd-1.2.0pre4/Makefile.in	Wed Sep  1 21:51:18 1999
-+++ proftpd-1.2.0pre4.new/Makefile.in	Wed Sep  1 21:53:04 1999
-@@ -69,37 +69,37 @@
+diff -urN proftpd-1.2.0pre8.orig/Makefile.in proftpd-1.2.0pre8/Makefile.in
+--- proftpd-1.2.0pre8.orig/Makefile.in	Wed Oct  6 15:59:56 1999
++++ proftpd-1.2.0pre8/Makefile.in	Wed Oct  6 16:03:05 1999
+@@ -69,38 +69,38 @@
  	rm -f proftpd ftpcount ftpwho ftpshut core *~
  
  # BSD install -d doesn't work, so ...
@@ -15,13 +15,15 @@ diff -Nru proftpd-1.2.0pre4/Makefile.in proftpd-1.2.0pre4.new/Makefile.in
  
 -install-proftpd: proftpd $(localstatedir) $(sysconfdir) $(rundir) $(sbindir)
 -	$(INSTALL_SBIN) proftpd $(sbindir)/proftpd
--	if [ ! -f $(sbindir)/in.proftpd ] ; then \
--	  (cd $(sbindir) ; rm -f in.proftpd ; ln -s proftpd in.proftpd) ; \
+-	if [ -f $(sbindir)/in.proftpd ] ; then \
+-	  rm -f $(sbindir)/in.proftpd ; \
 +install-proftpd: proftpd $(DESTDIR)$(localstatedir) $(DESTDIR)$(sysconfdir) $(DESTDIR)$(rundir) $(DESTDIR)$(sbindir)
 +	$(INSTALL_SBIN) proftpd $(DESTDIR)$(sbindir)/proftpd
-+	if [ ! -f $(DESTDIR)$(sbindir)/in.proftpd ] ; then \
-+	  (cd $(DESTDIR)$(sbindir) ; rm -f in.proftpd ; ln -s proftpd in.proftpd) ; \
++	if [ -f $(DESTDIR)$(sbindir)/in.proftpd ] ; then \
++	  rm -f $(DESTDIR)$(sbindir)/in.proftpd ; \
  	fi
+-	ln -s proftpd $(sbindir)/in.proftpd
++	ln -s proftpd $(DESTDIR)$(sbindir)/in.proftpd
  
 -install-utils: $(sbindir) $(bindir)
 -	$(INSTALL_BIN) ftpcount $(bindir)/ftpcount
