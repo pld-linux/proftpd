@@ -1,0 +1,59 @@
+diff -Nru proftpd-1.2.0pre4/Makefile.in proftpd-1.2.0pre4.new/Makefile.in
+--- proftpd-1.2.0pre4/Makefile.in	Wed Sep  1 21:51:18 1999
++++ proftpd-1.2.0pre4.new/Makefile.in	Wed Sep  1 21:53:04 1999
+@@ -69,37 +69,37 @@
+ 	rm -f proftpd ftpcount ftpwho ftpshut core *~
+ 
+ # BSD install -d doesn't work, so ...
+-$(localstatedir) $(sysconfdir) $(rundir) $(bindir) $(sbindir) $(mandir) $(mandir)/man1 $(mandir)/man5 $(mandir)/man8:
++$(DESTDIR)$(localstatedir) $(DESTDIR)$(sysconfdir) $(DESTDIR)$(rundir) $(DESTDIR)$(bindir) $(DESTDIR)$(sbindir) $(DESTDIR)$(mandir) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(mandir)/man5 $(DESTDIR)$(mandir)/man8:
+ 	@if [ ! -d $@ ]; then \
+ 		mkdir -p $@; \
+ 		chown $(INSTALL_USER):$(INSTALL_GROUP) $@; \
+ 		chmod 0755 $@; \
+ 	fi
+ 
+-install-proftpd: proftpd $(localstatedir) $(sysconfdir) $(rundir) $(sbindir)
+-	$(INSTALL_SBIN) proftpd $(sbindir)/proftpd
+-	if [ ! -f $(sbindir)/in.proftpd ] ; then \
+-	  (cd $(sbindir) ; rm -f in.proftpd ; ln -s proftpd in.proftpd) ; \
++install-proftpd: proftpd $(DESTDIR)$(localstatedir) $(DESTDIR)$(sysconfdir) $(DESTDIR)$(rundir) $(DESTDIR)$(sbindir)
++	$(INSTALL_SBIN) proftpd $(DESTDIR)$(sbindir)/proftpd
++	if [ ! -f $(DESTDIR)$(sbindir)/in.proftpd ] ; then \
++	  (cd $(DESTDIR)$(sbindir) ; rm -f in.proftpd ; ln -s proftpd in.proftpd) ; \
+ 	fi
+ 
+-install-utils: $(sbindir) $(bindir)
+-	$(INSTALL_BIN) ftpcount $(bindir)/ftpcount
+-	(cd $(bindir) ; rm -f ftpwho ; ln -s ftpcount ftpwho)
+-	$(INSTALL_SBIN) ftpshut $(sbindir)/ftpshut
++install-utils: $(DESTDIR)$(sbindir) $(DESTDIR)$(bindir)
++	$(INSTALL_BIN) ftpcount $(DESTDIR)$(bindir)/ftpcount
++	(cd $(DESTDIR)$(bindir) ; rm -f ftpwho ; ln -s ftpcount ftpwho)
++	$(INSTALL_SBIN) ftpshut $(DESTDIR)$(sbindir)/ftpshut
+ 
+-install-conf: $(sysconfdir)
+-	if [ ! -f $(sysconfdir)/proftpd.conf ] ; then \
++install-conf: $(DESTDIR)$(sysconfdir)
++	if [ ! -f $(DESTDIR)$(sysconfdir)/proftpd.conf ] ; then \
+ 	  $(INSTALL) -o $(INSTALL_USER) -g $(INSTALL_GROUP) -m 0644 \
+ 		$(top_srcdir)/sample-configurations/basic.conf \
+-	       	$(sysconfdir)/proftpd.conf ; \
++	       	$(DESTDIR)$(sysconfdir)/proftpd.conf ; \
+ 	fi
+ 
+-install-man: $(mandir) $(mandir)/man1 $(mandir)/man5 $(mandir)/man8
+-	$(INSTALL_MAN) $(top_srcdir)/src/proftpd.8 $(mandir)/man8
+-	$(INSTALL_MAN) $(top_srcdir)/src/ftpshut.8 $(mandir)/man8
+-	$(INSTALL_MAN) $(top_srcdir)/src/ftpwho.1 $(mandir)/man1
+-	$(INSTALL_MAN) $(top_srcdir)/src/ftpcount.1 $(mandir)/man1
+-	$(INSTALL_MAN) $(top_srcdir)/src/xferlog.5 $(mandir)/man5
++install-man: $(DESTDIR)$(mandir) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(mandir)/man5 $(DESTDIR)$(mandir)/man8
++	$(INSTALL_MAN) $(top_srcdir)/src/proftpd.8 $(DESTDIR)$(mandir)/man8
++	$(INSTALL_MAN) $(top_srcdir)/src/ftpshut.8 $(DESTDIR)$(mandir)/man8
++	$(INSTALL_MAN) $(top_srcdir)/src/ftpwho.1 $(DESTDIR)$(mandir)/man1
++	$(INSTALL_MAN) $(top_srcdir)/src/ftpcount.1 $(DESTDIR)$(mandir)/man1
++	$(INSTALL_MAN) $(top_srcdir)/src/xferlog.5 $(DESTDIR)$(mandir)/man5
+ 
+ install-all: install-proftpd install-utils install-conf install-man
+ 
