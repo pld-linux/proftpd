@@ -1,17 +1,7 @@
 diff -ur proftpd-1.2.0rc2.orig/src/log.c proftpd-1.2.0rc2/src/log.c
 --- proftpd-1.2.0rc2.orig/src/log.c	Wed Jul 26 13:03:17 2000
-+++ proftpd-1.2.0rc2/src/log.c	Wed Aug  9 17:14:50 2000
-@@ -31,6 +31,9 @@
-  *   Also added a command line argument (-d,--debug) to alter the
-  *   debug level at runtime.  See main.c.
-  */
-+#ifdef __linux__
-+#define __USE_GNU
-+#endif
- 
- #include "conf.h"
- 
-@@ -529,21 +532,11 @@
++++ proftpd-1.2.0rc2/src/log.c	Wed Aug  9 17:24:32 2000
+@@ -529,21 +529,11 @@
  
  int log_wtmp(char *line, char *name, char *host, p_in_addr_t *ip)
  {
@@ -34,7 +24,7 @@ diff -ur proftpd-1.2.0rc2.orig/src/log.c proftpd-1.2.0rc2/src/log.c
  
    /* Unfortunately, utmp string fields are terminated by '\0' if they are
     * shorter than the size of the field, but if they are exactly the size of
-@@ -551,13 +544,11 @@
+@@ -551,37 +541,29 @@
     * Insane if you ask me.  Unless there's massive uproar, I prefer to err on
     * the side of caution and always null-terminate our strings.
     */
@@ -48,8 +38,13 @@ diff -ur proftpd-1.2.0rc2.orig/src/log.c proftpd-1.2.0rc2/src/log.c
      utx.ut_pid = getpid();
      time(&utx.ut_tv.tv_sec);
      if(*name)
-@@ -566,22 +557,11 @@
+       utx.ut_type = USER_PROCESS;
+     else
        utx.ut_type = DEAD_PROCESS;
++#if defined(__linux)
++    utx.ut_exit.__e_termination = 0;
++    utx.ut_exit.__e_exit = 0;
++#else
      utx.ut_exit.e_termination = 0;
      utx.ut_exit.e_exit = 0;
 -    if(write(fdx,(char*)&utx,sizeof(utx)) != sizeof(utx))
@@ -58,10 +53,11 @@ diff -ur proftpd-1.2.0rc2.orig/src/log.c proftpd-1.2.0rc2/src/log.c
 -    log_debug(DEBUG0,"%s fstat(): %s",WTMPX_FILE,strerror(errno));
 -    res = -1;
 -  }
-+    updwtmpx(_PATH_WTMP, &utx);
- 
--#endif
+-
+ #endif
 -#endif /* SVR4 */
++    updwtmpx(_PATH_WTMP, &utx);
++
 +#else
 +  struct utmp ut;
  
@@ -74,7 +70,7 @@ diff -ur proftpd-1.2.0rc2.orig/src/log.c proftpd-1.2.0rc2/src/log.c
      memset(&ut,0,sizeof(ut));
  #ifdef HAVE_UTMAXTYPE
  #ifdef LINUX
-@@ -612,12 +592,8 @@
+@@ -612,12 +594,8 @@
  #endif /* HAVE_UT_UT_HOST */
  
      time(&ut.ut_time);
@@ -89,3 +85,4 @@ diff -ur proftpd-1.2.0rc2.orig/src/log.c proftpd-1.2.0rc2/src/log.c
  
    return res;
  }
+Only in proftpd-1.2.0rc2/src: log.c~
