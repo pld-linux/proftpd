@@ -45,12 +45,12 @@ Patch10:	%{name}-port-65535.patch
 # from debian
 Patch11:	%{name}-mod_sql_postgres.c.diff
 URL:		http://www.proftpd.org/
-%{?!_without_pam:BuildRequires:	pam-devel}
-%{?_with_ldap:BuildRequires:		openldap-devel}
-%{?_with_mysql:BuildRequires:	mysql-devel}
-%{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.6a}
-BuildRequires:	libwrap-devel
 BuildRequires:	autoconf
+BuildRequires:	libwrap-devel
+%{?_with_mysql:BuildRequires:	mysql-devel}
+%{?_with_ldap:BuildRequires:		openldap-devel}
+%{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.6j}
+%{?!_without_pam:BuildRequires:	pam-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir	/etc/ftpd
@@ -117,14 +117,14 @@ Prereq:		rc-inetd
 Provides:	proftpd = %{epoch}:%{version}-%{release}
 Requires:	inetdaemon
 Provides:	ftpserver
-Obsoletes:	proftpd-standalone
-Obsoletes:	ftpserver
 Obsoletes:	anonftp
 Obsoletes:	bftpd
 Obsoletes:	ftpd-BSD
+Obsoletes:	ftpserver
 Obsoletes:	heimdal-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
+Obsoletes:	proftpd-standalone
 Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
 Obsoletes:	vsftpd
@@ -146,14 +146,14 @@ Prereq:		rc-scripts
 Prereq:		/sbin/chkconfig
 Provides:	proftpd = %{epoch}:%{version}-%{release}
 Provides:	ftpserver
-Obsoletes:	proftpd-inetd
-Obsoletes:	ftpserver
 Obsoletes:	anonftp
 Obsoletes:	bftpd
 Obsoletes:	ftpd-BSD
+Obsoletes:	ftpserver
 Obsoletes:	heimdal-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
+Obsoletes:	proftpd-inetd
 Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
 Obsoletes:	vsftpd
@@ -198,11 +198,11 @@ RUN_DIR=%{_localstatedir} ; export RUN_DIR
 
 %install
 rm -rf $RPM_BUILD_ROOT
-
 install -d $RPM_BUILD_ROOT/etc/{logrotate.d,pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
 	$RPM_BUILD_ROOT/{home/ftp/pub/Incoming,var/log}
 
-%{__make} install DESTDIR=$RPM_BUILD_ROOT \
+%{__make} install \
+	DESTDIR=$RPM_BUILD_ROOT \
 	INSTALL_USER=`id -u` \
 	INSTALL_GROUP=`id -g`
 
