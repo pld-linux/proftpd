@@ -16,7 +16,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.10
-Release:	1
+Release:	1.1
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -277,6 +277,16 @@ if [ "$1" = "0" ]; then
 	fi
 	/sbin/chkconfig --del proftpd
 fi
+
+%triggerpostun -- %{name}-inetd <= 1.2.10-1
+echo "Changing deprecated config uptions"
+cp /etc/ftpd/proftpd.conf /etc/ftpd/proftpd.conf.backup
+sed -i -e 's/AuthPAMAuthoritative\b/AuthPAM/' /etc/ftpd/proftpd.conf
+
+%triggerpostun -- %{name}-standalone <= 1.2.10-1
+echo "Changing deprecated config uption"
+cp /etc/ftpd/proftpd.conf /etc/ftpd/proftpd.conf.backup
+sed -i -e 's/AuthPAMAuthoritative\b/AuthPAM/' /etc/ftpd/proftpd.conf
 
 %files common
 %defattr(644,root,root,755)
