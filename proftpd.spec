@@ -9,19 +9,20 @@
 %bcond_with	quota		# enable quota support
 %bcond_with	linuxprivs	# enable libcap support
 #
+%define		_rc	rc3
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
 Summary(pl):	PROfesionalny serwer FTP
 Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN):	Ò×ÓÚ¹ÜÀíµÄ,°²È«µÄ FTP ·þÎñÆ÷
 Name:		proftpd
-Version:	1.2.9
-Release:	3
+Version:	1.2.10
+Release:	0.%{_rc}.1
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
-Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
-# Source0-md5:	7c85503b160a36a96594ef75f3180a07
+Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}%{_rc}.tar.bz2
+# Source0-md5:	d834bb822816a2ce483cc2ef1a9533e7
 Source1:	%{name}.conf
 Source2:	%{name}.logrotate
 Source3:	ftp.pamd
@@ -171,7 +172,7 @@ Pliki konfiguracyjne ProFTPD do startowania demona w trybie
 standalone.
 
 %prep
-%setup  -q
+%setup  -q -n %{name}-%{version}%{_rc}
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -281,7 +282,7 @@ fi
 %files common
 %defattr(644,root,root,755)
 %doc sample-configurations/*.conf CREDITS ChangeLog NEWS
-%doc README README.LDAP README.PAM README.capabilities README.mod_sql README.modules
+%doc README README.LDAP README.PAM README.capabilities README.modules
 %doc doc/*html contrib/*.html
 
 %attr(750,root,ftp) %dir %{_sysconfdir}
