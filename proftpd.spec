@@ -172,7 +172,7 @@ standalone.
 
 %prep
 %if %{with mysql} && %{with pgsql}
-echo "Error: You can't build at once --with mysql or --with pgsql"
+echo "Error: You can't build at once --with mysql and --with pgsql"
 exit 1
 %endif
 
