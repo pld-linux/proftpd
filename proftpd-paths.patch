@@ -1,0 +1,38 @@
+diff -Nur proftpd-1.2.0pre3/contrib/xferstats.holger-preiss proftpd-1.2.0pre3.pld/contrib/xferstats.holger-preiss
+--- proftpd-1.2.0pre3/contrib/xferstats.holger-preiss	Sun Oct 18 04:24:41 1998
++++ proftpd-1.2.0pre3.pld/contrib/xferstats.holger-preiss	Fri May 28 10:49:08 1999
+@@ -1,4 +1,4 @@
+-#! /usr/bin/perl
++#!/usr/bin/perl
+ # ---------------------------------------------------------------------------
+ #
+ # USAGE: xferstats <options>
+@@ -40,7 +40,7 @@
+ # If you want to specify $mydom1 and $mydom2 manually you should edit the
+ # next two lines to customize for your domain. This will allow your domain
+ # to be separated in the domain listing.
+-# $mydom1 = "debian";
++# $mydom1 = "pld";
+ # $mydom2 = "org";
+ 
+ # edit the next line to customize for your default log file
+diff -Nur proftpd-1.2.0pre3/include/default_paths.h proftpd-1.2.0pre3.pld/include/default_paths.h
+--- proftpd-1.2.0pre3/include/default_paths.h	Sun Oct 18 04:24:41 1998
++++ proftpd-1.2.0pre3.pld/include/default_paths.h	Fri May 28 10:47:56 1999
+@@ -17,7 +17,7 @@
+  * overriden at runtime with the '-c' switch
+  */
+ #ifndef CONFIG_FILE_PATH
+-#define	CONFIG_FILE_PATH	"/etc/proftpd.conf"
++#define	CONFIG_FILE_PATH	"/etc/ftpd/proftpd.conf"
+ #endif
+ 
+ /* The location of your `shells' file; a newline delimited list of
+@@ -41,6 +41,6 @@
+ /* Location of the file containing users that *cannot* use ftp
+  * services (odd, eh?)
+  */
+-#define FTPUSERS_PATH		"/etc/ftpusers"
++#define FTPUSERS_PATH		"/etc/ftpd/ftpusers"
+ 
+ #endif /* PROFTPD_PATHS_H */
