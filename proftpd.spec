@@ -9,19 +9,19 @@ Group(pl):	Serwery
 Source0:	ftp://ftp.proftpd.org/distrib/%{name}-%{version}.tar.gz
 #Source1:	configuration.html
 #Source2:	reference.html
-Source1:	%{name}.conf
-Source2:	%{name}.logrotate
+Source1:	proftpd.conf
+Source2:	proftpd.logrotate
 Source3:	ftp.pamd
-Patch0:		%{name}-mdtm-localtime.patch
-Patch1:		%{name}.patch
-Patch2:		%{name}-glibc.patch
-Patch3:		%{name}-paths.patch
-Patch4:		%{name}-libcap.patch
-Patch5:		%{name}-release.patch
-Patch6:		%{name}-noautopriv.patch
-Patch7:		%{name}-betterlog.patch
-URL:		http://www.proftpd.org
-#BuildRequires:	/lib/libcap.so
+Patch0:		proftpd-mdtm-localtime.patch
+Patch1:		proftpd.patch
+Patch2:		proftpd-glibc.patch
+Patch3:		proftpd-paths.patch
+Patch4:		proftpd-libcap.patch
+Patch5:		proftpd-release.patch
+Patch6:		proftpd-noautopriv.patch
+Patch7:		proftpd-betterlog.patch
+Patch8:		proftpd-DESTDIR.patch
+URL:		http://www.proftpd.org/
 Requires:	logrotate
 Requires:	pam >= 0.67
 Provides:	ftpserver
@@ -31,19 +31,22 @@ Obsoletes:	beroftpd
 Obsoletes:	anonftp
 BuildRoot:	/tmp/%{name}-%{version}-root
 
+%define		_sysconfdir	/etc/ftpd
+%define		_localstatedir	/var/run
+
 %description
 ProFTPD is a highly configurable ftp daemon for unix and unix-like
 operating systems.
 
 ProFTPD is designed to be somewhat of a "drop-in" replacement for wu-ftpd.
-Full online documentation is available at http://www.proftpd.org,
+Full online documentation is available at http://www.proftpd.org/,
 including a server configuration directive reference manual.
 
 %description -l pl
 ProFTPD jest wysoce konfigurowalnym serwerem ftp dla systemów Unix.
 
 ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd.
-Pe³na dokunentacja jest dostêpna on-line pod http://www.proftpd.org w³±cznie
+Pe³na dokunentacja jest dostêpna on-line pod http://www.proftpd.org/ w³±cznie
 z dokumentacj± dotycz±c± konfigurowania.
 
 %prep
@@ -56,13 +59,12 @@ z dokumentacj± dotycz±c± konfigurowania.
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
 
 %build
 autoconf
-CFLAGS="$RPM_OPT_FLAGS" LDFLAGS=-s \
-    ./configure %{_target_platform} \
-	--prefix=%{_prefix} \
-	--sysconfdir=/etc/ftpd \
+LDFLAGS="-s"; export LDFLAGS
+%configure \
 	--enable-autoshadow \
 	--with-modules=mod_ratio:mod_pam:mod_readme
 
@@ -71,16 +73,12 @@ make rundir=/var/run
 %install
 rm -rf $RPM_BUILD_ROOT
 
-install -d $RPM_BUILD_ROOT/{etc/{ftpd,logrotate.d,pam.d},home/ftp/pub/Incoming}
-install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/{man1,man8}}
-install -d $RPM_BUILD_ROOT/var/{run,log}
+install -d $RPM_BUILD_ROOT/{etc/{logrotate.d,pam.d},home/ftp/pub/Incoming}
+install -d $RPM_BUILD_ROOT/var/log
 
-make install \
+make install DESTDIR=$RPM_BUILD_ROOT \
 	INSTALL_USER=`id -u` \
-	INSTALL_GROUP=`id -g` \
-	prefix=$RPM_BUILD_ROOT%{_prefix} \
-	rundir=$RPM_BUILD_ROOT/var/run \
-	sysconfdir=$RPM_BUILD_ROOT/etc/ftpd
+	INSTALL_GROUP=`id -g`
 
 rm -f $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
@@ -97,9 +95,9 @@ mv contrib/README contrib/README.modules
 
 ln -s proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
-gzip -9fn $RPM_BUILD_ROOT%{_mandir}/man[158]/* 
-gzip -9fn sample-configurations/{virtual,anonymous}.conf changelog README
-gzip -9fn README.linux-* contrib/README.modules
+gzip -9fn $RPM_BUILD_ROOT%{_mandir}/man[158]/* \
+	sample-configurations/{virtual,anonymous}.conf changelog README \
+	README.linux-* contrib/README.modules
 
 %post 
 cat /etc/passwd | cut -d: -f1 | grep -v ftp >> /etc/ftpd/ftpusers.default
