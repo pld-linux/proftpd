@@ -12,7 +12,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.2rc3
-Release:	3
+Release:	4
 Epoch:		0
 License:	GPL
 Group:		Daemons
@@ -166,7 +166,7 @@ RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %install
 rm -rf $RPM_BUILD_ROOT
 
-install -d $RPM_BUILD_ROOT/etc/{logrotate.d,pam.d,sysconfig/rc-inetd,rc.d/init.d} \
+install -d $RPM_BUILD_ROOT/etc/{logrotate.d,pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
 	$RPM_BUILD_ROOT/{home/ftp/pub/Incoming,var/log}
 
 %{__make} install DESTDIR=$RPM_BUILD_ROOT \
@@ -190,6 +190,8 @@ mv -f contrib/README contrib/README.modules
 :> $RPM_BUILD_ROOT/var/log/xferlog
 
 ln -s proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
+
+:> $RPM_BUILD_ROOT/etc/security/blacklist.ftp
 
 gzip -9nf sample-configurations/{virtual,anonymous}.conf ChangeLog README \
 	README.linux-* contrib/README.modules README.IPv6 README.PAM README.TLS
@@ -218,7 +220,6 @@ fi
 if [ "$1" = "0" -a -f /var/lock/subsys/rc-inetd ]; then
 	/etc/rc.d/init.d/rc-inetd reload 1>&2
 fi
-touch /etc/security/blacklist.ftp
 
 %post standalone
 /sbin/chkconfig --add proftpd
@@ -257,6 +258,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
 %attr(640,root,root) %ghost %{_sysconfdir}/ftpusers
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/security/blacklist.ftp
 
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
