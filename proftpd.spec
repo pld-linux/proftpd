@@ -16,7 +16,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.10
-Release:	1.3
+Release:	2
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -35,8 +35,7 @@ Patch1:		%{name}-glibc.patch
 Patch2:		%{name}-paths.patch
 Patch3:		%{name}-noautopriv.patch
 Patch4:		%{name}-wtmp.patch
-Patch5:		%{name}-vmail.patch
-Patch6:		%{name}-IPv6.patch
+Patch5:		%{name}-sendfile64.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -182,9 +181,7 @@ exit 1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-#%patch5 -p1
-# IPv6 support needs major update
-#patch6 -p1
+%patch5 -p1
 
 %build
 cp -f /usr/share/automake/config.sub .
