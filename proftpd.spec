@@ -23,7 +23,9 @@ Patch6:		proftpd-noautopriv.patch
 Patch7:		proftpd-betterlog.patch
 Patch8:		proftpd-DESTDIR.patch
 URL:		http://www.proftpd.org/
+BuildRequires:	pam-devel
 Prereq:		rc-inetd
+Requires:	rc-inetd
 Requires:	logrotate
 Requires:	pam >= 0.67
 Requires:	inetdaemon
