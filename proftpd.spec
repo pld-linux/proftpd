@@ -12,6 +12,7 @@ Source0:	ftp://ftp.proftpd.org/distrib/%{name}-%{version}.tar.gz
 Source1:	proftpd.conf
 Source2:	proftpd.logrotate
 Source3:	ftp.pamd
+Source4:	%{name}.inetd
 Patch0:		proftpd-mdtm-localtime.patch
 Patch1:		proftpd.patch
 Patch2:		proftpd-glibc.patch
@@ -24,10 +25,10 @@ Patch8:		proftpd-DESTDIR.patch
 URL:		http://www.proftpd.org/
 Requires:	logrotate
 Requires:	pam >= 0.67
+Requires:	inetdaemon
+Requires:	rc-inetd
 Provides:	ftpserver
-Obsoletes:	wu-ftpd
-Obsoletes:	ncftpd
-Obsoletes:	beroftpd
+Obsoletes:	ftpserver
 Obsoletes:	anonftp
 BuildRoot:	/tmp/%{name}-%{version}-root
 
@@ -73,7 +74,7 @@ make rundir=/var/run
 %install
 rm -rf $RPM_BUILD_ROOT
 
-install -d $RPM_BUILD_ROOT/{etc/{logrotate.d,pam.d},home/ftp/pub/Incoming}
+install -d $RPM_BUILD_ROOT/{etc/{logrotate.d,pam.d,sysconfig/rc-inetd},home/ftp/pub/Incoming}
 install -d $RPM_BUILD_ROOT/var/log
 
 make install DESTDIR=$RPM_BUILD_ROOT \
@@ -85,6 +86,7 @@ rm -f $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 install %{SOURCE1} $RPM_BUILD_ROOT/etc/ftpd
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/logrotate.d/proftpd
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp
+install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/proftpd
 install contrib/xferstats.* $RPM_BUILD_ROOT%{_bindir}/xferstat
 
 mv contrib/README contrib/README.modules
@@ -118,6 +120,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/ftpd/*.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /var/log/*
 %attr(640,root,root) %config %verify(not md5 mtime size) /etc/pam.d/*
+%attr(640,root,root) /etc/sysconfig/rc-inetd/proftpd
 
 %attr(640,root,root) /etc/ftpd/ftpusers.default
 %attr(640,root,root) %ghost /etc/ftpd/ftpusers
