@@ -194,7 +194,7 @@ RUN_DIR=%{_localstatedir} ; export RUN_DIR
 rm -rf $RPM_BUILD_ROOT
 
 install -d $RPM_BUILD_ROOT/etc/{logrotate.d,pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
-	$RPM_BUILD_ROOT/{home/ftp/pub/Incoming,var/log}
+	$RPM_BUILD_ROOT/{home/services/ftp/pub/Incoming,var/log}
 
 %{__make} install DESTDIR=$RPM_BUILD_ROOT \
 	INSTALL_USER=`id -u` \
@@ -291,8 +291,8 @@ fi
 
 %{_mandir}/man[18]/*
 
-%dir /home/ftp/pub
-%attr(711,root,root) %dir /home/ftp/pub/Incoming
+%dir /home/services/ftp/pub
+%attr(711,root,root) %dir /home/services/ftp/pub/Incoming
 
 %files inetd
 %defattr(644,root,root,755)
