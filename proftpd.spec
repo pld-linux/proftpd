@@ -16,7 +16,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.10
-Release:	1.1
+Release:	1.2
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -290,7 +290,7 @@ sed -i -e 's/AuthPAMAuthoritative\b/AuthPAM/' /etc/ftpd/proftpd.conf
 
 %files common
 %defattr(644,root,root,755)
-%doc sample-configurations/*.conf CREDITS ChangeLog NEWS
+%doc sample-configurations/*.conf CREDITS ChangeLog NEWS RELEASE_NOTES
 %doc README README.LDAP README.PAM README.capabilities README.modules
 %doc doc/*html contrib/*.html
 
