@@ -20,6 +20,7 @@ Epoch:		1
 License:	GPL
 Group:		Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
+# Source0-md5: 100a374dfcaa4852cb767dc6afeb4277
 Source1:	%{name}.conf
 Source2:	%{name}.logrotate
 Source3:	ftp.pamd
@@ -28,6 +29,7 @@ Source5:	%{name}.sysconfig
 Source6:	%{name}.init
 Source7:	%{name}-mod_tcpd.c
 Source8:	ftpusers.tar.bz2
+# Source8-md5: 76c80b6ec9f4d079a1e27316edddbe16
 Patch0:		%{name}-1.2.5-v6-20020808.patch.gz
 # ftp://ftp.runestig.com/pub/proftpd-tls/
 Patch1:		%{name}-1.2.2rc3+v6-tls.20010505.patch.gz
