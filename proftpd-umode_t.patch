@@ -1,12 +1,12 @@
-diff -ruN proftpd-1.1.6pl2-old/config.h.in proftpd-1.1.6pl2/config.h.in
---- proftpd-1.1.6pl2-old/config.h.in	Mon Sep  7 21:15:42 1998
-+++ proftpd-1.1.6pl2/config.h.in	Fri Sep 18 22:35:32 1998
-@@ -69,7 +69,7 @@
- #undef ino_t
+diff -Naur proftpd-1.2.8-orig/config.h.in proftpd-1.2.8/config.h.in
+--- proftpd-1.2.8-orig/config.h.in	Tue Feb 25 19:56:37 2003
++++ proftpd-1.2.8/config.h.in	Thu Mar 20 01:40:47 2003
+@@ -133,7 +133,7 @@
+ #undef inline
  
- /* Define to `mode_t' if <sys/types.h> doesn't define. */
--#undef umode_t
-+/* #undef umode_t */
+ /* Define to `int' if <sys/types.h> doesn't define.  */
+-#undef mode_t
++/* #undef mode_t */
  
- /* Define if your system has _pw_stayopen variable (Irix specific?) */
- #undef HAVE__PW_STAYOPEN
+ /* Define to `long' if <sys/types.h> doesn't define.  */
+ #undef off_t
