@@ -14,8 +14,8 @@ Summary(pl):	PROfesionalny serwer FTP
 Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN):	Ò×ÓÚ¹ÜÀíµÄ,°²È«µÄ FTP ·þÎñÆ÷
 Name:		proftpd
-Version:	1.2.5
-Release:	5
+Version:	1.2.8
+Release:	1
 Epoch:		1
 License:	GPL
 Group:		Daemons
@@ -171,18 +171,18 @@ standalone.
 
 %prep
 %setup  -q
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p0
-%patch11 -p1
+#%patch0 -p1
+#%patch1 -p1
+#%patch2 -p1
+#%patch3 -p1
+#%patch4 -p1
+#%patch5 -p1
+#%patch6 -p1
+#%patch7 -p1
+#%patch8 -p1
+#%patch9 -p1
+#%patch10 -p0
+#%patch11 -p1
 install -m644 %{SOURCE7} contrib/mod_tcpd.c
 
 %build
@@ -190,10 +190,16 @@ install -m644 %{SOURCE7} contrib/mod_tcpd.c
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %configure \
 	--enable-autoshadow \
-	--with-modules=mod_ratio:mod_readme%{?!_without_ipv6::mod_tcpd}%{?!_without_pam::mod_pam}%{?_with_ldap::mod_ldap}%{?_with_quota::mod_quota}%{?_with_linuxprivs::mod_linuxprivs}%{?_with_mysql::mod_sql:mod_sql_mysql} \
-	%{?!_without_ipv6:--enable-ipv6} \
-	%{?_without_ssl:--disable-tls} \
+	--with-modules=mod_ratio:mod_readme\
+	%{?_with_ldap::mod_ldap}\
+	%{?_with_quota::mod_quota}\
+	%{?_with_linuxprivs::mod_linuxprivs}\
+	%{?_with_mysql::mod_sql:mod_sql_mysql} \
+	%{?!_without_ipv6:--enable-ipv6}\
+	%{?_without_ssl:--disable-tls}\
 	--enable-sendfile
+#	%{?!_without_pam::auth_mod_pam}\
+#	%{?!_without_ipv6::mod_tcpd}\
 
 %{__make}
 
@@ -282,8 +288,8 @@ fi
 %files common
 %defattr(644,root,root,755)
 %doc sample-configurations/{virtual,anonymous}.conf ChangeLog README
-%doc README.linux-* contrib/README.modules README.IPv6 README.PAM
-%doc README.TLS README.mod_sql README.LDAP doc/*html
+%doc contrib/README.modules README.PAM
+%doc README.mod_sql README.LDAP doc/*html
 
 %attr(750,root,ftp) %dir %{_sysconfdir}
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
