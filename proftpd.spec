@@ -70,7 +70,7 @@ make install \
 	rundir=$RPM_BUILD_ROOT/var/run \
 	sysconfdir=$RPM_BUILD_ROOT/etc/ftpd
 
-rm -f $RPM_BUILD_ROOT/usr/sbin/in.proftpd
+rm -f $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/ftpd
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/proftpd
@@ -91,7 +91,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(640,root,root) %config %verify(not md5 mtime size) /etc/logrotate.d/*
 
 %attr(755,root,root) %{_bindir}/*
-%attr(755,root,root) /usr/sbin/*
+%attr(755,root,root) %{_sbindir}/*
 %{_mandir}/man[158]/*
 
 %dir /home/ftp
@@ -132,7 +132,7 @@ rm -rf $RPM_BUILD_ROOT
 - removed INSTALL from %doc (install procedure is in spec ;),
 - addded permissions in %files instead setting them in %build (lets make 
   %buil only build procedure - more logical),
-- renamed /usr/sbin/in.proftpd to /usr/sbin/in.ftpd (now updating inetd.conf
+- renamed %{_sbindir}/in.proftpd to /usr/sbin/in.ftpd (now updating inetd.conf
   is not neccesary) also removed %post[un] - this is simpler and now proftpd
   is "real" drop-in wu-ftpd replacement ;>,
 - fiew simplifications in %install and %files,
@@ -160,7 +160,7 @@ rm -rf $RPM_BUILD_ROOT
 - added -q parameter to %setup
 - added %config to /etc/proftpd.conf in filelist
 - added Conflicts: wu-ftpd ncftpd
-- installing util programs in %{_bindir} instead of /usr/sbin
+- installing util programs in %{_bindir} instead of %{_sbindir}
 - changed name of spec file to proftpd.spec
 
 * Wed May 6 1998 Vladimir Ivanov <vlad@elis.tasur.edu.ru>
