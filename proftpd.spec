@@ -2,7 +2,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0rc2
-Release:	5
+Release:	6
 License:	GPL
 Group:		Daemons
 Group(pl):	Serwery
@@ -16,18 +16,18 @@ Patch1:		%{name}-v6-20000919.patch.gz
 Patch2:		%{name}-umode_t.patch
 Patch3:		%{name}-glibc.patch
 Patch4:		%{name}-paths.patch
-Patch5:		%{name}-libcap.patch
-Patch6:		%{name}-release.patch
-Patch7:		%{name}-noautopriv.patch
-Patch8:		%{name}-betterlog.patch
-Patch9:		%{name}-DESTDIR.patch
-Patch10:	%{name}-wtmp.patch
-URL:		http://www.proftpd.org/
-BuildRequires:	pam-devel
+Patch5:		%{name}-release.patch
+Patch6:		%{name}-noautopriv.patch
+Patch7:		%{name}-betterlog.patch
+Patch8:		%{name}-DESTDIR.patch
+Patch9:		%{name}-wtmp.patch
+URL:		http://www.proftpd.net/
+%{?!nopam:BuildRequires:	pam-devel}
+%{?ldap:BuildRequires:	openldap-devel}
 Prereq:		rc-inetd
 Requires:	rc-inetd
 Requires:	logrotate
-Requires:	pam >= 0.67
+%{?!nopam:Requires:	pam >= 0.67}
 Requires:	inetdaemon
 Provides:	ftpserver
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -54,7 +54,7 @@ dokunentacja jest dostêpna on-line pod http://www.proftpd.org/
 w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 
 %prep
-%setup -q 
+%setup  -q 
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -65,7 +65,6 @@ w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
-%patch10 -p1
 
 %build
 autoconf
@@ -74,7 +73,7 @@ LDFLAGS=""; export LDFLAGS
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %configure \
 	--enable-autoshadow \
-	--with-modules=mod_ratio:mod_pam:mod_readme \
+	--with-modules=mod_ratio:mod_readme%{?!nopam::mod_pam}%{?ldap::mod_ldap}%{?quota::mod_quota}%{?linuxprivs::mod_linuxprivs} \
 	--enable-ipv6
 
 %{__make}
@@ -93,7 +92,7 @@ rm -f $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/logrotate.d/ftpd
-install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp
+%{?!nopam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/ftpd
 install contrib/xferstats.* $RPM_BUILD_ROOT%{_bindir}/xferstat
 
@@ -134,12 +133,13 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc {ChangeLog,README*}.gz contrib/README.modules.gz
 %doc sample-configurations/{virtual,anonymous}.conf.gz 
+%doc doc/*html
 
 %attr(750,root,root) %dir %{_sysconfdir}
 %attr(640,root,root) /etc/logrotate.d/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
 %attr(640,root,root) %ghost /var/log/*
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*
+%{?!nopam:%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*}
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/rc-inetd/ftpd
 
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
