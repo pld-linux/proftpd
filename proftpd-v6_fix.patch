@@ -1,14 +1,3 @@
---- ./contrib/mod_sql.c.org	Mon Oct 22 01:20:30 2001
-+++ ./contrib/mod_sql.c	Mon Oct 22 01:21:48 2001
-@@ -1526,7 +1526,7 @@
-     break;
-   case 'a':
-     argp = arg;
--    sstrncpy(argp, inet_ntoa(*session.c->remote_ipaddr), sizeof(arg));
-+    sstrncpy(argp, INET_NTOA(session.c->remote_ipaddr), sizeof(arg));
-     break;
-   case 'l':
-     argp = arg;
 --- ./src/inet.c.org	Mon Oct 22 01:22:33 2001
 +++ ./src/inet.c	Mon Oct 22 01:29:14 2001
 @@ -211,60 +211,27 @@
