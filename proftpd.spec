@@ -18,7 +18,7 @@ Patch3:		%{name}-paths.patch
 Patch4:		%{name}-libcap.patch
 Patch5:		%{name}-release.patch
 URL:		http://www.proftpd.org
-BuildPrereq:	/lib/libcap.so
+BuildRequires:	/lib/libcap.so
 Requires:	logrotate
 Provides:	ftpserver
 Obsoletes:	wu-ftpd
