@@ -20,7 +20,7 @@ Patch4:		%{name}-libcap.patch
 Patch5:		%{name}-release.patch
 Patch6:		%{name}-noautopriv.patch
 Patch7:		%{name}-betterlog.patch
-Patch7:		%{name}-mod_xfer.patch
+Patch8:		%{name}-mod_xfer.patch
 URL:		http://www.proftpd.org
 #BuildRequires:	/lib/libcap.so
 Requires:	logrotate
