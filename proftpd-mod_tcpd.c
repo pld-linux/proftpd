@@ -25,6 +25,10 @@
 #include "privs.h"
 #include "tcpd.h"
 
+#ifndef TCPD_ALLOW
+int allow_severity = LOG_INFO;
+int deny_severity = LOG_WARNING;
+#endif
 /*
  * -------------------------------------------------------------------------
  *   Configuration Handlers
@@ -211,7 +215,11 @@ MODRET handle_request(cmd_rec * cmd)
 	 */
 
 	/* log the accepted connection */
+#ifdef TCPD_ALLOW
 	tcpd_allowlog(&request);
+#else
+	log_pri(priority, "connect from %s", eval_client(&request));
+#endif
 
 	return HANDLED(cmd);
 }
