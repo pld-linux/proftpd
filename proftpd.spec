@@ -108,7 +108,7 @@ w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 Summary:	inetd configs for proftpd
 Summary(pl):	Pliki konfiguracyjne do u¿ycia proftpd poprzez inetd
 Group:		Daemons
-PreReq:		%{name}-common = %{epoch}:%{version}
+PreReq:		%{name}-common = %{epoch}:%{version}-%{release}
 PreReq:		rc-inetd
 Requires(post):	fileutils
 Requires(post):	grep
@@ -140,7 +140,7 @@ Pliki konfiguracyjna ProFTPD do startowania demona poprzez inetd.
 Summary:	Standalone daemon configs for proftpd
 Summary(pl):	Pliki konfiguracyjne do startowania proftpd w trybie standalone
 Group:		Daemons
-PreReq:		%{name}-common = %{epoch}:%{version}
+PreReq:		%{name}-common = %{epoch}:%{version}-%{release}
 PreReq:		rc-scripts
 Requires(post,preun):	/sbin/chkconfig
 Requires(post):	fileutils
@@ -171,7 +171,7 @@ Pliki konfiguracyjne ProFTPD do startowania demona w trybie
 standalone.
 
 %prep
-%setup -q 
+%setup -q
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
