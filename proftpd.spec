@@ -8,7 +8,6 @@
 # _without_ipv6		- disable IPv6 and TCPD support
 # _without_ssl		- disbale TLS/SSL support
 #
-%define	_rc	rc3
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
 Summary(pl):	PROfesionalny serwer FTP
@@ -20,8 +19,8 @@ Release:	1
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
-Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}%{_rc}.tar.bz2
-# Source0-md5:	5ac74d57bc4349fd71eaf577526e514c
+Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
+# Source0-md5:	7c85503b160a36a96594ef75f3180a07
 Source1:	%{name}.conf
 Source2:	%{name}.logrotate
 Source3:	ftp.pamd
@@ -166,7 +165,7 @@ Pliki konfiguracyjne ProFTPD do startowania demona w trybie
 standalone.
 
 %prep
-%setup  -q -n %{name}-%{version}%{_rc}
+%setup  -q
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
