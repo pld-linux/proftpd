@@ -1,0 +1,1 @@
+- use reload not restart in %post inetd
