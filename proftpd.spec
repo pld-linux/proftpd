@@ -204,9 +204,27 @@ cp -f /usr/share/automake/config.sub .
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
 CFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I/usr/include/mysql}"
 CPPFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I/usr/include/mysql}"
+
+MODULES="
+mod_ratio
+mod_readme
+mod_shaper
+%{?with_ssl:mod_tls}
+%{?with_ipv6:mod_wrap}
+%{?with_pam:mod_auth_pam}
+%{?with_ldap:mod_ldap}
+%{?with_quotafile:mod_quotatab mod_quotatab_file}
+%{?with_quotaldap:mod_quotatab mod_quotatab_ldap}
+%{?with_quotamysql:mod_quotatab mod_quotatab_sql}
+%{?with_quotapgsql:mod_quotatab mod_quotatab_sql}
+%{?with_linuxprivs:mod_linuxprivs}
+%{?with_mysql:mod_sql mod_sql_mysql}
+%{?with_pgsql:mod_sql mod_sql_postgres}
+"
+
 %configure \
 	--enable-autoshadow \
-	--with-modules=mod_ratio:mod_readme:mod_shaper%{?with_ssl::mod_tls}%{?with_ipv6::mod_wrap}%{?with_pam::mod_auth_pam}%{?with_ldap::mod_ldap}%{?with_quotafile::mod_quotatab:mod_quotatab_file}%{?with_quotaldap::mod_quotatab:mod_quotatab_ldap}%{?with_quotamysql::mod_quotatab:mod_quotatab_sql}%{?with_quotapgsql::mod_quotatab:mod_quotatab_sql}%{?with_linuxprivs::mod_linuxprivs}%{?with_mysql::mod_sql:mod_sql_mysql}%{?with_pgsql::mod_sql:mod_sql_postgres} \
+	--with-modules=$(echo $MODULES | tr ' ' ':') \
 	%{?with_ipv6:--enable-ipv6} \
 	%{!?with_ssl:--disable-tls} \
 	--enable-ctrls \
