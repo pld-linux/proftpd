@@ -2,27 +2,26 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0rc2
-Release:	4
+Release:	5
 License:	GPL
 Group:		Daemons
 Group(pl):	Serwery
 Source0:	ftp://ftp.proftpd.net/pub/proftpd/%{name}-%{version}.tar.gz
-#Source1:	configuration.html
-#Source2:	reference.html
 Source1:	%{name}.conf
 Source2:	%{name}.logrotate
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
 Patch0:		%{name}-CVS-20000901.patch.gz
-Patch1:		%{name}.patch
-Patch2:		%{name}-glibc.patch
-Patch3:		%{name}-paths.patch
-Patch4:		%{name}-libcap.patch
-Patch5:		%{name}-release.patch
-Patch6:		%{name}-noautopriv.patch
-Patch7:		%{name}-betterlog.patch
-Patch8:		%{name}-DESTDIR.patch
-Patch9:		%{name}-wtmp.patch
+Patch1:		%{name}-v6-20000919.patch.gz
+Patch2:		%{name}-umode_t.patch
+Patch3:		%{name}-glibc.patch
+Patch4:		%{name}-paths.patch
+Patch5:		%{name}-libcap.patch
+Patch6:		%{name}-release.patch
+Patch7:		%{name}-noautopriv.patch
+Patch8:		%{name}-betterlog.patch
+Patch9:		%{name}-DESTDIR.patch
+Patch10:	%{name}-wtmp.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	pam-devel
 Prereq:		rc-inetd
@@ -59,23 +58,26 @@ w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3	-p1
+%patch3 -p1
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
 
 %build
 autoconf
 #LDFLAGS="-ldl -s"; export LDFLAGS
 LDFLAGS=""; export LDFLAGS
+RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %configure \
 	--enable-autoshadow \
-	--with-modules=mod_ratio:mod_pam:mod_readme
+	--with-modules=mod_ratio:mod_pam:mod_readme \
+	--enable-ipv6
 
-%{__make} rundir=/var/run CFLAGS="-g"
+%{__make}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -105,7 +107,7 @@ ln -s proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 gzip -9nf $RPM_BUILD_ROOT%{_mandir}/man[158]/* \
 	sample-configurations/{virtual,anonymous}.conf ChangeLog README \
-	README.linux-* contrib/README.modules
+	README.linux-* contrib/README.modules README.IPv6
 
 %post 
 touch /var/log/xferlog
@@ -138,7 +140,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
 %attr(640,root,root) %ghost /var/log/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*
-%attr(640,root,root) /etc/sysconfig/rc-inetd/ftpd
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/rc-inetd/ftpd
 
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
 %attr(640,root,root) %ghost %{_sysconfdir}/ftpusers
