@@ -2,7 +2,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0pre8
-Release:	1
+Release:	2
 Copyright:	GPL
 Group:		Daemons
 Group(pl):	Serwery
@@ -23,10 +23,10 @@ Patch6:		proftpd-noautopriv.patch
 Patch7:		proftpd-betterlog.patch
 Patch8:		proftpd-DESTDIR.patch
 URL:		http://www.proftpd.org/
+Prereq:		rc-inetd
 Requires:	logrotate
 Requires:	pam >= 0.67
 Requires:	inetdaemon
-Requires:	rc-inetd
 Provides:	ftpserver
 Obsoletes:	ftpserver
 Obsoletes:	anonftp
@@ -105,6 +105,16 @@ gzip -9fn $RPM_BUILD_ROOT%{_mandir}/man[158]/* \
 cat /etc/passwd | cut -d: -f1 | grep -v ftp >> /etc/ftpd/ftpusers.default
 if [ ! -f /etc/ftpd/ftpusers ]; then
 	( cd /etc/ftpd; mv -f ftpusers.default ftpusers )
+fi
+if [ -f /var/lock/subsys/rc-inetd ]; then
+	/etc/rc.d/init.d/rc-inetd restart 1>&2
+else
+	echo "Type \"/etc/rc.d/init.d/rc-inetd start\" to start inet sever" 1>&2
+fi
+
+%postun
+if [ -f /var/lock/subsys/rc-inetd ]; then
+	/etc/rc.d/init.d/rc-inetd stop
 fi
 
 %clean
