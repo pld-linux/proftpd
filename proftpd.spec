@@ -68,6 +68,7 @@ Prereq:		awk
 Prereq:		fileutils
 Requires:	logrotate
 %{?!bcond_off_pam:Requires:	pam >= 0.67}
+Obsoletes:	proftpd < 0:1.2.2rc1-3
 
 %description  common
 ProFTPD is a highly configurable ftp daemon for unix and unix-like
