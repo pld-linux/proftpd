@@ -3,10 +3,13 @@
 %bcond_without	pam		# disable PAM support
 %bcond_without	ipv6		# disable IPv6 and TCPD support
 %bcond_without	ssl		# disbale TLS/SSL support
-%bcond_with	ldap		# enable LDAP support
-%bcond_with	mysql		# enable MySQL support
-%bcond_with	pgsql		# enable PostgreSQL support
-%bcond_with	quota		# enable quota support
+%bcond_with	ldap			# enable LDAP support
+%bcond_with	mysql			# enable MySQL support
+%bcond_with	pgsql			# enable PostgreSQL support
+%bcond_with	quotafile	# enable quota file support
+%bcond_with	quotaldap	# enable quota ldap support
+%bcond_with	quotamysql	# enable quota mysql support
+%bcond_with	quotapgsql	# enable quota pgsql support
 %bcond_with	linuxprivs	# enable libcap support
 #
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
@@ -16,7 +19,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.10
-Release:	2
+Release:	3
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -41,11 +44,14 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libwrap-devel
 %{?with_mysql:BuildRequires:	mysql-devel}
+%{?with_quotamysql:BuildRequires:	mysql-devel}
 BuildRequires:	ncurses-devel
 %{?with_ldap:BuildRequires:	openldap-devel}
+%{?with_quotaldap:BuildRequires:	openldap-devel}
 %{?with_ssl:BuildRequires:	openssl-devel >= 0.9.7d}
 %{?with_pam:BuildRequires:	pam-devel}
 %{?with_pgsql:BuildRequires:	postgresql-devel}
+%{?with_quotapgsql:BuildRequires:	postgresql-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir	/etc/ftpd
@@ -191,7 +197,7 @@ CFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I/usr/include/mysql}"
 CPPFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I/usr/include/mysql}"
 %configure \
 	--enable-autoshadow \
-	--with-modules=mod_ratio:mod_readme%{?with_ssl::mod_tls}%{?with_ipv6::mod_wrap}%{?with_pam::mod_auth_pam}%{?with_ldap::mod_ldap}%{?with_quota::mod_quota}%{?with_linuxprivs::mod_linuxprivs}%{?with_mysql::mod_sql:mod_sql_mysql}%{?with_pgsql::mod_sql:mod_sql_postgres} \
+	--with-modules=mod_ratio:mod_readme%{?with_ssl::mod_tls}%{?with_ipv6::mod_wrap}%{?with_pam::mod_auth_pam}%{?with_ldap::mod_ldap}%{?with_quotafile::mod_quotatab:mod_quotatab_file}%{?with_quotaldap::mod_quotatab:mod_quotatab_ldap}%{?with_quotamysql::mod_quotatab:mod_quotatab_sql}%{?with_quotapgsql:mod_quotatab:mod_quotatab_sql}%{?with_linuxprivs::mod_linuxprivs}%{?with_mysql::mod_sql:mod_sql_mysql}%{?with_pgsql::mod_sql:mod_sql_postgres} \
 	%{?with_ipv6:--enable-ipv6} \
 	%{!?with_ssl:--disable-tls} \
 	--enable-sendfile
