@@ -58,7 +58,8 @@ make install \
 	rundir=$RPM_BUILD_ROOT/var/run \
 	sysconfdir=$RPM_BUILD_ROOT/etc/ftpd
 
-mv $RPM_BUILD_ROOT/usr/sbin/in.proftpd $RPM_BUILD_ROOT/usr/sbin/in.ftpd
+rm -f $RPM_BUILD_ROOT/usr/sbin/in.proftpd
+mv $RPM_BUILD_ROOT/usr/sbin/proftpd $RPM_BUILD_ROOT/usr/sbin/in.ftpd
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/ftpd
 
 %clean
