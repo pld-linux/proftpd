@@ -66,6 +66,8 @@ w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax - common files
 Summary(pl):	PROfesionalny serwer FTP  - wspólne pliki
 Group:		Daemons
+Group(de):	Server
+Group(pl):	Serwery
 Prereq:		awk
 Prereq:		fileutils
 Requires:	logrotate
