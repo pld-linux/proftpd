@@ -11,7 +11,7 @@
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
-Version:	1.2.1
+Version:	1.2.2rc1
 Release:	1
 License:	GPL
 Group:		Daemons
@@ -33,11 +33,9 @@ Patch3:		%{name}-glibc.patch
 Patch4:		%{name}-paths.patch
 Patch5:		%{name}-release.patch
 Patch6:		%{name}-noautopriv.patch
-Patch7:		%{name}-betterlog.patch
-Patch8:		%{name}-DESTDIR.patch
-Patch9:		%{name}-wtmp.patch
-Patch10:	%{name}-link.patch
-Patch11:	%{name}-glob.patch
+Patch7:		%{name}-DESTDIR.patch
+Patch8:		%{name}-wtmp.patch
+Patch9:		%{name}-link.patch
 URL:		http://www.proftpd.org/
 %{?!bcond_off_pam:BuildRequires:	pam-devel}
 %{?bcond_on_ldap:BuildRequires:		openldap-devel}
@@ -104,8 +102,8 @@ ProFTPD configs for running as a standalone daemon.
 
 %prep
 %setup  -q 
-%patch0 -p1
-%patch1 -p1
+#%patch0 -p1
+#%patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
@@ -114,8 +112,6 @@ ProFTPD configs for running as a standalone daemon.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
-%patch10 -p1
-%patch11 -p1
 install -m644 %{SOURCE7} contrib/mod_tcpd.c
 
 %build
@@ -159,8 +155,9 @@ mv -f contrib/README contrib/README.modules
 ln -s proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 gzip -9nf sample-configurations/{virtual,anonymous}.conf ChangeLog README \
-	README.linux-* contrib/README.modules README.IPv6 README.PAM \
-	README.TLS
+	README.linux-* contrib/README.modules  		  README.PAM 
+#	README.linux-* contrib/README.modules README.IPv6 README.PAM README.TLS
+	 
 
 %post 
 touch /var/log/xferlog
