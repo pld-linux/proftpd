@@ -19,7 +19,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.10
-Release:	4
+Release:	4.1
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -33,6 +33,8 @@ Source5:	%{name}.sysconfig
 Source6:	%{name}.init
 Source7:	ftpusers.tar.bz2
 # Source7-md5:	76c80b6ec9f4d079a1e27316edddbe16
+Source8:	http://www.castaglia.org/proftpd/modules/proftpd-mod-shaper-0.5.5.tar.gz
+# Source8-md5:	ca3d63ffbc6ad5b6a9063f79b36d1b55
 Patch0:		%{name}-umode_t.patch
 Patch1:		%{name}-glibc.patch
 Patch2:		%{name}-paths.patch
@@ -181,13 +183,15 @@ echo "Error: You can't build at once --with mysql and --with pgsql"
 exit 1
 %endif
 
-%setup -q
+%setup -q -a 8
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+# move mod_shaper code on to the source tree
+mv mod_shaper/mod_shaper.c contrib/
 
 %build
 cp -f /usr/share/automake/config.sub .
@@ -197,9 +201,10 @@ CFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I/usr/include/mysql}"
 CPPFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I/usr/include/mysql}"
 %configure \
 	--enable-autoshadow \
-	--with-modules=mod_ratio:mod_readme%{?with_ssl::mod_tls}%{?with_ipv6::mod_wrap}%{?with_pam::mod_auth_pam}%{?with_ldap::mod_ldap}%{?with_quotafile::mod_quotatab:mod_quotatab_file}%{?with_quotaldap::mod_quotatab:mod_quotatab_ldap}%{?with_quotamysql::mod_quotatab:mod_quotatab_sql}%{?with_quotapgsql:mod_quotatab:mod_quotatab_sql}%{?with_linuxprivs::mod_linuxprivs}%{?with_mysql::mod_sql:mod_sql_mysql}%{?with_pgsql::mod_sql:mod_sql_postgres} \
+	--with-modules=mod_shaper:mod_ratio:mod_readme%{?with_ssl::mod_tls}%{?with_ipv6::mod_wrap}%{?with_pam::mod_auth_pam}%{?with_ldap::mod_ldap}%{?with_quotafile::mod_quotatab:mod_quotatab_file}%{?with_quotaldap::mod_quotatab:mod_quotatab_ldap}%{?with_quotamysql::mod_quotatab:mod_quotatab_sql}%{?with_quotapgsql:mod_quotatab:mod_quotatab_sql}%{?with_linuxprivs::mod_linuxprivs}%{?with_mysql::mod_sql:mod_sql_mysql}%{?with_pgsql::mod_sql:mod_sql_postgres} \
 	%{?with_ipv6:--enable-ipv6} \
 	%{!?with_ssl:--disable-tls} \
+	--enable-ctrls \
 	--enable-sendfile
 
 %{__make}
