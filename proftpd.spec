@@ -8,6 +8,7 @@ Group:       Networking/Daemons
 Source0:     ftp://ftp.proftpd.org/distrib/%{name}-%{version}.tar.gz
 Source1:     configuration.html
 Source2:     reference.html
+Source3:     proftpd.conf
 Patch0:      proftpd-mdtm-localtime.patch
 Patch1:      proftpd.patch
 URL:         http://www.proftpd.org/
@@ -35,24 +36,30 @@ z dokumentacj± dotycz±c± konfigurowania.
 %patch0 -p1
 #%patch1 -p1
 
+install %{SOURCE1} %{SOURCE2} .
+
 %build
 CFLAGS="$RPM_OPT_FLAGS" LDFLAGS=-s \
-./configure --prefix=/usr \
-            --sysconfdir=/etc \
-            --enable-autoshadow
-make
+./configure \
+	--prefix=/usr \
+	--sysconfdir=/etc/ftpd \
+	--enable-autoshadow
+make rundir=/var/run
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/{etc,usr/{bin,sbin,man/{man1,man8}}}
+install -d $RPM_BUILD_ROOT/{etc/ftpd,home/ftp/pub/Incoming}
+install -d $RPM_BUILD_ROOT/{var/run,usr/{bin,sbin,man/{man1,man8}}}
 
-install sample-configurations/basic.conf $RPM_BUILD_ROOT/etc/proftpd.conf
-install -s ftpcount ftpshut $RPM_BUILD_ROOT/usr/bin
-install -s proftpd $RPM_BUILD_ROOT/usr/sbin/
-install src/*.8 $RPM_BUILD_ROOT/usr/man/man8
-install src/*.1 $RPM_BUILD_ROOT/usr/man/man1
-install %{SOURCE1} %{SOURCE2} .
-ln -sf ftpcount $RPM_BUILD_ROOT/usr/bin/ftpwho
+make install \
+	INSTALL_USER=`id -u` \
+	INSTALL_GROUP=`id -g` \
+	prefix=$RPM_BUILD_ROOT/usr \
+	rundir=$RPM_BUILD_ROOT/var/run \
+	sysconfdir=$RPM_BUILD_ROOT/etc/ftpd
+
+mv $RPM_BUILD_ROOT/usr/sbin/in.proftpd $RPM_BUILD_ROOT/usr/sbin/in.ftpd
+install %{SOURCE3} $RPM_BUILD_ROOT/etc/ftpd
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -61,14 +68,26 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644, root, root, 755)
 %doc changelog README
 %doc sample-configurations/{virtual,anonymous}.conf *.html
-%attr(600, root, root) %config(noreplace) /etc/proftpd.conf
+%attr(600, root, root) %dir /etc/ftpd
+%attr(600, root, root) %config(noreplace) %verify(not md5 mtime size) /etc/ftpd/proftpd.conf
 %attr(755, root, root) /usr/bin/*
 %attr(755, root, root) /usr/sbin/*
-%attr(644, root,  man) /usr/man/man[58]/*
+%attr(644, root,  man) /usr/man/man[158]/*
+%attr(755,  ftp,  ftp) %dir /home/ftp
+%attr(755,  ftp,  ftp) %dir /home/ftp/pub
+%attr(711,  ftp,  ftp) %dir /home/ftp/pub/Incoming
 
 %changelog
 * Sun Nov 15 1998 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
   [1.2.0pre1-1]
+- added default configuration file with hashed configuration for
+  anonymous ftp,
+- config file moved to /etc/ftpd (with 700 permission),
+- added %verify rule for /etc/etc/proftpd,
+- added /home/ftp hierarhy for anonymous ftp resources,
+- rundir must point to /var/run,
+- added level 1 man pages,
+- rewrited %install,
 - removed patch for wu-ftpd compat.
 
 * Sat Aug 22 1998 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
