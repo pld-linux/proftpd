@@ -3,9 +3,9 @@
 %bcond_without	pam		# disable PAM support
 %bcond_without	ipv6		# disable IPv6 and TCPD support
 %bcond_without	ssl		# disbale TLS/SSL support
-%bcond_with	ldap			# enable LDAP support
-%bcond_with	mysql			# enable MySQL support
-%bcond_with	pgsql			# enable PostgreSQL support
+%bcond_with	ldap		# enable LDAP support
+%bcond_with	mysql		# enable MySQL support
+%bcond_with	pgsql		# enable PostgreSQL support
 %bcond_with	quotafile	# enable quota file support
 %bcond_with	quotaldap	# enable quota ldap support
 %bcond_with	quotamysql	# enable quota mysql support
@@ -43,14 +43,14 @@ URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libwrap-devel
-%{?with_mysql:BuildRequires:	mysql-devel}
+%{?with_mysql:BuildRequires:		mysql-devel}
 %{?with_quotamysql:BuildRequires:	mysql-devel}
 BuildRequires:	ncurses-devel
-%{?with_ldap:BuildRequires:	openldap-devel}
+%{?with_ldap:BuildRequires:		openldap-devel}
 %{?with_quotaldap:BuildRequires:	openldap-devel}
-%{?with_ssl:BuildRequires:	openssl-devel >= 0.9.7d}
-%{?with_pam:BuildRequires:	pam-devel}
-%{?with_pgsql:BuildRequires:	postgresql-devel}
+%{?with_ssl:BuildRequires:		openssl-devel >= 0.9.7d}
+%{?with_pam:BuildRequires:		pam-devel}
+%{?with_pgsql:BuildRequires:		postgresql-devel}
 %{?with_quotapgsql:BuildRequires:	postgresql-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
