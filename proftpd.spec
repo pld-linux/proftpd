@@ -8,47 +8,41 @@
 # _without_ipv6		- disable IPv6 and TCPD support
 # _without_ssl		- disbale TLS/SSL support
 #
+%define	_rc	rc1
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
 Summary(pl):	PROfesionalny serwer FTP
 Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN):	Ò×ÓÚ¹ÜÀíµÄ,°²È«µÄ FTP ·þÎñÆ÷
 Name:		proftpd
-Version:	1.2.5
-Release:	5
+Version:	1.2.9
+Release:	0.%{_rc}.1
 Epoch:		1
-License:	GPL
+License:	GPL v2+
 Group:		Daemons
-Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
-# Source0-md5: 100a374dfcaa4852cb767dc6afeb4277
+Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}%{_rc}.tar.bz2
+# Source0-md5:	5b6291a5c92687c5b697202369f71466
 Source1:	%{name}.conf
 Source2:	%{name}.logrotate
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
 Source5:	%{name}.sysconfig
 Source6:	%{name}.init
-Source7:	%{name}-mod_tcpd.c
-Source8:	ftpusers.tar.bz2
-# Source8-md5: 76c80b6ec9f4d079a1e27316edddbe16
-Patch0:		%{name}-1.2.5-v6-20020808.patch.gz
-# ftp://ftp.runestig.com/pub/proftpd-tls/
-Patch1:		%{name}-1.2.2rc3+v6-tls.20010505.patch.gz
-Patch2:		%{name}-umode_t.patch
-Patch3:		%{name}-glibc.patch
-Patch4:		%{name}-paths.patch
-Patch5:		%{name}-release.patch
-Patch6:		%{name}-noautopriv.patch
-Patch7:		%{name}-DESTDIR.patch
-Patch8:		%{name}-wtmp.patch
-Patch9:		%{name}-link.patch
-Patch10:	%{name}-port-65535.patch
-Patch11:	%{name}-vmail_crypt.patch
+Source7:	ftpusers.tar.bz2
+# Source8-md5:	76c80b6ec9f4d079a1e27316edddbe16
+Patch0:		%{name}-umode_t.patch
+Patch1:		%{name}-glibc.patch
+Patch2:		%{name}-paths.patch
+Patch3:		%{name}-noautopriv.patch
+Patch4:		%{name}-wtmp.patch
+Patch5:		%{name}-port-65535.patch
+Patch6:		%{name}-vmail_crypt.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	libwrap-devel
 %{?_with_mysql:BuildRequires:	mysql-devel}
 %{?_with_ldap:BuildRequires:	openldap-devel}
-%{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.7}
+%{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.7b}
 %{?!_without_pam:BuildRequires:	pam-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -172,27 +166,21 @@ Pliki konfiguracyjne ProFTPD do startowania demona w trybie
 standalone.
 
 %prep
-%setup  -q
+%setup  -q -n %{name}-%{version}%{_rc}
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
+%patch5 -p0
 %patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p0
-%patch11 -p1
-install -m644 %{SOURCE7} contrib/mod_tcpd.c
 
 %build
 %{__autoconf}
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %configure \
 	--enable-autoshadow \
-	--with-modules=mod_ratio:mod_readme%{?!_without_ipv6::mod_tcpd}%{?!_without_pam::mod_pam}%{?_with_ldap::mod_ldap}%{?_with_quota::mod_quota}%{?_with_linuxprivs::mod_linuxprivs}%{?_with_mysql::mod_sql:mod_sql_mysql} \
+	--with-modules=mod_ratio:mod_readme%{?!_without_ssl::mod_tls}%{?!_without_ipv6::mod_wrap}%{?!_without_pam::mod_auth_pam}%{?_with_ldap::mod_ldap}%{?_with_quota::mod_quota}%{?_with_linuxprivs::mod_linuxprivs}%{?_with_mysql::mod_sql:mod_sql_mysql} \
 	%{?!_without_ipv6:--enable-ipv6} \
 	%{?_without_ssl:--disable-tls} \
 	--enable-sendfile
@@ -203,7 +191,7 @@ RUN_DIR=%{_localstatedir} ; export RUN_DIR
 rm -rf $RPM_BUILD_ROOT
 
 install -d $RPM_BUILD_ROOT/etc/{logrotate.d,pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
-	$RPM_BUILD_ROOT/{home/services/ftp/pub/Incoming,var/log}
+	$RPM_BUILD_ROOT/var/{lib/ftp/pub/Incoming,log}
 
 %{__make} install DESTDIR=$RPM_BUILD_ROOT \
 	INSTALL_USER=`id -u` \
@@ -219,7 +207,7 @@ install %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/proftpd
 install %{SOURCE6} $RPM_BUILD_ROOT/etc/rc.d/init.d/proftpd
 install contrib/xferstats.holger-preiss $RPM_BUILD_ROOT%{_bindir}/xferstat
 
-bzip2 -dc %{SOURCE8} | tar xf - -C $RPM_BUILD_ROOT%{_mandir}
+bzip2 -dc %{SOURCE7} | tar xf - -C $RPM_BUILD_ROOT%{_mandir}
 
 mv -f contrib/README contrib/README.modules
 
@@ -283,9 +271,9 @@ fi
 
 %files common
 %defattr(644,root,root,755)
-%doc sample-configurations/{virtual,anonymous}.conf ChangeLog README
-%doc README.linux-* contrib/README.modules README.IPv6 README.PAM
-%doc README.TLS README.mod_sql README.LDAP doc/*html
+%doc sample-configurations/*.conf CREDITS ChangeLog NEWS
+%doc README README.LDAP README.PAM README.capabilities README.mod_sql README.modules
+%doc doc/*html contrib/*.html
 
 %attr(750,root,ftp) %dir %{_sysconfdir}
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
@@ -302,9 +290,9 @@ fi
 
 %{_mandir}/man[18]/*
 
-%dir /home/services/ftp
-%dir /home/services/ftp/pub
-%attr(711,root,root) %dir /home/services/ftp/pub/Incoming
+%dir /var/lib/ftp
+%dir /var/lib/ftp/pub
+%attr(711,root,root) %dir /var/lib/ftp/pub/Incoming
 
 %files inetd
 %defattr(644,root,root,755)
