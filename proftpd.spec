@@ -1,8 +1,8 @@
 #
 # Conditional build:
 # _without_pam		- disable PAM support
-# _with_ldap		- enable LDAP suppoer
-# _with_mysql		- enable MySQL suppoer
+# _with_ldap		- enable LDAP support
+# _with_mysql		- enable MySQL support
 # _with_quota		- enable quota support
 # _with_linuxprivs	- enable libcap support
 # _without_ipv6		- disable IPv6 and TCPD support
