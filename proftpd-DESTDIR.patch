@@ -23,7 +23,9 @@ diff -ur proftpd-1.2.0pre9.orig/Makefile.in proftpd-1.2.0pre9/Makefile.in
 +	  rm -f $(DESTDIR)$(sbindir)/in.proftpd ; \
  	fi
 -	ln -s proftpd $(sbindir)/in.proftpd
+-	chown -h $(INSTALL_USER):$(INSTALL_GROUP) $(sbindir)/in.proftpd
 +	ln -s proftpd $(DESTDIR)$(sbindir)/in.proftpd
++	chown -h $(INSTALL_USER):$(INSTALL_GROUP) $(DESTDIR)$(sbindir)/in.proftpd
  
 -install-utils: $(sbindir) $(bindir)
 -	$(INSTALL_BIN) ftpcount $(bindir)/ftpcount
