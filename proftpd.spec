@@ -12,7 +12,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.2rc1
-Release:	2
+Release:	3
 License:	GPL
 Group:		Daemons
 Group(de):	Server
@@ -42,23 +42,7 @@ URL:		http://www.proftpd.org/
 %{?bcond_on_mysql:BuildRequires:	mysql-devel}
 %{?!bcond_off_ssl:BuildRequires:	openssl-devel}
 BuildRequires:	libwrap-devel
-Prereq:		awk
-Prereq:		rc-inetd
-Prereq:		fileutils
-Requires:	logrotate
-%{?!bcond_off_pam:Requires:	pam >= 0.67}
-Requires:	%{name}-setup = %{version}
-Requires:	inetdaemon
-Provides:	ftpserver
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-Obsoletes:	ftpserver
-Obsoletes:	anonftp
-Obsoletes:	bftpd
-Obsoletes:	ftpd-BSD
-Obsoletes:	heimdal-ftpd
-Obsoletes:	linux-ftpd
-Obsoletes:	pure-ftpd
-Obsoletes:	wu-ftpd
 
 %define		_sysconfdir	/etc/ftpd
 %define		_localstatedir	/var/run
@@ -76,14 +60,48 @@ ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
 dokunentacja jest dostêpna on-line pod http://www.proftpd.org/
 w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 
+%package common
+Summary:	PROfessional FTP Daemon with apache-like configuration syntax - common files
+Summary(pl):	PROfesionalny serwer FTP  - wspólne pliki
+Group:		Daemons
+Prereq:		awk
+Prereq:		fileutils
+Requires:	logrotate
+%{?!bcond_off_pam:Requires:	pam >= 0.67}
+
+%description  common
+ProFTPD is a highly configurable ftp daemon for unix and unix-like
+operating systems. ProFTPD is designed to be somewhat of a "drop-in"
+replacement for wu-ftpd. Full online documentation is available at
+http://www.proftpd.org/, including a server configuration directive
+reference manual.
+
+%description -l pl common
+ProFTPD jest wysoce konfigurowalnym serwerem ftp dla systemów Unix.
+ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
+dokunentacja jest dostêpna on-line pod http://www.proftpd.org/
+w³±cznie z dokumentacj± dotycz±c± konfigurowania.
+
+
 %package inetd
 Summary:	inetd configs for proftpd
 Group:		Daemons
 Group(de):	Server
 Group(pl):	Serwery
-Prereq:		%{name} = %{version}
-Provides:	%{name}-setup
+Prereq:		%{name}-common = %{epoch}:%{version}
+Prereq:		rc-inetd
+Provides:	proftpd = %{epoch}:%{version}-%{release}
+Requires:	inetdaemon
+Provides:	ftpserver
 Obsoletes:	proftpd-standalone
+Obsoletes:	ftpserver
+Obsoletes:	anonftp
+Obsoletes:	bftpd
+Obsoletes:	ftpd-BSD
+Obsoletes:	heimdal-ftpd
+Obsoletes:	linux-ftpd
+Obsoletes:	pure-ftpd
+Obsoletes:	wu-ftpd
 
 %description inetd
 ProFTPD configs for running from inetd.
@@ -93,9 +111,19 @@ Summary:	standalone daemon configs for proftpd
 Group:		Daemons
 Group(de):	Server
 Group(pl):	Serwery
-Prereq:		%{name} = %{version}
-Provides:	%{name}-setup
+Prereq:		%{name}-common = %{version}
+Prereq:		rc-scripts
+Provides:	proftpd = %{epoch}:%{version}-%{release}
+Provides:	ftpserver
 Obsoletes:	proftpd-inetd
+Obsoletes:	ftpserver
+Obsoletes:	anonftp
+Obsoletes:	bftpd
+Obsoletes:	ftpd-BSD
+Obsoletes:	heimdal-ftpd
+Obsoletes:	linux-ftpd
+Obsoletes:	pure-ftpd
+Obsoletes:	wu-ftpd
 
 %description standalone
 ProFTPD configs for running as a standalone daemon.
@@ -211,6 +239,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc doc/*html
 
 %attr(750,root,ftp) %dir %{_sysconfdir}
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
 %attr(640,root,root) /etc/logrotate.d/*
 %attr(640,root,root) %ghost /var/log/*
 %{?!bcond_off_pam:%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*}
@@ -228,11 +257,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files inetd
 %defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/rc-inetd/ftpd
 
 %files standalone
 %defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
 %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/proftpd
 %attr(754,root,root) /etc/rc.d/init.d/proftpd
