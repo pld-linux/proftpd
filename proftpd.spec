@@ -295,7 +295,7 @@ fi
 
 %dir /var/lib/ftp
 %dir /var/lib/ftp/pub
-%attr(711,root,root) %dir /var/lib/ftp/pub/Incoming
+%attr(711,ftp,ftp) %dir /var/lib/ftp/pub/Incoming
 
 %files inetd
 %defattr(644,root,root,755)
