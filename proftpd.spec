@@ -185,8 +185,8 @@ standalone.
 cp -f /usr/share/automake/config.sub .
 %{__autoconf}
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
-CFLAGS="%{rpmcflags} -I/usr/include/ncurses"
-CPPFLAGS="%{rpmcflags} -I/usr/include/ncurses"
+CFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I/usr/include/mysql}"
+CPPFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I/usr/include/mysql}"
 %configure \
 	--enable-autoshadow \
 	--with-modules=mod_ratio:mod_readme%{?with_ssl::mod_tls}%{?with_ipv6::mod_wrap}%{?with_pam::mod_auth_pam}%{?with_ldap::mod_ldap}%{?with_quota::mod_quota}%{?with_linuxprivs::mod_linuxprivs}%{?with_mysql::mod_sql:mod_sql_mysql}%{?with_pgsql::mod_sql:mod_sql_postgres} \
