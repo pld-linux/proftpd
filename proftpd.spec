@@ -90,7 +90,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/ftpd/*.conf
 %attr(640,root,root) %config %verify(not md5 mtime size) /etc/logrotate.d/*
 
-%attr(755,root,root) /usr/bin/*
+%attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) /usr/sbin/*
 %{_mandir}/man[158]/*
 
@@ -160,7 +160,7 @@ rm -rf $RPM_BUILD_ROOT
 - added -q parameter to %setup
 - added %config to /etc/proftpd.conf in filelist
 - added Conflicts: wu-ftpd ncftpd
-- installing util programs in /usr/bin instead of /usr/sbin
+- installing util programs in %{_bindir} instead of /usr/sbin
 - changed name of spec file to proftpd.spec
 
 * Wed May 6 1998 Vladimir Ivanov <vlad@elis.tasur.edu.ru>
