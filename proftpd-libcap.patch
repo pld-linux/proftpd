@@ -17,7 +17,7 @@ diff -Nur proftpd-1.2.0pre3/contrib/mod_linuxprivs.c proftpd-1.2.0pre3.pld/contr
  #include "conf.h"
  #include "privs.h"
  
--#include "../contrib/libcap/capability.h"
+-#include "../contrib/libcap/include/sys/capability.h"
 +#include "/usr/include/sys/capability.h"
  
  static cap_t capabilities = 0;
