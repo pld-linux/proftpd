@@ -5,6 +5,7 @@ Version:	1.2.0rc2
 Release:	6
 License:	GPL
 Group:		Daemons
+Group(de):	Server
 Group(pl):	Serwery
 Source0:	ftp://ftp.proftpd.net/pub/proftpd/%{name}-%{version}.tar.gz
 Source1:	%{name}.conf
@@ -68,8 +69,6 @@ w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 
 %build
 autoconf
-#LDFLAGS="-ldl -s"; export LDFLAGS
-LDFLAGS=""; export LDFLAGS
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %configure \
 	--enable-autoshadow \
@@ -96,7 +95,7 @@ install %{SOURCE2} $RPM_BUILD_ROOT/etc/logrotate.d/ftpd
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/ftpd
 install contrib/xferstats.* $RPM_BUILD_ROOT%{_bindir}/xferstat
 
-mv contrib/README contrib/README.modules
+mv -f contrib/README contrib/README.modules
 
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers.default
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers
