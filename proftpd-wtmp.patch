@@ -1,9 +1,9 @@
 --- ./src/log.c.org	Sun Oct 21 21:11:04 2001
 +++ ./src/log.c	Sun Oct 21 21:20:07 2001
-@@ -132,26 +132,16 @@
-  */
+@@ -131,26 +131,16 @@
  
- int log_wtmp(char *line, const char *name, const char *host, p_in_addr_t *ip) {
+ int log_wtmp(char *line, const char *name, const char *host,
+     pr_netaddr_t *ip) {
 -  struct stat buf;
    struct utmp ut;
    int res = 0;
@@ -33,7 +33,7 @@
  
    /* Unfortunately, utmp string fields are terminated by '\0' if they are
     * shorter than the size of the field, but if they are exactly the size of
-@@ -159,43 +149,7 @@
+@@ -158,43 +148,7 @@
     * Insane if you ask me.  Unless there's massive uproar, I prefer to err on
     * the side of caution and always null-terminate our strings.
     */
@@ -77,7 +77,7 @@
      memset(&ut,0,sizeof(ut));
  #ifdef HAVE_UTMAXTYPE
  #ifdef LINUX
-@@ -228,13 +182,12 @@
+@@ -227,13 +181,12 @@
  #endif /* HAVE_UT_UT_HOST */
  
      time(&ut.ut_time);

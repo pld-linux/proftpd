@@ -8,7 +8,7 @@
 # _without_ipv6		- disable IPv6 and TCPD support
 # _without_ssl		- disbale TLS/SSL support
 #
-%define	_rc	rc1
+%define	_rc	rc2
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es):	Servidor FTP profesional, con sintaxis de configuraci髇 semejante a la del apache
 Summary(pl):	PROfesionalny serwer FTP
@@ -16,12 +16,12 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.9
-Release:	0.%{_rc}.2
+Release:	0.%{_rc}.1
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}%{_rc}.tar.bz2
-# Source0-md5:	5b6291a5c92687c5b697202369f71466
+# Source0-md5:	81beb7c8b418db1725781329921328a5
 Source1:	%{name}.conf
 Source2:	%{name}.logrotate
 Source3:	ftp.pamd
@@ -35,9 +35,8 @@ Patch1:		%{name}-glibc.patch
 Patch2:		%{name}-paths.patch
 Patch3:		%{name}-noautopriv.patch
 Patch4:		%{name}-wtmp.patch
-Patch5:		%{name}-port-65535.patch
-Patch6:		%{name}-vmail.patch
-Patch7:		%{name}-IPv6.patch
+Patch5:		%{name}-vmail.patch
+Patch6:		%{name}-IPv6.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	libwrap-devel
@@ -173,10 +172,9 @@ standalone.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p0
-%patch6 -p1
+%patch5 -p1
 # IPv6 support needs major update
-#%%patch7 -p1
+#patch6 -p1
 
 %build
 %{__autoconf}
