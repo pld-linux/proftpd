@@ -1,12 +1,12 @@
 # 
 # Conditional builds:
-# bcond_off_pam - disable PAM support
-# bcond_on_ldap - enable LDAP suppoer
-# bcond_on_mysql - enable MySQL suppoer
-# bcond_on_quota - enable quota support
-# bcond_on_linuxprivs - enable libcap support
-# bcond_off_ipv6 - disable IPv6 and TCPD support
-# bcond_off_ssl - disbale TLS/SSL support
+# _without_pam - disable PAM support
+# _with_ldap - enable LDAP suppoer
+# _with_mysql - enable MySQL suppoer
+# _with_quota - enable quota support
+# _with_linuxprivs - enable libcap support
+# _without_ipv6 - disable IPv6 and TCPD support
+# _without_ssl - disbale TLS/SSL support
 # --without pam --with ldap --with mysql --with quota --with linuxprivs
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
@@ -38,10 +38,10 @@ Patch7:		%{name}-DESTDIR.patch
 Patch8:		%{name}-wtmp.patch
 Patch9:		%{name}-link.patch
 URL:		http://www.proftpd.org/
-%{?!bcond_off_pam:BuildRequires:	pam-devel}
-%{?bcond_on_ldap:BuildRequires:		openldap-devel}
-%{?bcond_on_mysql:BuildRequires:	mysql-devel}
-%{?!bcond_off_ssl:BuildRequires:	openssl-devel >= 0.9.6a}
+%{?!_without_pam:BuildRequires:	pam-devel}
+%{?_with_ldap:BuildRequires:		openldap-devel}
+%{?_with_mysql:BuildRequires:	mysql-devel}
+%{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.6a}
 BuildRequires:	libwrap-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -68,7 +68,7 @@ Group:		Daemons
 Prereq:		awk
 Prereq:		fileutils
 Requires:	logrotate
-%{?!bcond_off_pam:Requires:	pam >= 0.67}
+%{?!_without_pam:Requires:	pam >= 0.67}
 Obsoletes:	proftpd < 0:1.2.2rc1-3
 
 %description  common
@@ -156,9 +156,9 @@ autoconf
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %configure \
 	--enable-autoshadow \
-	--with-modules=mod_ratio:mod_readme%{?!bcond_off_ipv6::mod_tcpd}%{?!bcond_off_pam::mod_pam}%{?bcond_on_ldap::mod_ldap}%{?bcond_on_quota::mod_quota}%{?bcond_on_linuxprivs::mod_linuxprivs}%{?bcond_on_mysql::mod_sql:mod_sql_mysql} \
-	%{?!bcond_off_ipv6:--enable-ipv6} \
-	%{?bcond_off_ssl:--disable-tls} \
+	--with-modules=mod_ratio:mod_readme%{?!_without_ipv6::mod_tcpd}%{?!_without_pam::mod_pam}%{?_with_ldap::mod_ldap}%{?_with_quota::mod_quota}%{?_with_linuxprivs::mod_linuxprivs}%{?_with_mysql::mod_sql:mod_sql_mysql} \
+	%{?!_without_ipv6:--enable-ipv6} \
+	%{?_without_ssl:--disable-tls} \
 	--enable-sendfile
 
 %{__make}
@@ -177,7 +177,7 @@ rm -f $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/logrotate.d/ftpd
-%{?!bcond_off_pam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
+%{?!_without_pam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/ftpd
 install %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/proftpd
 install %{SOURCE6} $RPM_BUILD_ROOT/etc/rc.d/init.d/proftpd
@@ -251,7 +251,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
 %attr(640,root,root) /etc/logrotate.d/*
 %attr(640,root,root) %ghost /var/log/*
-%{?!bcond_off_pam:%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*}
+%{?!_without_pam:%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*}
 
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
 %attr(640,root,root) %ghost %{_sysconfdir}/ftpusers
