@@ -14,7 +14,7 @@ Summary(pl):	PROfesionalny serwer FTP
 Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Name:		proftpd
 Version:	1.2.5rc1
-Release:	5
+Release:	6
 Epoch:		0
 License:	GPL
 Group:		Daemons
@@ -26,6 +26,7 @@ Source4:	%{name}.inetd
 Source5:	%{name}.sysconfig
 Source6:	%{name}.init
 Source7:	%{name}-mod_tcpd.c
+Source8:	ftpusers.tar.bz2
 Patch0:		%{name}-1.2.2rc3-v6-20010814.patch.gz
 # ftp://ftp.runestig.com/pub/proftpd-tls/
 Patch1:		%{name}-1.2.2rc3+v6-tls.20010505.patch.gz
@@ -124,6 +125,7 @@ Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
 Obsoletes:	vsftpd
 Obsoletes:	wu-ftpd
+Conflicts:	man-pages < 1.51
 
 %description inetd
 ProFTPD configs for running from inetd.
@@ -152,6 +154,7 @@ Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
 Obsoletes:	vsftpd
 Obsoletes:	wu-ftpd
+Conflicts:	man-pages < 1.51
 
 %description standalone
 ProFTPD configs for running as a standalone daemon.
@@ -207,6 +210,8 @@ install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/ftpd
 install %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/proftpd
 install %{SOURCE6} $RPM_BUILD_ROOT/etc/rc.d/init.d/proftpd
 install contrib/xferstats.holger-preiss $RPM_BUILD_ROOT%{_bindir}/xferstat
+
+bzip2 -dc %{SOURCE8} | tar xf - -C $RPM_BUILD_ROOT%{_mandir}
 
 mv -f contrib/README contrib/README.modules
 
@@ -285,7 +290,7 @@ fi
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
 
-%{_mandir}/man[158]/*
+%{_mandir}/man[18]/*
 
 %dir /home/ftp/pub
 %attr(711,root,root) %dir /home/ftp/pub/Incoming
@@ -293,8 +298,18 @@ fi
 %files inetd
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/rc-inetd/ftpd
+%{_mandir}/man5/*
+%lang(ja) %{_mandir}/ja/man5/ftpusers*
+%lang(pl) %{_mandir}/pl/man5/ftpusers*
+%lang(pt_BR) %{_mandir}/pt_BR/man5/ftpusers*
+%lang(ru) %{_mandir}/ru/man5/ftpusers*
 
 %files standalone
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/proftpd
 %attr(754,root,root) /etc/rc.d/init.d/proftpd
+%{_mandir}/man5/*
+%lang(ja) %{_mandir}/ja/man5/ftpusers*
+%lang(pl) %{_mandir}/pl/man5/ftpusers*
+%lang(pt_BR) %{_mandir}/pt_BR/man5/ftpusers*
+%lang(ru) %{_mandir}/ru/man5/ftpusers*
