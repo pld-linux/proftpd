@@ -1,0 +1,2103 @@
+diff -urN proftpd-1.2.5/Make.rules.in proftpd-1.2.5.v6/Make.rules.in
+--- proftpd-1.2.5/Make.rules.in	Sat Mar 17 21:34:31 2001
++++ proftpd-1.2.5.v6/Make.rules.in	Thu Aug  8 21:35:24 2002
+@@ -56,18 +56,18 @@
+ 
+ OBJS=main.o timers.o sets.o pool.o regexp.o dirtree.o support.o inet.o \
+      log.o bindings.o scoreboard.o feat.o netio.o response.o ident.o \
+-     data.o modules.o auth.o fsio.o mkhome.o
++     data.o modules.o auth.o fsio.o mkhome.o intoa.o
+ BUILD_OBJS=src/main.o src/timers.o src/sets.o src/pool.o src/regexp.o \
+            src/dirtree.o src/support.o src/inet.o src/log.o src/bindings.o \
+            src/scoreboard.o src/feat.o src/netio.o src/response.o \
+            src/ident.o src/data.o src/modules.o src/auth.o src/fsio.o \
+-           src/mkhome.o
++           src/mkhome.o src/intoa.o
+ 
+ MODULE_OBJS=@MODULE_OBJS@
+ BUILD_MODULE_OBJS=@BUILD_MODULE_OBJS@ modules/module_glue.o
+ 
+-FTPCOUNT_OBJS=ftpcount.o scoreboard.o
+-BUILD_FTPCOUNT_OBJS=utils/ftpcount.o utils/scoreboard.o
++FTPCOUNT_OBJS=ftpcount.o scoreboard.o intoa.o
++BUILD_FTPCOUNT_OBJS=utils/ftpcount.o utils/scoreboard.o src/intoa.o
+ 
+ FTPSHUT_OBJS=ftpshut.o
+ BUILD_FTPSHUT_OBJS=utils/ftpshut.o
+@@ -75,5 +75,5 @@
+ FTPTOP_OBJS=ftptop.o scoreboard.o
+ BUILD_FTPTOP_OBJS=utils/ftptop.o utils/scoreboard.o
+ 
+-FTPWHO_OBJS=ftpwho.o scoreboard.o misc.o
+-BUILD_FTPWHO_OBJS=utils/ftpwho.o utils/scoreboard.o utils/misc.o
++FTPWHO_OBJS=ftpwho.o scoreboard.o misc.o intoa.o
++BUILD_FTPWHO_OBJS=utils/ftpwho.o utils/scoreboard.o utils/misc.o src/intoa.o
+diff -urN proftpd-1.2.5/README.IPv6 proftpd-1.2.5.v6/README.IPv6
+--- proftpd-1.2.5/README.IPv6	Thu Jan  1 01:00:00 1970
++++ proftpd-1.2.5.v6/README.IPv6	Thu Aug  8 21:35:24 2002
+@@ -0,0 +1,23 @@
++FTP Daemon with IPv6 support for PLD GNU/Linux (http://www.pld.org.pl/)
++
++IPv6 port by Jan Rekorajski <baggins@pld.org.pl>
++Note from me:
++Proftpd program is an example of How NOT To write networking code.
++
++Fixes by Arkadiusz Miskiewicz <misiek@pld.org.pl>:
++- removed IPv4-mapped hell
++- don't duplicate connection code
++- fixed EPRT (parsing, address missmatch)
++- inet_validate() recognize colon address notation
++- "EPSV ALL" support as specified in RFC
++- recognize [v6addr]/mask in Class
++
++Config:
++If you want to specify IPv6 addres, you may use '[' ']'
++notation ([::1] for example).
++
++Known Bugs:
++- none known
++
++Todo:
++- test fully VirtualHosts and IPv4 <-> IPv6 interoperability
+diff -urN proftpd-1.2.5/acconfig.h proftpd-1.2.5.v6/acconfig.h
+--- proftpd-1.2.5/acconfig.h	Sat Mar 17 21:34:31 2001
++++ proftpd-1.2.5.v6/acconfig.h	Thu Aug  8 21:35:24 2002
+@@ -80,6 +80,13 @@
+  * configure should, we hope <wink>, detect this for you.
+  */
+ #undef PF_ARGV_TYPE
++
++/* Define if you want IPv6 support */
++#undef INET6
++
++/* Define if you have ss_family field in struct sockaddr_storage */
++#undef HAVE_SS_FAMILY_IN_SS
++
+ @TOP@
+ 
+ /* autoheader generated things inserted here. */
+diff -urN proftpd-1.2.5/config.h.in proftpd-1.2.5.v6/config.h.in
+--- proftpd-1.2.5/config.h.in	Sun May 12 22:48:54 2002
++++ proftpd-1.2.5.v6/config.h.in	Thu Aug  8 21:35:24 2002
+@@ -82,6 +82,13 @@
+  */
+ #undef PF_ARGV_TYPE
+ 
++/* Define if you want IPv6 support */
++#undef INET6
++
++/* Define if you have ss_family field in struct sockaddr_storage */
++#undef HAVE_SS_FAMILY_IN_SS
++
++
+ /* Define if using alloca.c.  */
+ #undef C_ALLOCA
+ 
+diff -urN proftpd-1.2.5/configure.in proftpd-1.2.5.v6/configure.in
+--- proftpd-1.2.5/configure.in	Tue May 21 20:26:30 2002
++++ proftpd-1.2.5.v6/configure.in	Thu Aug  8 21:35:24 2002
+@@ -520,6 +520,45 @@
+   esac
+ fi
+ 
++dnl === part for IPv6 support ===
++AC_MSG_CHECKING([whether to enable ipv6])
++AC_ARG_ENABLE(ipv6,
++[  --enable-ipv6           Enable ipv6 support
++  --disable-ipv6          Disable ipv6 support],
++[case "$enableval" in
++  no)   AC_MSG_RESULT(no)
++        ;;
++  *)    AC_MSG_RESULT(yes)
++  	AC_DEFINE(INET6)
++        CFLAGS="$CFLAGS -DINET6"
++        ;;
++esac],
++AC_TRY_RUN([ /* PF_INET6 avalable check */
++#include <sys/types.h>
++#include <sys/socket.h>
++main(){if (socket(PF_INET6, SOCK_STREAM, 0) < 0) exit(1); else exit(0);}
++],[     AC_MSG_RESULT(yes)
++  	AC_DEFINE(INET6)
++],[     AC_MSG_RESULT(no)
++],[     AC_MSG_RESULT(unknown)
++]))
++AC_CACHE_CHECK([for ss_family field in struct sockaddr_storage],
++               ac_cv_have_ss_family_in_struct_ss, [
++       AC_TRY_COMPILE(
++               [
++#include <sys/types.h>
++#include <sys/socket.h>
++               ],
++               [ struct sockaddr_storage s; s.ss_family = 1; ],
++               [ ac_cv_have_ss_family_in_struct_ss="yes" ],
++               [ ac_cv_have_ss_family_in_struct_ss="no" ],
++       )
++])
++if test "x$ac_cv_have_ss_family_in_struct_ss" = "xyes" ; then
++       AC_DEFINE(HAVE_SS_FAMILY_IN_SS)
++fi
++dnl === end of part for IPv6 support ===
++
+ dnl Check for various argv[] replacing functions on various OSs
+ AC_CHECK_FUNCS(setproctitle)
+ AC_CHECK_HEADERS(libutil.h)
+diff -urN proftpd-1.2.5/contrib/mod_ratio.c proftpd-1.2.5.v6/contrib/mod_ratio.c
+--- proftpd-1.2.5/contrib/mod_ratio.c	Mon May 27 04:31:50 2002
++++ proftpd-1.2.5.v6/contrib/mod_ratio.c	Thu Aug  8 21:35:24 2002
+@@ -224,8 +224,6 @@
+ {
+   modret_t *mr = 0;
+   config_rec *c;
+-  char buf[1024] = {'\0'};
+-  char *mask;
+   char **data;
+ 
+   if (!(g.enable = get_param_int (main_server->conf, "Ratios", FALSE) == TRUE))
+@@ -256,23 +254,7 @@
+   c = find_config (main_server->conf, CONF_PARAM, "HostRatio", TRUE);
+   while (c)
+     {
+-     mask = buf;
+-      if (*(char *) c->argv[0] == '.')
+-	{
+-	  *mask++ = '*';
+-	  sstrncpy (mask, c->argv[0], sizeof (buf));
+-	}
+-      else if (*(char *) ((char *) c->argv[0] + (strlen (c->argv[0]) - 1)) == '.')
+-	{
+-	  sstrncpy (mask, c->argv[0], sizeof(buf) - 2);
+-	  sstrcat(buf, "*", sizeof(buf));
+-	}
+-      else
+-	sstrncpy (mask, c->argv[0], sizeof (buf));
+-
+-      if (!pr_fnmatch (buf, session.c->remote_name, PR_FNM_NOESCAPE | PR_FNM_CASEFOLD) ||
+-	  !pr_fnmatch (buf, inet_ntoa (*session.c->remote_ipaddr),
+-		       PR_FNM_NOESCAPE | PR_FNM_CASEFOLD))
++      if (match_ip(session.c->remote_ipaddr, session.c->remote_name, c->argv[0]))
+ 	{
+ 	  _set_ratios (c->argv[1], c->argv[2], c->argv[3], c->argv[4]);
+ 	  g.rtype = "h";
+@@ -436,7 +418,7 @@
+       snprintf (buf, sizeof(buf), RATIO_STUFFS);
+       log_pri (LOG_NOTICE, "Ratio: %s/%s %s[%s]: %s.", g.user,
+ 	       session.group, session.c->remote_name,
+-	       inet_ntoa (*session.c->remote_ipaddr), buf);
++	       INET_NTOA (session.c->remote_ipaddr), buf);
+     }
+   return DECLINED (cmd);
+ }
+diff -urN proftpd-1.2.5/contrib/mod_sql.c proftpd-1.2.5.v6/contrib/mod_sql.c
+--- proftpd-1.2.5/contrib/mod_sql.c	Sun Jun  9 04:38:27 2002
++++ proftpd-1.2.5.v6/contrib/mod_sql.c	Thu Aug  8 21:35:24 2002
+@@ -1314,7 +1314,7 @@
+     break;
+   case 'a':
+     argp = arg;
+-    sstrncpy(argp, inet_ntoa(*session.c->remote_ipaddr), sizeof(arg));
++    sstrncpy(argp, INET_NTOA(session.c->remote_ipaddr), sizeof(arg));
+     break;
+   case 'l':
+     argp = arg;
+diff -urN proftpd-1.2.5/include/conf.h proftpd-1.2.5.v6/include/conf.h
+--- proftpd-1.2.5/include/conf.h	Wed Sep 26 17:00:33 2001
++++ proftpd-1.2.5.v6/include/conf.h	Thu Aug  8 21:35:24 2002
+@@ -322,8 +322,6 @@
+ 
+ /* Generic typedefs */
+ 
+-typedef struct in_addr p_in_addr_t;
+-
+ #include "pool.h"
+ #include "regexp.h"
+ #include "proftpd.h"
+@@ -357,4 +355,8 @@
+ 
+ #endif /* __PROFTPD_SUPPORT_LIBRARY */
+ 
++#ifdef HAVE_SS_FAMILY_IN_SS
++#define __ss_family   ss_family
++#endif
++
+ #endif /* PR_CONF_H */
+diff -urN proftpd-1.2.5/include/dirtree.h proftpd-1.2.5.v6/include/dirtree.h
+--- proftpd-1.2.5/include/dirtree.h	Tue May 21 22:47:15 2002
++++ proftpd-1.2.5.v6/include/dirtree.h	Thu Aug  8 21:35:24 2002
+@@ -59,7 +59,7 @@
+ 
+   int AnonymousGreeting;	/* Do not greet until after user login */  
+ 
+-  p_in_addr_t *ipaddr;		/* Internal address of this server */
++  struct sockaddr_storage *ipaddr;	/* Internal address of this server */
+   struct conn_struc *listen;	/* Our listening connection */
+   xaset_t *conf;		/* Configuration details */
+ 
+@@ -201,7 +201,7 @@
+ config_rec *find_config(xaset_t *, int, const char *, int);
+ void find_config_set_top(config_rec *);
+ int remove_config(xaset_t *, const char *, int);
+-class_t *find_class(p_in_addr_t *, char *);
++class_t *find_class(struct sockaddr_storage *, char *);
+ 
+ array_header *parse_group_expression(pool *, int *, char **);
+ array_header *parse_user_expression(pool *, int *, char **);
+@@ -236,6 +236,6 @@
+ char *get_context_name(cmd_rec *);
+ int get_boolean(cmd_rec *, int);
+ char *get_full_cmd(cmd_rec *);
+-int match_ip(p_in_addr_t *, char *, const char *);
++int match_ip(struct sockaddr_storage*, char*, const char *);
+ 
+ #endif /* __DIRTREE_H */
+diff -urN proftpd-1.2.5/include/ftp.h proftpd-1.2.5.v6/include/ftp.h
+--- proftpd-1.2.5/include/ftp.h	Fri May 10 18:52:39 2002
++++ proftpd-1.2.5.v6/include/ftp.h	Thu Aug  8 21:35:24 2002
+@@ -85,6 +85,8 @@
+ #define C_MIC   "MIC"		/* Integrity protected command */
+ #define C_PBSZ  "PBSZ"		/* Protection buffer size */
+ #define C_PROT  "PROT"		/* Data channel protection level */
++#define C_EPSV	"EPSV"		/* Extended PASV */
++#define C_EPRT	"EPRT"		/* Extended PORT */
+ 
+ #define C_ANY	"*"		/* Special "wildcard" matching command */
+ 
+@@ -113,6 +115,7 @@
+ #define R_225	"225"		/* Data connection open; no transfer in progress */
+ #define R_226	"226"		/* Closing data connection.  File transfer/abort successful */
+ #define R_227	"227"		/* Entering passive mode (h1,h2,h3,h4,p1,p2) */
++#define R_229	"229"		/* Entering extended passive mode (|||p|) */
+ #define R_230	"230"		/* User logged in, proceed */
+ #define R_232   "232"		/* User logged in, authorized by security data */
+ #define R_234   "234"		/* Security data exchange complete */
+@@ -138,6 +141,7 @@
+ #define R_502	"502"		/* Command not implemented */
+ #define R_503	"503"		/* Bad sequence of commands */
+ #define R_504	"504"		/* Command not implemented for that parameter */
++#define R_522	"522"		/* Extended Port Failure - unknown network protocol */
+ #define R_530	"530"		/* Not logged in */
+ #define R_532	"532"		/* Need account for storing files */
+ #define R_533   "533"		/* Integrity protected command required by policy */
+diff -urN proftpd-1.2.5/include/inet.h proftpd-1.2.5.v6/include/inet.h
+--- proftpd-1.2.5/include/inet.h	Tue May 21 22:47:15 2002
++++ proftpd-1.2.5.v6/include/inet.h	Thu Aug  8 21:35:24 2002
+@@ -69,9 +69,9 @@
+   int rfd,wfd;				/* Read and write fds */
+   pr_netio_stream_t *instrm, *outstrm;	/* Input/Output streams */
+ 
+-  p_in_addr_t *remote_ipaddr;		/* Remote address of connection */
++  struct sockaddr_storage *remote_ipaddr;	/* Remote address of connection */
+   int remote_port;			/* Remote port of connection */
+-  p_in_addr_t *local_ipaddr;		/* Local side of connection */
++  struct sockaddr_storage *local_ipaddr;	/* Local side of connection */
+   int local_port;			/* Local port */
+   char *remote_name;			/* Remote FQDN */
+ } conn_t;
+@@ -85,14 +85,16 @@
+ char *inet_validate(char *);
+ char *inet_gethostname(pool *);
+ char *inet_fqdn(pool *, const char *);
+-p_in_addr_t *inet_getaddr(pool *, char *);
+-char *inet_ascii(pool *, p_in_addr_t *);
+-char *inet_getname(pool *, p_in_addr_t *);
++struct sockaddr_storage *inet_getaddr(pool*,char*);
++char *inet_ascii(pool*,struct sockaddr_storage*);
++char *inet_getname(pool*,struct sockaddr_storage*);
+ conn_t *inet_copy_connection(pool *, conn_t*);
++#if 0
+ int inet_prebind_socket(pool *, p_in_addr_t *, int);
+-conn_t *inet_create_dup_connection(pool *, xaset_t *, int, p_in_addr_t *);
+-conn_t *inet_create_connection(pool *, xaset_t *, int, p_in_addr_t *, int, int);
+-conn_t *inet_create_connection_portrange(pool *, xaset_t *, p_in_addr_t *,
++#endif
++conn_t *inet_create_dup_connection(pool*,xaset_t*,int,struct sockaddr_storage*);
++conn_t *inet_create_connection(pool *, xaset_t *, int, struct sockaddr_storage *, int, int);
++conn_t *inet_create_connection_portrange(pool *, xaset_t *, struct sockaddr_storage *,
+   int, int);
+ void inet_close(pool *, conn_t *);
+ void inet_lingering_close(pool *, conn_t *, long);
+@@ -104,13 +106,19 @@
+ int inet_listen(pool *, conn_t *, int);
+ int inet_resetlisten(pool *, conn_t *);
+ int inet_accept_nowait(pool *, conn_t *);
+-int inet_connect(pool *, conn_t *, p_in_addr_t *, int);
+-int inet_connect_nowait(pool*,conn_t*,p_in_addr_t*,int);
++int inet_connect(pool *, conn_t *, struct sockaddr_storage *, int);
++int inet_connect_nowait(pool*,conn_t*,struct sockaddr_storage*, int);
+ int inet_get_conn_info(conn_t *, int);
+ conn_t *inet_accept(pool *, conn_t *, conn_t *, int, int, unsigned char);
+-conn_t *inet_associate(pool *, conn_t *, p_in_addr_t *,
+-  pr_netio_stream_t *, pr_netio_stream_t *, int);
+-conn_t *inet_openrw(pool *, conn_t *, p_in_addr_t *, int, int, int, int, int);
++conn_t *inet_associate(pool *, conn_t *, struct sockaddr_storage *, IOFILE *, IOFILE *, int);
++conn_t *inet_openrw(pool *, conn_t *, struct sockaddr_storage *, int, int, int, int);
+ void inet_resolve_ip(pool *, conn_t *);
++int inet_address_match(struct sockaddr_storage *cp,struct sockaddr_storage *rp);
++int inet_prefix_match(struct sockaddr_storage *cp,struct sockaddr_storage *rp, int prefix);
++#ifdef INET6
++char *INET_NTOA(struct sockaddr_storage *ss);
++#else
++#define INET_NTOA(a) inet_ntoa(((struct sockaddr_in *)(a))->sin_addr)
++#endif
+ 
+ #endif /* PR_INET_H */
+diff -urN proftpd-1.2.5/include/log.h proftpd-1.2.5.v6/include/log.h
+--- proftpd-1.2.5/include/log.h	Tue May 21 22:47:15 2002
++++ proftpd-1.2.5.v6/include/log.h	Thu Aug  8 21:35:24 2002
+@@ -66,7 +66,7 @@
+ #define LOG_XFER_MODE           0644
+ 
+ char *fmt_time(time_t);
+-int log_wtmp(char *, const char *, const char *, p_in_addr_t *);
++int log_wtmp(char *, char *, char *, struct sockaddr_storage *);
+ void log_setfacility(int);
+ int log_openfile(const char *, int *, mode_t);
+ int log_opensyslog(const char *);
+diff -urN proftpd-1.2.5/include/proftpd.h proftpd-1.2.5.v6/include/proftpd.h
+--- proftpd-1.2.5/include/proftpd.h	Tue May 21 22:47:15 2002
++++ proftpd-1.2.5.v6/include/proftpd.h	Thu Aug  8 21:35:24 2002
+@@ -71,8 +71,8 @@
+ typedef struct cdir_struc {
+   struct cdir_struc *next;
+ 
+-  u_int_32 address;
+-  u_int_32 netmask;
++  struct sockaddr_storage address;
++  u_int_32 prefix;
+   class_t *class;
+ } cdir_t;
+ 
+@@ -94,7 +94,7 @@
+   volatile int sf_flags;		/* Session/State flags */
+   volatile int sp_flags;		/* Session/Protection flags */
+ 
+-  p_in_addr_t data_addr;		/* Remote data address */
++  struct sockaddr_storage data_addr;	/* Remote data address */
+   unsigned short data_port;		/* Remote data port */
+ 
+   unsigned char ident_lookups;		/* Is RFC931 (ident) protocol used? */
+@@ -210,9 +210,11 @@
+ #define SF_ANON		(1 << 5)	/* Anonymous (chroot) login */
+ #define SF_POST_ABORT	(1 << 6)	/* After abort has occured */
+ #define SF_PORT		(1 << 7)	/* Port command given */
++#define	SF_EPSV_ALL	(1 << 8)	/* EPSV ALL command given */
+ 
+ #define SF_ALL		(SF_PASSIVE|SF_ABORT|SF_XFER|SF_ASCII| \
+-                        SF_ASCII_OVERRIDE|SF_ANON|SF_POST_ABORT|SF_PORT)
++                        SF_ASCII_OVERRIDE|SF_ANON|SF_POST_ABORT|SF_PORT| \
++			SF_EPSV_ALL)
+ 
+ /* Session/Protection flags (RFC 2228) */
+ 
+diff -urN proftpd-1.2.5/include/support.h proftpd-1.2.5.v6/include/support.h
+--- proftpd-1.2.5/include/support.h	Tue May 21 22:47:15 2002
++++ proftpd-1.2.5.v6/include/support.h	Thu Aug  8 21:35:24 2002
+@@ -98,4 +98,6 @@
+ char *sstrncpy(char *, const char *, size_t);
+ char *sreplace(pool *, char *, ...);
+ 
++void mappedtov4(struct sockaddr_storage *);
++
+ #endif /* PR_SUPPORT_H */
+diff -urN proftpd-1.2.5/modules/mod_auth.c proftpd-1.2.5.v6/modules/mod_auth.c
+--- proftpd-1.2.5/modules/mod_auth.c	Tue May 21 22:47:16 2002
++++ proftpd-1.2.5.v6/modules/mod_auth.c	Thu Aug  8 21:35:24 2002
+@@ -1210,7 +1210,7 @@
+   PRIVS_ROOT
+   while((l = log_read_run(NULL)) != NULL)
+       /* Make sure it matches our current server */
+-      if(l->server_ip.s_addr == main_server->ipaddr->s_addr &&
++      if(inet_address_match(&l->server_ip, main_server->ipaddr) &&
+          l->server_port == main_server->ServerPort) {
+ 	 
+ 	cur++;
+@@ -1270,11 +1270,11 @@
+       
+       /* Make sure it matches our current server.
+        */
+-      if(l->server_ip.s_addr == main_server->ipaddr->s_addr &&
++      if(inet_address_match(&l->server_ip, main_server->ipaddr) &&
+          l->server_port == main_server->ServerPort) {
+         if((c && c->config_type == CONF_ANON && !strcmp(l->user, user)) ||
+ 	   !c) {
+-          char *s, *d, ip[32] = {'\0'};
++          char *s, *d, ip[64] = {'\0'};
+           int mpos = sizeof(ip) - 1;
+ 	  
+           cur++;
+@@ -1292,7 +1292,7 @@
+ 	  
+ 	  /* Count up sessions on a per-host basis.
+ 	   */
+-          if(!strcmp(ip, inet_ntoa(*session.c->remote_ipaddr))) {
++          if(!strcmp(ip, INET_NTOA(session.c->remote_ipaddr))) {
+ 	    samehost++;
+             hcur++;
+ 	  }
+diff -urN proftpd-1.2.5/modules/mod_core.c proftpd-1.2.5.v6/modules/mod_core.c
+--- proftpd-1.2.5/modules/mod_core.c	Tue May 21 22:47:16 2002
++++ proftpd-1.2.5.v6/modules/mod_core.c	Thu Aug  8 21:35:24 2002
+@@ -63,6 +63,8 @@
+   { C_REIN, "is not implemented",		FALSE },
+   { C_PORT, "<sp> h1,h2,h3,h4,p1,p2",		TRUE },
+   { C_PASV, "(returns address/port)",		TRUE },
++  { C_EPRT, "<sp> |proto|addr|port|",		TRUE },
++  { C_EPSV, "(returns port |||port|)",		TRUE },
+   { C_TYPE, "<sp> type-code (A, I, L 7, L 8)",	TRUE },
+   { C_STRU, "is not implemented (always F)",	TRUE },
+   { C_MODE, "is not implemented (always S)",	TRUE },
+@@ -401,7 +403,7 @@
+ 
+ MODRET add_masqueradeaddress(cmd_rec *cmd) {
+  config_rec *c = NULL;
+- p_in_addr_t *masq_addr = NULL;
++ struct sockaddr_storage *masq_addr = NULL;
+  char masq_ip[80] = {'\0'};
+ 
+  CHECK_ARGS(cmd, 1);
+@@ -2029,7 +2031,7 @@
+    
+   if ((c = find_config(main_server->conf, CONF_PARAM, "MasqueradeAddress",
+       FALSE)) != NULL) {
+-    p_in_addr_t *masq_addr = (p_in_addr_t *) c->argv[0];
++    struct sockaddr_storage *masq_addr = (struct sockaddr_storage *) c->argv[0];
+     serverfqdn = inet_getname(main_server->pool, masq_addr);
+   }
+  
+@@ -2191,7 +2193,7 @@
+ MODRET cmd_pasv(cmd_rec *cmd)
+ {
+   union {
+-    p_in_addr_t addr;
++    struct in_addr addr;
+     unsigned char u[4];
+   } addr;
+ 
+@@ -2203,8 +2205,16 @@
+   config_rec *c = NULL;
+   int pasv_min_port,pasv_max_port;
+   
++  if (session.flags & SF_EPSV_ALL)
++      return ERROR_MSG(cmd,R_500,"Illegal PASV command - EPSV ALL requested before.");
++
+   CHECK_CMD_ARGS(cmd, 1);
+ 
++#ifdef INET6
++  if (session.c->local_ipaddr->__ss_family == AF_INET6)
++      return ERROR_MSG(cmd,R_425, "PASV over IPv6? Find a real FTP client.");
++#endif
++
+   /* If we already have a passive listen data connection open, kill it.
+    */
+   if(session.d) {
+@@ -2250,14 +2260,16 @@
+   session.data_port = session.d->local_port;
+   session.flags |= SF_PASSIVE;
+   
+-  addr.addr = *session.d->local_ipaddr;
++  addr.addr.s_addr = ((struct sockaddr_in *)session.d->local_ipaddr)->sin_addr.s_addr;
+ 
+   /* check for a MasqueradeAddress configuration record, and return that
+    * addr if appropriate.
+    */
+   if ((c = find_config(main_server->conf, CONF_PARAM, "MasqueradeAddress",
+-      FALSE)) != NULL)
+-   addr.addr = *((p_in_addr_t *) c->argv[0]);
++      FALSE)) != NULL) {
++	struct sockaddr_storage *masq_addr = (struct sockaddr_storage *)c->argv[0];
++	addr.addr.s_addr = ((struct sockaddr_in *)masq_addr)->sin_addr.s_addr;
++  }
+ 
+   port.port = htons(session.data_port);
+   
+@@ -2275,7 +2287,7 @@
+ MODRET cmd_port(cmd_rec *cmd)
+ {
+   union {
+-    p_in_addr_t addr;
++    struct in_addr addr;
+     unsigned char u[4];
+   } addr;
+ 
+@@ -2285,11 +2297,19 @@
+   } port;
+ 
+   char *a,*endp,*arg;
+-  int i,cnt = 0;
++  int p,i,cnt = 0;
+   int allow_foreign_addr = 0;
+ 
++  if (session.flags & SF_EPSV_ALL)
++      return ERROR_MSG(cmd,R_500,"Illegal PORT command - EPSV ALL requested before.");
++  
+   CHECK_CMD_ARGS(cmd, 2);
+ 
++#ifdef INET6
++  if (session.c->local_ipaddr->__ss_family == AF_INET6)
++      return ERROR_MSG(cmd,R_500, "PORT over IPv6? Find a real FTP client.");
++#endif
++
+   /* Format is h1,h2,h3,h4,p1,p2 (ASCII in network order) */
+   a = pstrdup(cmd->tmp_pool,cmd->argv[1]);
+ 
+@@ -2322,8 +2342,10 @@
+   allow_foreign_addr = get_param_int(TOPLEVEL_CONF,"AllowForeignAddress",FALSE);
+ 
+   if(allow_foreign_addr != 1) {
+-    if(addr.addr.s_addr != session.c->remote_ipaddr->s_addr ||
+-       !port.port) {
++    
++    p = ((struct sockaddr_in *)session.c->remote_ipaddr)->sin_addr.s_addr;
++
++    if(addr.addr.s_addr != p || !port.port) {
+       log_pri(LOG_WARNING, "Refused PORT %s (address mismatch).", cmd->arg);
+       return ERROR_MSG(cmd, R_500, "Illegal PORT command.");
+     }
+@@ -2338,7 +2360,9 @@
+     return ERROR_MSG(cmd,R_500,"Illegal PORT command.");
+   }
+ 
+-  memcpy(&session.data_addr, &addr.addr, sizeof(session.data_addr));
++  session.data_addr.__ss_family = AF_INET;
++  ((struct sockaddr_in *)&session.data_addr)->sin_port = port.port;
++  ((struct sockaddr_in *)&session.data_addr)->sin_addr.s_addr = addr.addr.s_addr;
+   session.data_port = ntohs(port.port);
+   session.flags &= (SF_ALL^SF_PASSIVE);
+ 
+@@ -2355,6 +2379,207 @@
+   return HANDLED(cmd);
+ }
+ 
++MODRET cmd_epsv(cmd_rec *cmd)
++{
++  char *endp,*arg;
++  int family;
++  config_rec *c = NULL;
++  int pasv_min_port,pasv_max_port;
++
++  CHECK_CMD_MIN_ARGS(cmd, 1);
++
++  arg = pstrdup(cmd->tmp_pool,cmd->argv[1]);
++
++  if (arg) {
++    if (!strncasecmp(arg, "all", 3)) {
++	session.flags |= SF_EPSV_ALL;
++	add_response(R_200, "EPSV ALL command successful.");
++	return HANDLED(cmd);
++    } else {
++      family = strtol(arg, &endp, 10);
++      if (family == 1) {
++#ifdef INET6
++	if (!(session.c->local_ipaddr->__ss_family == AF_INET))
++          return ERROR_MSG(cmd,R_522,"Illegal EPSV command - IPv4 not supported over this link.");
++#endif
++      } else if (family == 2) {
++#ifdef INET6
++	if (!(session.c->local_ipaddr->__ss_family == AF_INET6))
++#endif
++          return ERROR_MSG(cmd,R_522,"Illegal EPSV command - IPv6 not supported over this link.");
++      } else {
++        return ERROR_MSG(cmd,R_522,"Illegal EPSV command - unknown network protocol.");
++      }
++    }
++  }
++
++  /* If we already have a passive listen data connection open,
++   * kill it.
++   */
++
++  if(session.d) {
++    inet_close(session.d->pool,session.d);
++    session.d = NULL;
++  }
++
++  if ((c = find_config(main_server->conf, CONF_PARAM, "PassivePorts", FALSE)) !=
++      NULL) {
++    pasv_min_port = (int)c->argv[0];
++    pasv_max_port = (int)c->argv[1];
++
++    if(!(session.d = inet_create_connection_portrange(session.pool, NULL,
++				    session.c->local_ipaddr,
++				    pasv_min_port,pasv_max_port))) {
++      /* If not able to open a passive port in the given range, default to
++       * normal behavior (using INPORT_ANY), and log the failure.  This
++       * indicates a too-small range configuration.
++       */
++      log_pri(LOG_WARNING, "unable to find open port in PassivePorts range "
++	      "%d-%d: defaulting to INPORT_ANY", pasv_min_port, pasv_max_port);
++    }
++  }
++
++  
++  /* Open up the connection and pass it back.
++   */
++  if (!session.d)
++    session.d = inet_create_connection(session.pool, NULL, -1,
++					session.c->local_ipaddr,
++					INPORT_ANY, FALSE);
++
++  if(!session.d)
++     return ERROR_MSG(cmd,R_425,
++                     "Unable to build data connection: Internal error.");
++
++  inet_setblock(session.pool,session.d);
++  inet_listen(session.pool,session.d,1);
++
++  session.d->inf = io_open(session.pool,session.d->listen_fd,IO_READ);
++
++  /* Now tell the client our address/port */
++  session.data_port = session.d->local_port;
++  session.flags |= SF_PASSIVE;
++
++  log_debug(DEBUG1,"Entering Extended Passive Mode (|||%u|).", (int)session.data_port);
++  add_response(R_229, "Entering Extended Passive Mode (|||%u|).", (int)session.data_port);
++
++  return HANDLED(cmd);
++}
++
++MODRET cmd_eprt(cmd_rec *cmd)
++{
++  struct sockaddr_storage addr;
++  unsigned short port = 0;
++  char *a,*endp,*arg;
++  char delim[2];
++  int family,i,cnt = 0;
++  int allow_foreign_addr = 0;
++
++  if (session.flags & SF_EPSV_ALL)
++      return ERROR_MSG(cmd,R_500,"Illegal EPRT command - EPSV ALL requested before.");
++
++  CHECK_CMD_ARGS(cmd, 2);
++
++  bzero(&addr, sizeof(struct sockaddr_storage));
++
++  /* Format is <d>proto<d>ip address<d>port<d> (ASCII in network order) */
++  a = pstrdup(cmd->tmp_pool,cmd->argv[1]);
++
++  delim[0] = *a++;
++  delim[1] = '\0';
++
++  family = strtol(a, &endp, 10);
++  if (family == 1)
++    addr.__ss_family = AF_INET;
++#ifdef INET6
++  else if (family == 2)
++    addr.__ss_family = AF_INET6;
++#endif
++  else
++    return ERROR_MSG(cmd,R_522,"Illegal EPRT command - unknown network protocol.");
++
++  if (!*endp)
++    return ERROR_MSG(cmd,R_501,"Illegal EPRT command.");
++
++  a = ++endp;
++  
++  while(a && *a && cnt < 2) {
++    arg = strsep(&a,delim);
++
++    if(!arg && a && *a) {
++      arg = a;
++      a = NULL;
++    } else if(!arg)
++      break;
++
++    if (cnt == 0) {
++      i = 0;
++      if (family == 1)
++        i = inet_pton(AF_INET, arg, &((struct sockaddr_in *)&addr)->sin_addr);
++#ifdef INET6
++      else
++        i = inet_pton(AF_INET6, arg, &((struct sockaddr_in6 *)&addr)->sin6_addr);
++#endif
++      if (i == 0)
++        break;
++    } else if (cnt == 1) {
++      i = strtol(arg,&endp,10);
++      if(*endp || i < 1)
++        break;
++      port = (unsigned short)i;
++      if (family == 1)
++        ((struct sockaddr_in *)&addr)->sin_port = htons(port);
++#ifdef INET6
++      else
++        ((struct sockaddr_in6 *)&addr)->sin6_port = htons(port);
++#endif
++    } else
++	break;
++    cnt++;
++  }
++
++  if(cnt != 2 || (a && *a))
++    return ERROR_MSG(cmd,R_501,"Illegal EPRT command.");
++
++  /* Make sure that the address specified matches the address
++   * that the control connection is coming from.
++   */
++
++  allow_foreign_addr = get_param_int(TOPLEVEL_CONF,"AllowForeignAddress",FALSE);
++
++  if(allow_foreign_addr != 1) {
++    if(!inet_address_match(&addr, session.c->remote_ipaddr) || !port) {
++      log_pri(LOG_WARNING, "Refused EPRT %s (address mismatch).", cmd->arg);
++      return ERROR_MSG(cmd, R_500, "Illegal EPRT command.");
++    }
++  }
++
++  /* Additionally, make sure that the port number used is a "high
++   * numbered" port, to avoid bounce attacks
++   */
++
++  if(port < 1024) {
++    log_pri(LOG_WARNING, "Refused EPRT %s (bounce attack).", cmd->arg);
++    return ERROR_MSG(cmd,R_500,"Illegal EPRT command.");
++  }
++
++  memcpy(&session.data_addr, &addr, sizeof(struct sockaddr_storage));
++  session.data_port = port;
++  session.flags &= (SF_ALL^SF_PASSIVE);
++
++  /* If we already have a data connection open, kill it.
++   */
++
++  if(session.d) {
++    inet_close(session.d->pool,session.d);
++    session.d = NULL;
++  }
++  
++  session.flags |= SF_PORT;
++  add_response(R_200,"EPRT command successful.");
++  return HANDLED(cmd);
++}
++
+ MODRET cmd_help(cmd_rec *cmd)
+ {
+   int i,c = 0;
+@@ -3044,18 +3269,15 @@
+ 	return NULL;
+ }
+ 
+-static cdir_t *add_cdir(class_t *class, u_int_32 address, u_int_8 netmask)
++static cdir_t *add_cdir(class_t *class, struct sockaddr_storage *address, u_int_32 prefix)
+ {
+ 	cdir_t *n;
+ 
+ 	n = calloc(1, sizeof(cdir_t));
+ 
+ 	n->class = class;
+-	while (netmask--) {
+-		n->netmask >>= 1;
+-		n->netmask |= 0x80000000;
+-	}
+-	n->address = address & n->netmask;
++	n->prefix = prefix;
++	memcpy(&n->address, address, sizeof(struct sockaddr_storage));
+ 
+ 	n->next = cdir_list;
+ 	cdir_list = n;	                
+@@ -3063,7 +3285,7 @@
+ 	return n;
+ }
+ 
+-static cdir_t *find_cdir(u_int_32 address)
++static cdir_t *find_cdir(struct sockaddr_storage *address)
+ {
+ 	cdir_t *c, *f;
+ 
+@@ -3071,7 +3293,8 @@
+ 	f = NULL;
+ 	while (c) {
+ 		/* within cdir range ? && more specific netmask ? */
+-		if (((address & c->netmask) == c->address) && (f == NULL || (f && (f->netmask < c->netmask))))
++		if (inet_prefix_match(&c->address, address, c->prefix) &&
++		    (f == NULL || (f && (f->prefix < c->prefix))))
+ 			f = c;
+ 
+ 		c = c->next;
+@@ -3108,18 +3331,18 @@
+ 	return NULL;
+ }
+ 
+-class_t *find_class(p_in_addr_t *addr, char *remote_name)
++class_t *find_class(struct sockaddr_storage *addr, char *remote_name)
+ {
+ 	cdir_t *ip;
+ 	hostname_t *host;
+ 	class_t *c, *f;
+ 
+-	if ((ip = find_cdir(ntohl(addr->s_addr))) != NULL)
++	if ((ip = find_cdir(addr)) != NULL)
+ 		return ip->class;
+ 
+ 	if ((host = find_hostname(remote_name)) != NULL)
+ 		return host->class;
+-	if ((host = find_hostname(inet_ntoa(*addr))) != NULL)
++	if ((host = find_hostname(INET_NTOA(addr))) != NULL)
+ 		return host->class;
+ 
+ 	c = class_list;
+@@ -3140,8 +3363,8 @@
+ {
+   int bits, ret;
+   class_t *n;
+-  p_in_addr_t *res;
+-  char *ptr, ipaddress[20] = {'\0'}, errmsg[80] = {'\0'};
++  struct sockaddr_storage *res;
++  char *ptr, *ptrr, ipaddress[50] = {'\0'}, errmsg[80] = {'\0'};
+ #if defined(HAVE_REGEX_H) && defined(HAVE_REGCOMP)
+   regex_t *preg;
+ #endif
+@@ -3197,19 +3420,28 @@
+       CONF_ERROR(cmd, "wrong syntax error.");
+     } else {
+       bits = atol(ptr + 1);
+-      
++#ifdef INET6
++      if (bits < 0 || bits > 128) {
++#else
+       if (bits < 0 || bits > 32) {
++#endif
+ 	log_pri(LOG_ERR, "Class '%s' ipmask %s skipped: wrong netmask.",
+ 		cmd->argv[1], cmd->argv[3]);
+       }
+       
+       *ptr = 0;
+     }
++
++    if ((ptr = strchr(ipaddress, '[')) && (ptrr = strrchr(ipaddress, ']'))) {
++      ptr++;
++      *ptrr = 0;
++    } else
++	ptr = ipaddress;
+     
+-    if((res = inet_getaddr(cmd->pool, ipaddress)) != NULL) {
+-      add_cdir(n, ntohl(res->s_addr), bits);
+-      log_debug(DEBUG4, "Class '%s' ipmask %p/%d added.",
+-		cmd->argv[1], res, bits);
++    if((res = inet_getaddr(cmd->pool, ptr)) != NULL) {
++      add_cdir(n, res, bits);
++      log_debug(DEBUG4, "Class '%s' ipmask %s/%d added.",
++		cmd->argv[1], INET_NTOA(res), bits);
+     } else {
+       log_pri(LOG_ERR, "Class '%s' ip could not parse '%s'.",
+ 	      cmd->argv[1], cmd->argv[3]);
+@@ -3335,6 +3567,8 @@
+   { PRE_CMD, "*",G_NONE,  regex_filters,FALSE,  FALSE, CL_NONE },
+ #endif
+   { CMD, C_HELP, G_NONE,  cmd_help,	FALSE,	FALSE, CL_INFO },
++  { CMD, C_EPRT, G_NONE,  cmd_eprt,	TRUE,	FALSE, CL_MISC },
++  { CMD, C_EPSV, G_NONE,  cmd_epsv,	TRUE,	FALSE, CL_MISC },
+   { CMD, C_PORT, G_NONE,  cmd_port,	TRUE,	FALSE, CL_MISC },
+   { CMD, C_PASV, G_NONE,  cmd_pasv,	TRUE,	FALSE, CL_MISC },
+   { CMD, C_SYST, G_NONE,  cmd_syst,	TRUE,	FALSE, CL_INFO },
+diff -urN proftpd-1.2.5/modules/mod_log.c proftpd-1.2.5.v6/modules/mod_log.c
+--- proftpd-1.2.5/modules/mod_log.c	Tue May 21 22:47:17 2002
++++ proftpd-1.2.5.v6/modules/mod_log.c	Thu Aug  8 21:35:24 2002
+@@ -537,7 +537,7 @@
+ 
+   case META_REMOTE_IP:
+     argp = arg;
+-    sstrncpy(argp, inet_ntoa(*session.c->remote_ipaddr), sizeof(arg));
++    sstrncpy(argp, INET_NTOA(session.c->remote_ipaddr), sizeof(arg));
+     m++;
+     break;
+ 
+diff -urN proftpd-1.2.5/src/data.c proftpd-1.2.5.v6/src/data.c
+--- proftpd-1.2.5/src/data.c	Tue May 21 22:47:22 2002
++++ proftpd-1.2.5.v6/src/data.c	Thu Aug  8 21:35:24 2002
+@@ -230,10 +230,9 @@
+   
+   if(c) {
+     log_debug(DEBUG4,"active data connection opened - local  : %s:%d",
+-	      inet_ntoa(*session.d->local_ipaddr), session.d->local_port);
++	      INET_NTOA(session.d->local_ipaddr), session.d->local_port);
+     log_debug(DEBUG4,"active data connection opened - remote : %s:%d",
+-	      inet_ntoa(*session.d->remote_ipaddr),
+-	      session.d->remote_port);
++	      INET_NTOA(session.d->remote_ipaddr), session.d->remote_port);
+     
+     if(size) {
+       send_response(R_150,
+diff -urN proftpd-1.2.5/src/dirtree.c proftpd-1.2.5.v6/src/dirtree.c
+--- proftpd-1.2.5/src/dirtree.c	Tue May 21 22:47:22 2002
++++ proftpd-1.2.5.v6/src/dirtree.c	Thu Aug  8 21:35:24 2002
+@@ -917,13 +917,14 @@
+  * returns 0 if no match
+  */
+ 
+-int match_ip(p_in_addr_t *addr, char *name, const char *match)
++int match_ip(struct sockaddr_storage *addr, char *name, const char *match)
+ {
+   char buf[1024];
+-  char *mask,*cp;
+-  int cidr_mode = 0, cidr_bits;
+-  p_in_addr_t cidr_addr;
+-  u_int_32 cidr_mask = 0;
++  char *bufptr,*cp;
++  int netmatch = 0;
++#ifdef INET6
++  struct in6_addr     ia6, net6;
++#endif  /* INET6 */
+ 
+   if(!strcasecmp(match,"ALL"))
+     return 1;
+@@ -932,55 +933,108 @@
+     return -1;
+ 
+   memset(buf,0,sizeof(buf));
+-  mask = buf;
++  bufptr = buf;
+ 
+   if(*match == '.') {
+-    *mask++ = '*';
+-    *mask = '\0';
++    *bufptr++ = '*';
++    *bufptr = '\0';
+     sstrcat(buf, match, sizeof(buf));
+   } else if(*(match + strlen(match) - 1) == '.') {
+     sstrcat(buf, match, sizeof(buf));
+     sstrcat(buf, "*", sizeof(buf));
+-  } else if((cp = strchr(match,'/')) != NULL) { /* check for CIDR notation */
+-    /* first portion of CIDR should be dotted quad, second portion
+-     * is netmask
+-     */
+-    sstrncpy(buf, match, (cp-match)+1 <= sizeof(buf) ?
+-                         (cp-match)+1 :  sizeof(buf));    
+-    cidr_bits = atoi(cp+1);
+-    
+-    if(cidr_bits > 0 && cidr_bits < 33) {
+-      int shift = 32 - cidr_bits;
+-      
+-      cidr_mode = 1;
+-      while(cidr_bits--)
+-	cidr_mask = (cidr_mask << 1) | 1;
+-      cidr_mask = cidr_mask << shift;
+-#ifdef HAVE_INET_ATON
+-      if(inet_aton(mask,&cidr_addr) == 0)
+-	return 0;
+-#else
+-      cidr_addr.s_addr = inet_addr(mask);
+-#endif
+-      cidr_addr.s_addr &= htonl(cidr_mask);
+-    } else {
+-      return 0;
+-    }
++  } else if(*match == '[' && *(match + strlen(match) - 1) == ']') {
++    sstrcat(buf, match+1, sizeof(buf));
++    *(bufptr + strlen(bufptr) - 1) = '\0';
+   } else {
+     sstrcat(buf, match, sizeof(buf));
+   }
+-  
+-  if(cidr_mode) {
+-    if((addr->s_addr & htonl(cidr_mask)) == cidr_addr.s_addr)
++  /* Now match can be one of the following:
++   * (1)	*.domain
++   * (2)	123.456.*
++   * (3)	123.456.0.0/16
++   * (4)	abcd:1234::
++   * (5)	abcd:1234::dead:beef
++   * (6)	abcd:1234::/32
++   */
++#ifdef INET6
++  if (addr->__ss_family == AF_INET6) {
++    cp = (char *)&((struct sockaddr_in6 *)addr)->sin6_addr;
++  } else
++#endif
++    cp = (char *)&((struct sockaddr_in *)addr)->sin_addr;
++  /* This will catch (1) and (2) */
++  if(pr_fnmatch(buf, name, PR_FNM_NOESCAPE | PR_FNM_CASEFOLD) == 0 ||
++     pr_fnmatch(buf, INET_NTOA(addr), PR_FNM_NOESCAPE | PR_FNM_CASEFOLD) == 0)
++    return 1;
++
++  /* This will catch (4) and (5) */
++#ifdef INET6
++  /* For IPv6, pr_fnmatch() for comparing addresses is
++     not working enough. */
++  if (inet_pton(AF_INET6, buf, &net6) == 1) {
++    if (name && inet_pton(AF_INET6, name, &ia6) == 1 &&
++	IN6_ARE_ADDR_EQUAL(&ia6, &net6)) {
+       return 1;
+-  } else {
+-    if(pr_fnmatch(buf, name, PR_FNM_NOESCAPE | PR_FNM_CASEFOLD) == 0 ||
+-       pr_fnmatch(buf, inet_ntoa(*addr),
+-		  PR_FNM_NOESCAPE | PR_FNM_CASEFOLD) == 0)
++    } else if (IN6_ARE_ADDR_EQUAL(&((struct sockaddr_in6 *)addr)->sin6_addr, &net6)) {
+       return 1;
++    }
+   }
+-  
+-  return 0;
++#endif
++
++  /* And now (3) and (6) */
++  if((cp = strchr(match,'/')) != NULL) { /* check for CIDR notation */
++    /* first portion of CIDR should be dotted quad, second portion
++     * is netmask
++     */
++    int bits, c, n;
++    struct in_addr ia, net;
++    unsigned int mask;
++
++    *cp = '\0';
++#ifdef INET6
++    if (addr->__ss_family == AF_INET6) {
++	ia.s_addr = INADDR_NONE;
++    } else
++#endif
++    ia.s_addr = ((struct sockaddr_in *)addr)->sin_addr.s_addr;
++    net.s_addr = inet_addr(match);
++    if (ia.s_addr != (unsigned int)INADDR_NONE &&
++	net.s_addr != (unsigned int)INADDR_NONE) {
++      if (strchr(cp+1, '.') == (char *)NULL) {
++	mask = atoi(cp+1);
++	for (bits = c = 0; c < mask && c < 32; c++)
++	  bits |= (1 << (31 - c));
++	mask = htonl(bits);
++      } else {
++	mask = inet_addr(cp+1);
++      }
++      if ((ia.s_addr & mask) == (net.s_addr & mask))
++	return 1;
++#ifdef INET6
++    } else if (inet_pton(AF_INET6, buf, &net6) == 1) {
++      struct sockaddr_in6 *pia6;
++
++      pia6 = (struct sockaddr_in6 *)addr;
++      if (strchr(cp+1, ':') == (char *)NULL) {
++	mask = atoi(cp+1);
++	n = mask / 8;
++	bits = mask % 8;
++	netmatch = 1;
++	for (c = 0; c < n; c++)
++	  if (pia6->sin6_addr.s6_addr[c] != net6.s6_addr[c]) {
++	    netmatch = 0;
++	    break;
++	  }
++	if (netmatch && bits > 0) {
++	  if ((pia6->sin6_addr.s6_addr[c] & (0xff << (8 - bits))) !=
++	      (net6.s6_addr[c] & (0xff << (8 - bits))))
++	    netmatch = 0;
++	}
++      }
++#endif  /* INET6 */
++    }
++  }
++  return netmatch;
+ }
+ 
+ /* As of 1.2.0rc3, a '!' character in front of the IP address
+@@ -2513,7 +2567,7 @@
+         FALSE)) != NULL) {
+       log_pri(LOG_INFO, "%s:%d masquerading as %s",
+         inet_ascii(s->pool, s->ipaddr), s->ServerPort,
+-        inet_ascii(s->pool, (p_in_addr_t *) c->argv[0]));
++        inet_ascii(s->pool, c->argv[0]));
+     }
+ 
+     /* honor the DefaultServer directive only if SocketBindTight is not
+@@ -2521,7 +2575,11 @@
+      */
+     if (get_param_int(s->conf, "DefaultServer", FALSE) == 1) {
+       if (!SocketBindTight)
+-        s->ipaddr->s_addr = 0;
++#ifdef INET6
++        memcpy(&((struct sockaddr_in6 *)s->ipaddr)->sin6_addr, &in6addr_any, sizeof(struct in6_addr));
++#else
++        ((struct sockaddr_in *)s->ipaddr)->sin_addr = INADDR_ANY;
++#endif
+       else
+         log_pri(LOG_NOTICE,
+           "SocketBindTight in effect, ignoring DefaultServer");
+diff -urN proftpd-1.2.5/src/inet.c proftpd-1.2.5.v6/src/inet.c
+--- proftpd-1.2.5/src/inet.c	Tue May 21 22:47:22 2002
++++ proftpd-1.2.5.v6/src/inet.c	Thu Aug  8 21:35:31 2002
+@@ -130,7 +130,11 @@
+   for(p = buf; p && *p; p++) {
+     /* Per RFC requirements, these are all that are valid from a DNS.
+      */
+-    if(!isalnum(*p) && *p != '.' && *p != '-') {
++    if(!isalnum(*p) && *p != '.' && *p != '-'
++#ifdef INET6
++	    && *p != ':'
++#endif
++	    ) {
+       /* We set it to _ because we know that's an invalid, yet safe, option
+        * for a DNS entry.
+        */
+@@ -175,35 +179,31 @@
+ 
+ /* DNS/hosts lookup for a particular name
+  */
+-p_in_addr_t *inet_getaddr(pool *pool, char *name)
++struct sockaddr_storage *inet_getaddr(pool *pool, char *name)
+ {
+-  struct hostent *host;
+-  p_in_addr_t *res;
++  struct addrinfo hints, *res, *res0;
++  struct sockaddr_storage *ss;
+ 
+-  res = (p_in_addr_t*)pcalloc(pool,sizeof(p_in_addr_t));
++  ss = (struct sockaddr_storage*)pcalloc(pool,sizeof(struct sockaddr_storage));
+ 
+-  /* Try dotted quad notation first */
+-#ifdef HAVE_INET_ATON
+-  if(inet_aton(name,res))
+-    return res;
+-#else
+-  /* This is a bit unclean, because inet_addr() is obsolete, and
+-   * returns -1 (255.255.255.255) if the input is invalid.  The caller
+-   * _might_ just be trying to resolve "255.255.255.255", in which case
+-   * this entire function will fail.  Hopefully, you have inet_aton().
+-   * <grin>
+-   */
+-  if((res->s_addr = inet_addr(name)) != -1)
+-    return res;
+-#endif
++  bzero(&hints, sizeof(hints));
++  hints.ai_family = AF_UNSPEC;
++  hints.ai_socktype = SOCK_STREAM;
+ 
+-  host = gethostbyname(name);
+-  if(host) {
+-    memcpy(res, host->h_addr_list[0], sizeof(p_in_addr_t));
+-    return res;
++  if (getaddrinfo(name, "0", &hints, &res0))
++      return NULL;
++  for (res = res0; res; res = res->ai_next) {
++      if (res->ai_family == AF_INET
++#ifdef INET6
++	      || res->ai_family == AF_INET6
++#endif
++	      ) {
++	  memcpy(ss, res->ai_addr, res->ai_addrlen);
++	  freeaddrinfo(res0);
++	  return ss;
++      }
+   }
+-    
+-
++  freeaddrinfo(res0);
+   return NULL;
+ }
+ 
+@@ -211,54 +211,51 @@
+  * memory.
+  */
+ 
+-char *inet_ascii(pool *pool, p_in_addr_t *addr)
++char *inet_ascii(pool *pool, struct sockaddr_storage *ss)
+ {
++  static char buf[1024];
+   char *res = NULL;
+ 
+-  if((res = inet_ntoa(*addr)) != NULL)
+-    res = pstrdup(pool,res);
++  if (getnameinfo((struct sockaddr *)ss, sizeof(struct sockaddr_storage),
++			  buf, sizeof(buf), NULL, 0, NI_NUMERICHOST))
++	  return NULL;
++  
++  res = pstrdup(pool,buf);
+ 
+   return res;
+ }
+ 
+ /* Given an ip addresses, return the FQDN */
+-char *inet_getname(pool *pool, p_in_addr_t *addr)
++char *inet_getname(pool *pool, struct sockaddr_storage *addr)
+ {
++  static char peername[1024];
+   char *res = NULL;
+   char **checkaddr;
+-  struct hostent *hptr_rev = NULL, *hptr_forw = NULL;
+   static char *res_cache = NULL;
+-  static p_in_addr_t *addr_cache = NULL;
++  static struct sockaddr_storage *addr_cache = NULL;
+ 
+   if(reverse_dns) {
+-    if(res_cache && addr_cache && addr_cache->s_addr == addr->s_addr) {
++    if(res_cache && addr_cache && inet_address_match(addr_cache, addr)) {
+       res = pstrdup(pool, res_cache);
+       return inet_validate(res);
+     }
+-    
+-    if((hptr_rev = gethostbyaddr((const char *)addr,
+-                                 sizeof(p_in_addr_t), AF_INET)) != NULL) {
+-      if((hptr_forw = gethostbyname(hptr_rev->h_name)) != NULL) {
+-        for(checkaddr = hptr_forw->h_addr_list; *checkaddr; ++checkaddr) {
+-          if(((p_in_addr_t*)(*checkaddr))->s_addr == addr->s_addr) {
+-            res = pstrdup(pool, hptr_rev->h_name);
+-            break;
+-          }
+-        }
+-      }
++
++    if (getnameinfo((struct sockaddr *)&addr, sizeof(struct sockaddr_storage),
++		    peername, sizeof(peername), NULL, 0, 0) == 0) {
++            res = pstrdup(pool, peername);
+     }
+   }
+   
+   if(!res)
+-    res = pstrdup(pool, inet_ntoa(*addr));
++    res = pstrdup(pool, INET_NTOA(addr));
+  
+   if(reverse_dns) {
+     /* cache the result */
+     if(!addr_cache)
+-      addr_cache = malloc(sizeof(p_in_addr_t));
++      addr_cache = malloc(sizeof(struct sockaddr_storage));
+ 
+     if(addr_cache)
+-      memcpy(addr_cache, addr, sizeof(p_in_addr_t));
++      memcpy(addr_cache, addr, sizeof(struct sockaddr_storage));
+ 
+     if(res_cache)
+       free(res_cache);
+@@ -305,12 +302,12 @@
+   res->inf = res->outf = NULL;
+ 
+   if(c->local_ipaddr) {
+-    res->local_ipaddr = (p_in_addr_t*)palloc(res->pool,sizeof(p_in_addr_t));
++    res->local_ipaddr = (struct sockaddr_storage*)palloc(res->pool,sizeof(struct sockaddr_storage));
+     *res->local_ipaddr = *c->local_ipaddr;
+   }
+ 
+   if(c->remote_ipaddr) {
+-    res->remote_ipaddr = (p_in_addr_t*)palloc(res->pool,sizeof(p_in_addr_t));
++    res->remote_ipaddr = (struct sockaddr_storage*)palloc(res->pool,sizeof(struct sockaddr_storage));
+     *res->remote_ipaddr = *c->remote_ipaddr;
+   }
+ 
+@@ -396,14 +393,15 @@
+  * just for the new connection.
+  */
+ static conn_t *inet_initialize_connection(pool *p, xaset_t *servers, int fd,
+-					  p_in_addr_t *bind_addr, int port,
+-					  int retry_bind, int reporting)
++                               struct sockaddr_storage *bind_addr,
++			       int port, int retry_bind, int reporting)
+ {
+   pool *subpool;
+   conn_t *c;
+   array_header *tmp;
+   server_rec *s;
+-  struct sockaddr_in servaddr;
++  struct sockaddr_storage servaddr;
++  int family;
+   int i,res = 0, len, one = 1, hold_errno;
+   
+   CHECK_INET_POOL;
+@@ -414,7 +412,7 @@
+   /* Build the accept IPs dynamically using the inet work pool,
+    * once built, move into the conn struc.
+    */
+-  tmp = make_array(inet_pool, 5, sizeof(p_in_addr_t));
++  tmp = make_array(inet_pool, 5, sizeof(struct sockaddr_storage));
+   subpool = make_sub_pool(p);
+   c = (conn_t *) pcalloc(subpool, sizeof(conn_t));
+   c->pool = subpool;
+@@ -422,9 +420,9 @@
+   if(servers && servers->xas_list) {
+     for(s = (server_rec *) servers->xas_list; s; s = s->next)
+       if(s->ipaddr)
+-        *((p_in_addr_t *) push_array(tmp)) = *s->ipaddr;
++        memcpy(((struct sockaddr_storage*)push_array(tmp)), s->ipaddr, sizeof(struct sockaddr_storage));
+   } else {
+-    *((p_in_addr_t *) push_array(tmp)) = *main_server->ipaddr;
++    memcpy(((struct sockaddr_storage*)push_array(tmp)), main_server->ipaddr, sizeof(struct sockaddr_storage));
+   }
+   
+   c->local_port = port;
+@@ -436,6 +434,18 @@
+    */
+   if(fd == -1) {
+     
++    if (bind_addr)
++	family = bind_addr->__ss_family;
++    else {
++#ifdef INET6
++	if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) != -1) {
++	    close(fd);
++	    family = AF_INET6;
++	} else
++#endif
++	    family = AF_INET;
++    }
++
+     /* Certain versions of Solaris apparently require us to be root
+      * in order to create a socket inside a chroot ??
+      */
+@@ -461,7 +471,7 @@
+ # endif
+ #endif
+ 
+-    fd = socket(AF_INET, SOCK_STREAM, tcp_proto);
++    fd = socket(family, SOCK_STREAM, tcp_proto);
+ 
+ #if defined(SOLARIS2) || defined(FREEBSD2) || defined(FREEBSD3) || \
+     defined(FREEBSD4) || defined(__OpenBSD__) || defined(__NetBSD__) || \
+@@ -494,15 +504,28 @@
+     
+     memset(&servaddr, 0, sizeof(servaddr));
+     
+-    servaddr.sin_family = AF_INET;
+-    
+     if(bind_addr)
+-      memcpy(&servaddr.sin_addr, bind_addr, sizeof(servaddr.sin_addr));
+-    else
+-      servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+-    
+-    servaddr.sin_port = htons(port);
++	memcpy(&servaddr, bind_addr, sizeof(struct sockaddr_storage));
++    else {
++#ifdef INET6
++	if (family == AF_INET6)
++	    ((struct sockaddr_in6 *)&servaddr)->sin6_addr = in6addr_any;
++	else
++#endif
++	    ((struct sockaddr_in *)&servaddr)->sin_addr.s_addr = htonl(INADDR_ANY);
++    }
+     
++#ifdef INET6
++    if (family == AF_INET6) {
++	((struct sockaddr_in6 *)&servaddr)->sin6_family = AF_INET6;
++	((struct sockaddr_in6 *)&servaddr)->sin6_port = htons(port);
++    } else
++#endif
++    {
++	((struct sockaddr_in *)&servaddr)->sin_family = AF_INET;
++	((struct sockaddr_in *)&servaddr)->sin_port = htons(port);
++    }
++
+     if(port != INPORT_ANY && port < 1024) {
+       block_signals();
+       PRIVS_ROOT
+@@ -549,7 +572,8 @@
+ 
+       if(reporting) {
+         log_pri(LOG_ERR, "Failed binding to %s, port %d: %s",
+-                inet_ntoa(servaddr.sin_addr), port, strerror(hold_errno));
++                INET_NTOA((struct sockaddr_storage *)&servaddr),
++                port, strerror(hold_errno));
+         log_pri(LOG_ERR, "Check the ServerType directive "
+ 	                 "to ensure you are configured correctly.");
+       }
+@@ -571,11 +595,16 @@
+      */
+     len = sizeof(servaddr);
+     if(fd >= 0 && getsockname(fd, (struct sockaddr *) &servaddr, &len) != -1) {
++      mappedtov4(&servaddr);
+       if(!c->local_ipaddr)
+-        c->local_ipaddr = (p_in_addr_t *) pcalloc(c->pool,
+-						  sizeof(p_in_addr_t));
+-      *c->local_ipaddr = servaddr.sin_addr;
+-      c->local_port = ntohs(servaddr.sin_port);
++        c->local_ipaddr = (struct sockaddr_storage*)pcalloc(c->pool,sizeof(struct sockaddr_storage));
++      memcpy(c->local_ipaddr, &servaddr, sizeof(struct sockaddr_storage));
++#ifdef INET6
++      if (servaddr.__ss_family == AF_INET6)
++	  c->local_port = ntohs(((struct sockaddr_in6 *)&servaddr)->sin6_port);
++      else
++#endif
++	  c->local_port = ntohs(((struct sockaddr_in *)&servaddr)->sin_port);
+     }
+   }
+   
+@@ -586,8 +615,8 @@
+ }
+ 
+ conn_t *inet_create_connection(pool *p, xaset_t *servers, int fd,
+-                               p_in_addr_t *bind_addr, int port,
+-			       int retry_bind)
++                               struct sockaddr_storage *bind_addr,
++                               int port, int retry_bind)
+ {
+   conn_t *c = inet_initialize_connection(p, servers, fd, bind_addr,
+ 		  		         port, retry_bind, TRUE);
+@@ -607,7 +636,8 @@
+  */
+ 
+ conn_t *inet_create_connection_portrange(pool *p, xaset_t *servers,
+-				p_in_addr_t *bind_addr, int low_port, int high_port)
++                               struct sockaddr_storage *bind_addr,
++				int low_port, int high_port)
+ {
+   int range_len, index;
+   int *range, *ports;
+@@ -902,20 +932,30 @@
+   return 0;
+ }
+ 
+-int inet_connect(pool *pool, conn_t *c, p_in_addr_t *addr, int port)
++int inet_connect(pool *pool, conn_t *c, struct sockaddr_storage *addr, int port)
+ {
+-  struct sockaddr_in remaddr;
+   int ret;
++  struct sockaddr_storage remaddr;
+ 
+   inet_setblock(pool,c);
+-  remaddr.sin_family = AF_INET;
+-  remaddr.sin_addr = *addr;
+-  remaddr.sin_port = htons(port);
+-
++  memcpy(&remaddr, addr, sizeof(struct sockaddr_storage));
++#ifdef INET6
++  if (addr->__ss_family == AF_INET6)
++    ((struct sockaddr_in6 *)&remaddr)->sin6_port = htons(port);
++  else
++#endif
++    ((struct sockaddr_in *)&remaddr)->sin_port = htons(port);
++  
+   c->mode = CM_CONNECT;
+ 
+-  while( (ret = connect(c->listen_fd,(struct sockaddr*)&remaddr,sizeof(remaddr))) == -1 &&
+-         errno == EINTR ) ;
++  while( (ret = connect(c->listen_fd,(struct sockaddr*)&remaddr,
++#ifdef INET6
++		(addr->__ss_family == AF_INET) ?
++	  	sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6)
++#else
++		sizeof(struct sockaddr_in)
++#endif
++	  ) == -1) && errno == EINTR ) ;
+ 
+   if(ret == -1) {
+     c->mode = CM_ERROR;
+@@ -937,18 +977,28 @@
+  * called once, and can then be selected for writing.
+  */
+ 
+-int inet_connect_nowait(pool *pool, conn_t *c, p_in_addr_t *addr, int port)
++int inet_connect_nowait(pool *pool, conn_t *c, struct sockaddr_storage *addr, int port)
+ {
+-  struct sockaddr_in remaddr;
++  struct sockaddr_storage remaddr;
+ 
+   inet_setnonblock(pool,c);
+-
+-  remaddr.sin_family = AF_INET;
+-  remaddr.sin_addr = *addr;
+-  remaddr.sin_port = htons(port);
++  memcpy(&remaddr, addr, sizeof(struct sockaddr_storage));
++#ifdef INET6
++  if (addr->__ss_family == AF_INET6)
++    ((struct sockaddr_in6 *)&remaddr)->sin6_port = htons(port);
++  else
++#endif
++    ((struct sockaddr_in *)&remaddr)->sin_port = htons(port);
+ 
+   c->mode = CM_CONNECT;
+-  if(connect(c->listen_fd,(struct sockaddr*)&remaddr,sizeof(remaddr)) == -1) {
++  if(connect(c->listen_fd,(struct sockaddr*)&remaddr,
++#ifdef INET6
++		(addr->__ss_family == AF_INET) ?
++	  	sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6)
++#else
++		sizeof(struct sockaddr_in)
++#endif
++	    ) == -1) {
+     if(errno != EINPROGRESS && errno != EALREADY) {
+       c->mode = CM_ERROR;
+       c->xerrno = errno;
+@@ -978,7 +1028,7 @@
+ int inet_accept_nowait(pool *pool, conn_t *c)
+ {
+   int fd;
+-  struct sockaddr_in servaddr;
++  struct sockaddr_storage servaddr;
+   int len = sizeof(servaddr);
+ 
+   if(c->mode == CM_LISTEN)
+@@ -1013,7 +1063,7 @@
+ 		    int resolve) {
+   conn_t *res = NULL;
+   int newfd = -1, allow_foreign_addr = -1;
+-  struct sockaddr_in addr;
++  struct sockaddr_storage addr;
+   int addrlen = sizeof(addr);
+   
+   d->mode = CM_ACCEPT;
+@@ -1025,10 +1075,32 @@
+ 		       &addrlen)) != -1) {
+       if((allow_foreign_addr != 1) &&
+ 	 (getpeername(newfd, (struct sockaddr *) &addr, &addrlen) != -1)) {
+-	if(addr.sin_addr.s_addr != c->remote_ipaddr->s_addr) {
++	  mappedtov4(&addr);
++#ifdef INET6
++	if (addr.__ss_family == AF_INET6) {
++	  if (!IN6_ARE_ADDR_EQUAL(&((struct sockaddr_in6 *)&addr)->sin6_addr,
++				  &((struct sockaddr_in6 *)c->remote_ipaddr)->sin6_addr)) {
++	    log_pri(LOG_NOTICE,
++		  "SECURITY VIOLATION: Passive connection from %s rejected.",
++		  INET_NTOA(&addr));
++	    close(newfd);
++	    continue;
++	  }
++	} else
++#endif
++	if (addr.__ss_family == AF_INET) {
++	  if(((struct sockaddr_in *)&addr)->sin_addr.s_addr != 
++		((struct sockaddr_in *)c->remote_ipaddr)->sin_addr.s_addr) {
++	    log_pri(LOG_NOTICE,
++		  "SECURITY VIOLATION: Passive connection from %s rejected.",
++		  INET_NTOA(&addr));
++	    close(newfd);
++	    continue;
++	  }
++	} else {
+ 	  log_pri(LOG_NOTICE,
+ 		  "SECURITY VIOLATION: Passive connection from %s rejected.",
+-		  inet_ntoa(addr.sin_addr));
++		  INET_NTOA(&addr));
+ 	  close(newfd);
+ 	  continue;
+ 	}
+@@ -1047,7 +1119,7 @@
+ }
+ 
+ int inet_get_conn_info(conn_t *c, int fd) {
+-  static struct sockaddr_in servaddr;
++  static struct sockaddr_storage servaddr;
+   int len = sizeof(servaddr);
+   
+   /* Sanity check.
+@@ -1058,21 +1130,33 @@
+   }
+  
+   if (getsockname(fd, (struct sockaddr *) &servaddr, &len) != -1) {
++    mappedtov4(&servaddr);
+     if (!c->local_ipaddr)
+-      c->local_ipaddr = (p_in_addr_t *) pcalloc(c->pool, sizeof(p_in_addr_t));     
+-    *c->local_ipaddr = servaddr.sin_addr;
+-    c->local_port = ntohs(servaddr.sin_port);
+-
++      c->local_ipaddr = (struct sockaddr_storage*)pcalloc(c->pool,sizeof(struct sockaddr_storage));
++    memcpy(c->local_ipaddr, &servaddr, sizeof(struct sockaddr_storage));
++#ifdef INET6
++    if (servaddr.__ss_family == AF_INET6)
++      c->local_port = ntohs(((struct sockaddr_in6 *)&servaddr)->sin6_port);
++    else
++#endif
++	    if (servaddr.__ss_family == AF_INET)
++      c->local_port = ntohs(((struct sockaddr_in *)&servaddr)->sin_port);
+   } else
+     return -1;
+   
+   len = sizeof(servaddr);
+ 
+   if (getpeername(fd, (struct sockaddr *) &servaddr, &len) != -1) {
+-    c->remote_ipaddr = (p_in_addr_t *) pcalloc(c->pool, sizeof(p_in_addr_t));
+-    *c->remote_ipaddr = servaddr.sin_addr;
+-    c->remote_port = ntohs(servaddr.sin_port);
+-
++    mappedtov4(&servaddr);
++    c->remote_ipaddr = (struct sockaddr_storage*)pcalloc(c->pool,sizeof(struct sockaddr_storage));
++    memcpy(c->remote_ipaddr, &servaddr, sizeof(struct sockaddr_storage));
++#ifdef INET6
++    if (servaddr.__ss_family == AF_INET6)
++      c->remote_port = ntohs(((struct sockaddr_in6 *)&servaddr)->sin6_port);
++    else
++#endif
++	    if (servaddr.__ss_family == AF_INET)
++      c->remote_port = ntohs(((struct sockaddr_in *)&servaddr)->sin_port);
+   } else
+     return -1;
+ 
+@@ -1086,7 +1170,7 @@
+  * If resolve is non-zero, the remote address is reverse resolved.
+  */
+ 
+-conn_t *inet_associate(pool *pool, conn_t *c, p_in_addr_t *addr, 
++conn_t *inet_associate(pool *pool, conn_t *c, struct sockaddr_storage *addr, 
+                        IOFILE *inf, IOFILE *outf, int resolve)
+ {
+   int rfd,wfd;
+@@ -1120,15 +1204,15 @@
+ 
+   if(addr) {
+     if(!res->remote_ipaddr)
+-      res->remote_ipaddr = (p_in_addr_t*)palloc(res->pool,sizeof(p_in_addr_t));
+-    *res->remote_ipaddr = *addr;
++      res->remote_ipaddr = (struct sockaddr_storage*)palloc(res->pool,sizeof(struct sockaddr_storage));
++    memcpy(res->remote_ipaddr, addr, sizeof(struct sockaddr_storage));
+   }
+ 
+   if(resolve && res->remote_ipaddr)
+     res->remote_name = inet_getname(res->pool,res->remote_ipaddr);
+ 
+   if(!res->remote_name)
+-    res->remote_name = pstrdup(res->pool,inet_ntoa(*res->remote_ipaddr));
++    res->remote_name = pstrdup(res->pool,INET_NTOA(res->remote_ipaddr));
+ 
+   inet_setoptions(res->pool,res,0,0);
+   /* inet_setnonblock(res->pool,res); */
+@@ -1152,7 +1236,7 @@
+  * Important, do not call any log_* functions from inside of inet_openrw()
+  * or any functions it calls, as the possibility for fd overwriting occurs.
+  */
+-conn_t *inet_openrw(pool *pool, conn_t *c, p_in_addr_t *addr, int fd,
++conn_t *inet_openrw(pool *pool, conn_t *c, struct sockaddr_storage *addr, int fd,
+                     int rfd,int wfd, int resolve)
+ {
+   conn_t *res = NULL;
+@@ -1172,15 +1256,15 @@
+ 
+   if (addr) {
+     if (!res->remote_ipaddr)
+-      res->remote_ipaddr = (p_in_addr_t*)palloc(res->pool,sizeof(p_in_addr_t));
+-    *res->remote_ipaddr = *addr;
++      res->remote_ipaddr = (struct sockaddr_storage*)palloc(res->pool,sizeof(struct sockaddr_storage));
++    memcpy(res->remote_ipaddr, addr, sizeof(struct sockaddr_storage));
+   }
+ 
+   if (resolve && res->remote_ipaddr)
+     res->remote_name = inet_getname(res->pool,res->remote_ipaddr);
+ 
+   if (!res->remote_name)
+-    res->remote_name = pstrdup(res->pool,inet_ntoa(*res->remote_ipaddr));
++    res->remote_name = pstrdup(res->pool,INET_NTOA(res->remote_ipaddr));
+ 
+   if (fd == -1 && c->listen_fd != -1)
+     fd = c->listen_fd;
+@@ -1224,6 +1308,127 @@
+   return res;
+ }
+ 
++int inet_address_match(struct sockaddr_storage *cp,
++		struct sockaddr_storage *rp)
++{
++  struct sockaddr_in  *sin_cp, *sin_rp;
++#ifdef INET6
++  struct sockaddr_in6 *sin6_cp, *sin6_rp;
++
++  if (cp->__ss_family == AF_INET6 && rp->__ss_family == AF_INET) {
++    sin6_cp = (struct sockaddr_in6 *)cp;
++    sin_rp = (struct sockaddr_in *)rp;
++    if (IN6_IS_ADDR_V4MAPPED(&sin6_cp->sin6_addr) &&
++	memcmp(&sin6_cp->sin6_addr.s6_addr[12], &sin_rp->sin_addr.s_addr,
++		sizeof(struct in_addr)) == 0)
++      return 1;
++    else
++      return 0;
++  } else if (cp->__ss_family == AF_INET && rp->__ss_family == AF_INET6) {
++    sin_cp = (struct sockaddr_in *)cp;
++    sin6_rp = (struct sockaddr_in6 *)rp;
++    if (IN6_IS_ADDR_V4MAPPED(&sin6_rp->sin6_addr) &&
++	memcmp(&sin6_rp->sin6_addr.s6_addr[12], &sin_cp->sin_addr.s_addr,
++		sizeof(struct in_addr)) == 0)
++      return 1;
++    else
++      return 0;
++  }
++#endif  /* INET6 */
++  if (cp->__ss_family != rp->__ss_family)
++    return 0;
++  if (cp->__ss_family == AF_INET) {
++    sin_cp = (struct sockaddr_in *)cp;
++    sin_rp = (struct sockaddr_in *)rp;
++    if (sin_cp->sin_addr.s_addr == sin_rp->sin_addr.s_addr)
++      return 1;
++    else
++      return 0;
++#ifdef INET6
++  } else if (cp->__ss_family == AF_INET6) {
++    sin6_cp = (struct sockaddr_in6 *)cp;
++    sin6_rp = (struct sockaddr_in6 *)rp;
++    if (IN6_ARE_ADDR_EQUAL(&sin6_cp->sin6_addr, &sin6_rp->sin6_addr))
++      return 1;
++    else
++      return 0;
++#endif  /* INET6 */
++  }
++  return 0;
++}
++
++int inet_prefix_match(struct sockaddr_storage *cp,
++		struct sockaddr_storage *rp, int prefix)
++{
++  u_int_32 netmask = 0;
++  struct sockaddr_in  *sin_cp, *sin_rp;
++  struct in_addr cp4, rp4;
++#ifdef INET6
++  struct sockaddr_in6 *sin6_cp, *sin6_rp;
++  struct in6_addr cp6, rp6;
++
++  if (cp->__ss_family == AF_INET6 && rp->__ss_family == AF_INET) {
++    sin6_cp = (struct sockaddr_in6 *)cp;
++    sin_rp = (struct sockaddr_in *)rp;
++    if (IN6_IS_ADDR_V4MAPPED(&sin6_cp->sin6_addr)) {
++      if (prefix > 32) prefix = 32;
++      while (prefix--) { netmask >>= 1; netmask |= 0x80000000; }
++      cp4.s_addr = ntohl(sin6_cp->sin6_addr.s6_addr32[3]) & netmask;
++      rp4.s_addr = ntohl(sin_rp->sin_addr.s_addr) & netmask;
++      if (cp4.s_addr == rp4.s_addr)
++        return 1;
++      else
++        return 0;
++    } else
++      return 0;
++  } else if (cp->__ss_family == AF_INET && rp->__ss_family == AF_INET6) {
++    sin_cp = (struct sockaddr_in *)cp;
++    sin6_rp = (struct sockaddr_in6 *)rp;
++    if (IN6_IS_ADDR_V4MAPPED(&sin6_rp->sin6_addr)) {
++      if (prefix > 32) prefix = 32;
++      while (prefix--) { netmask >>= 1; netmask |= 0x80000000; }
++      cp4.s_addr = ntohl(sin_cp->sin_addr.s_addr) & netmask;
++      rp4.s_addr = ntohl(sin6_rp->sin6_addr.s6_addr32[3]) & netmask;
++      if (cp4.s_addr == rp4.s_addr)
++        return 1;
++      else
++        return 0;
++    } else
++      return 0;
++  }
++#endif  /* INET6 */
++  if (cp->__ss_family != rp->__ss_family)
++    return 0;
++  if (cp->__ss_family == AF_INET) {
++    if (prefix > 32) prefix = 32;
++    while (prefix--) { netmask >>= 1; netmask |= 0x80000000; }
++    cp4.s_addr = ntohl(((struct sockaddr_in *)cp)->sin_addr.s_addr) & netmask;
++    rp4.s_addr = ntohl(((struct sockaddr_in *)rp)->sin_addr.s_addr) & netmask;
++    if (cp4.s_addr == rp4.s_addr)
++      return 1;
++    else
++      return 0;
++#ifdef INET6
++  } else if (cp->__ss_family == AF_INET6) {
++    int i,j;
++
++    memcpy(&cp6, &((struct sockaddr_in6 *)cp)->sin6_addr, sizeof(struct in6_addr));
++    memcpy(&rp6, &((struct sockaddr_in6 *)rp)->sin6_addr, sizeof(struct in6_addr));
++    for (i=0; i<4; i++) {
++      j=0; netmask=0;
++      while (prefix && j++<32) { prefix--; netmask >>= 1; netmask |= 0x80000000; }
++      cp6.s6_addr32[i] &= htonl(netmask);
++      rp6.s6_addr32[i] &= htonl(netmask);
++    }
++    if (IN6_ARE_ADDR_EQUAL(&cp6, &rp6))
++      return 1;
++    else
++      return 0;
++#endif  /* INET6 */
++  }
++  return 0;
++}
++
+ /* Perform reverse ip dns resolution on an existing
+  * connection.
+  */
+@@ -1234,7 +1439,7 @@
+     c->remote_name = inet_getname(c->pool,c->remote_ipaddr);
+ 
+     if(!c->remote_name)
+-      c->remote_name = pstrdup(c->pool,inet_ntoa(*c->remote_ipaddr));
++      c->remote_name = pstrdup(c->pool,INET_NTOA(c->remote_ipaddr));
+ 
+   }
+ }
+diff -urN proftpd-1.2.5/src/intoa.c proftpd-1.2.5.v6/src/intoa.c
+--- proftpd-1.2.5/src/intoa.c	Thu Jan  1 01:00:00 1970
++++ proftpd-1.2.5.v6/src/intoa.c	Thu Aug  8 21:35:24 2002
+@@ -0,0 +1,40 @@
++/*
++ * ProFTPD - FTP server daemon
++ * Copyright (c) 1997, 1998 Public Flood Software
++ * Copyright (C) 1999, 2000 MacGyver aka Habeeb J. Dihu <macgyver@tos.net>
++ *  
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
++ */
++
++/*
++ * Inet support functions, many wrappers for netdb functions
++ */
++
++
++#include "conf.h"
++#include "privs.h"
++
++#ifdef INET6
++char *INET_NTOA(struct sockaddr_storage *ss)
++{
++  static char buf[1024];
++
++  if (getnameinfo((struct sockaddr *)ss, sizeof(struct sockaddr_storage),
++		  buf, sizeof(buf), NULL, 0, NI_NUMERICHOST))
++      strcpy(buf, "0.0.0.0");
++
++  return buf;
++}
++#endif
+diff -urN proftpd-1.2.5/src/log.c proftpd-1.2.5.v6/src/log.c
+--- proftpd-1.2.5/src/log.c	Tue May 21 22:47:22 2002
++++ proftpd-1.2.5.v6/src/log.c	Thu Aug  8 21:35:24 2002
+@@ -434,12 +434,12 @@
+   return NULL;
+ }
+ 
+-void log_run_address(const char *remote_name, const p_in_addr_t *remote_ipaddr)
++void log_run_address(const char *remote_name, const struct sockaddr_storage *remote_ipaddr)
+ {
+   char buf[LOGBUFFER_SIZE] = {'\0'};
+ 
+   snprintf(buf, sizeof(buf), "%s [%s]",
+-	   remote_name, inet_ntoa(*remote_ipaddr));
++	   remote_name, INET_NTOA((struct sockaddr_storage *)remote_ipaddr));
+   buf[sizeof(buf) - 1] = '\0';
+   address = pstrdup(permanent_pool,buf);
+ }
+@@ -459,7 +459,7 @@
+  */
+ 
+ int log_add_run(pid_t mpid, time_t *idle_since, char *user,char *class,
+-                p_in_addr_t *server_ip, unsigned short server_port, 
++                struct sockaddr_storage *server_ip, unsigned short server_port, 
+                 unsigned long tx_size, unsigned long tx_done, char *op, ...)
+ {
+   logrun_t ent,fent;
+@@ -590,7 +590,7 @@
+  * but I haven't been able to test them.
+  */
+ 
+-int log_wtmp(char *line, char *name, char *host, p_in_addr_t *ip)
++int log_wtmp(char *line, char *name, char *host, struct sockaddr_storage *ip)
+ {
+   struct stat buf;
+   struct utmp ut;
+@@ -657,8 +657,14 @@
+     memset(&ut,0,sizeof(ut));
+ #ifdef HAVE_UTMAXTYPE
+ #ifdef LINUX
+-    if(ip)
+-      memcpy(&ut.ut_addr,ip,sizeof(ut.ut_addr));
++    if(ip) {
++#ifdef INET6
++      if (ip->__ss_family == AF_INET6)
++	memcpy(&ut.ut_addr_v6,&((struct sockaddr_in6 *)ip)->sin6_addr,sizeof(ut.ut_addr_v6));
++      else
++#endif
++	memcpy(&ut.ut_addr,&((struct sockaddr_in *)ip)->sin_addr,sizeof(ut.ut_addr));
++    }
+ #else
+     sstrncpy(ut.ut_id,"ftp",sizeof(ut.ut_id));
+     ut.ut_exit.e_termination = 0;
+@@ -835,7 +841,7 @@
+     if(session.c && session.c->remote_name) {
+       snprintf(serverinfo + strlen(serverinfo),
+ 	       sizeof(serverinfo) - strlen(serverinfo), " (%s[%s])",
+-	       session.c->remote_name, inet_ntoa(*session.c->remote_ipaddr));
++	       session.c->remote_name, INET_NTOA(session.c->remote_ipaddr));
+       serverinfo[sizeof(serverinfo) - 1] = '\0';
+     }
+   }
+diff -urN proftpd-1.2.5/src/main.c proftpd-1.2.5.v6/src/main.c
+--- proftpd-1.2.5/src/main.c	Tue May 21 22:47:23 2002
++++ proftpd-1.2.5.v6/src/main.c	Thu Aug  8 21:35:24 2002
+@@ -108,7 +108,7 @@
+   struct _binding *next;
+ 
+   server_rec *server;			/* server to handle request */
+-  p_in_addr_t ipaddr;			/* ip address "bound" to */
++  struct sockaddr_storage ipaddr;	/* ip address "bound" to */
+   int        port;
+   conn_t     *listen;			/* listen connection (if separate) */
+   char       isdefault;			/* if default connection */
+@@ -158,17 +158,17 @@
+ 
+ char *config_filename = CONFIG_FILE_PATH;
+ 
+-int add_binding(server_rec *server, p_in_addr_t *ipaddr, conn_t *listen,
++int add_binding(server_rec *server, struct sockaddr_storage *ipaddr, conn_t *listen,
+                 char isdefault, char islocalhost)
+ {
+   binding_t *b;
+ 
+   for(b = bind_list; b; b=b->next)
+-    if(b->ipaddr.s_addr == ipaddr->s_addr &&
++    if(inet_address_match(&b->ipaddr, ipaddr) &&
+        b->port == server->ServerPort) {
+       /* binding already exists for this IP */
+       log_pri(LOG_NOTICE,"cannot bind %s:%d to server '%s', already bound to '%s'.",
+-              inet_ntoa(*ipaddr),server->ServerPort,
++              INET_NTOA(ipaddr),server->ServerPort,
+               server->ServerName,b->server->ServerName);
+       return -1;
+     }
+@@ -179,7 +179,7 @@
+   b = palloc(bind_pool,sizeof(binding_t));
+   b->server = server;
+   b->port = server->ServerPort;
+-  b->ipaddr = *ipaddr;
++  memcpy(&b->ipaddr, ipaddr, sizeof(struct sockaddr_storage));
+   b->listen = listen;
+   b->isdefault = isdefault;
+   b->islocalhost = islocalhost;
+@@ -190,12 +190,12 @@
+   return 0;
+ }
+ 
+-server_rec *find_binding(p_in_addr_t *ipaddr, int port)
++server_rec *find_binding(struct sockaddr_storage *ipaddr, int port)
+ {
+   binding_t *b,*local_b = NULL,*default_b = NULL;
+ 
+   for(b = bind_list; b; b=b->next) {
+-    if(b->ipaddr.s_addr == ipaddr->s_addr && (!b->port || b->port == port))
++    if(inet_address_match(&b->ipaddr, ipaddr) && (!b->port || b->port == port))
+       return b->server;
+ 
+     if(b->islocalhost)
+@@ -206,20 +206,20 @@
+ 
+   /* Not found in binding list, so see if it's the loopback address */
+   if(local_b) {
+-    p_in_addr_t loopback,loopmask,tmp;
+-
+-#ifdef HAVE_INET_ATON
+-    inet_aton(LOOPBACK_NET,&loopback);
+-    inet_aton(LOOPBACK_MASK,&loopmask);
+-#else
+-    loopback.s_addr = inet_addr(LOOPBACK_NET);
+-    loopmask.s_addr = inet_addr(LOOPBACK_MASK);
++    struct sockaddr_storage loopback;
++    struct sockaddr_in *loopback4 = (struct sockaddr_in *)&loopback;
++#ifdef INET6
++    struct sockaddr_in6 *loopback6 = (struct sockaddr_in6 *)&loopback;
++
++    loopback.__ss_family = AF_INET6;
++    memcpy(&loopback6->sin6_addr, &in6addr_loopback, sizeof(struct in6_addr));
++    if(inet_address_match(ipaddr, (struct sockaddr_storage *)&loopback) &&
++       (!local_b->port || port == local_b->port))
++      return local_b->server;
+ #endif
+-    loopback.s_addr = ntohl(loopback.s_addr);
+-    loopmask.s_addr = ntohl(loopmask.s_addr);
+-    tmp.s_addr = ntohl(ipaddr->s_addr);
+-
+-    if((tmp.s_addr & loopmask.s_addr) == loopback.s_addr &&
++    loopback.__ss_family = AF_INET;
++    loopback4->sin_addr.s_addr = INADDR_LOOPBACK;
++    if(inet_address_match(ipaddr, (struct sockaddr_storage *)&loopback) &&
+        (!local_b->port || port == local_b->port))
+       return local_b->server;
+   }
+@@ -664,8 +664,8 @@
+     if ((c = find_config(main_server->conf, CONF_PARAM, "MasqueradeAddress",
+         FALSE)) != NULL) {
+ 
+-      p_in_addr_t *masq_addr = (p_in_addr_t *) c->argv[0];
+-      serveraddress = pstrdup(main_server->pool, inet_ntoa(*masq_addr));
++      struct sockaddr_storage *masq_addr = (struct sockaddr_storage *) c->argv[0];
++      serveraddress = pstrdup(main_server->pool, INET_NTOA(masq_addr));
+     }
+ 
+     time(&now);
+@@ -962,7 +962,7 @@
+ 
+   set_proc_title("proftpd: connected: %s (%s:%d)",
+   		c->remote_name ? c->remote_name : "?",
+-		c->remote_ipaddr ? inet_ntoa(*c->remote_ipaddr) : "?",
++		c->remote_ipaddr ? INET_NTOA(c->remote_ipaddr) : "?",
+ 		c->remote_port ? c->remote_port : 0
+ 		);
+ 
+@@ -972,8 +972,8 @@
+ 
+   if ((masq_c = find_config(server->conf, CONF_PARAM, "MasqueradeAddress",
+       FALSE)) != NULL) {
+-    p_in_addr_t *masq_addr = (p_in_addr_t *) masq_c->argv[0];
+-    serveraddress = pstrdup(server->pool, inet_ntoa(*masq_addr));
++    struct sockaddr_storage *masq_addr = (struct sockaddr_storage *) masq_c->argv[0];
++    serveraddress = pstrdup(server->pool, INET_NTOA(masq_addr));
+   }
+ 
+   display = (char*)get_param_ptr(server->conf,"DisplayConnect",FALSE);
+@@ -1482,8 +1482,8 @@
+       if ((c = find_config(main_server->conf, CONF_PARAM, "MasqueradeAddress",
+         FALSE)) != NULL) {
+ 
+-        p_in_addr_t *masq_addr = (p_in_addr_t *) c->argv[0];
+-        serveraddress = pstrdup(main_server->pool, inet_ntoa(*masq_addr));
++        struct sockaddr_storage *masq_addr = (struct sockaddr_storage *) c->argv[0];
++        serveraddress = pstrdup(main_server->pool, INET_NTOA(masq_addr));
+       }
+ 
+       reason = sreplace(permanent_pool,shutmsg,
+@@ -1501,7 +1501,7 @@
+ 
+       log_auth(LOG_NOTICE, "connection refused (%s) from %s [%s]",
+                reason, session.c->remote_name,
+-               inet_ntoa(*session.c->remote_ipaddr));
++               INET_NTOA(session.c->remote_ipaddr));
+ 
+       send_response(R_500, 
+ 		    "FTP server shut down (%s) -- please try again later.",
+@@ -1532,7 +1532,7 @@
+   /* Check config tree for <Limit LOGIN> directives */
+   if(!login_check_limits(serv->conf,TRUE,FALSE,&i)) {
+     log_pri(LOG_NOTICE,"Connection from %s [%s] denied.",
+-            session.c->remote_name,inet_ntoa(*session.c->remote_ipaddr));
++            session.c->remote_name,INET_NTOA(session.c->remote_ipaddr));
+     exit(0);
+   }
+ 
+@@ -1563,10 +1563,10 @@
+   init_child_modules();
+ 
+   log_debug(DEBUG4,"connected - local  : %s:%d",
+-                    inet_ntoa(*session.c->local_ipaddr),
++                    INET_NTOA(session.c->local_ipaddr),
+                     session.c->local_port);
+   log_debug(DEBUG4,"connected - remote : %s:%d",
+-                    inet_ntoa(*session.c->remote_ipaddr),
++  		    INET_NTOA(session.c->remote_ipaddr),
+                     session.c->remote_port);
+ 
+   /* xfer_set_data_port(conn->local_ipaddr,conn->local_port-1); */
+@@ -2172,7 +2172,7 @@
+ {
+   config_rec *c;
+   conn_t *listen;
+-  p_in_addr_t *ipaddr;
++  struct sockaddr_storage *ipaddr;
+ 
+   c = find_config(s->conf,CONF_PARAM,"Bind",FALSE);
+   while(c) {
+diff -urN proftpd-1.2.5/src/support.c proftpd-1.2.5.v6/src/support.c
+--- proftpd-1.2.5/src/support.c	Tue May 21 22:47:23 2002
++++ proftpd-1.2.5.v6/src/support.c	Thu Aug  8 21:35:24 2002
+@@ -902,3 +902,22 @@
+   
+   return dest;
+ }
++
++/* convert IPv4-mapped to real IPv4 struct */
++void mappedtov4( struct sockaddr_storage *ss )
++{
++    struct sockaddr_in sin;
++    struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)ss;
++    if (ss->__ss_family == AF_INET6 && IN6_IS_ADDR_V4MAPPED(&sin6->sin6_addr) ) {
++	memcpy(&sin.sin_addr, sin6->sin6_addr.s6_addr+12,
++		sizeof(sin.sin_addr));
++	sin.sin_port = ((struct sockaddr_in6 *)ss)->sin6_port;
++	sin.sin_family = AF_INET;
++#ifdef SIN6_LEN
++	sin.sin_len = sizeof(struct sockaddr_in);
++#endif
++	memset(ss, 0, sizeof(struct sockaddr_storage));
++	memcpy(ss, &sin, sizeof(sin));
++    }
++}
++
