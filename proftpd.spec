@@ -21,6 +21,7 @@ Patch5:		%{name}-release.patch
 Patch6:		%{name}-noautopriv.patch
 Patch7:		%{name}-betterlog.patch
 Patch8:		%{name}-mod_xfer.patch
+Patch9:		%{name}-xferlog.patch
 URL:		http://www.proftpd.org
 #BuildRequires:	/lib/libcap.so
 Requires:	logrotate
@@ -58,6 +59,7 @@ z dokumentacj± dotycz±c± konfigurowania.
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 
 %build
 autoconf
