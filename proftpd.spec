@@ -44,6 +44,7 @@ URL:		http://www.proftpd.org/
 %{?_with_mysql:BuildRequires:	mysql-devel}
 %{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.6a}
 BuildRequires:	libwrap-devel
+BuildRequires:	autoconf
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir	/etc/ftpd
@@ -105,7 +106,9 @@ Obsoletes:	bftpd
 Obsoletes:	ftpd-BSD
 Obsoletes:	heimdal-ftpd
 Obsoletes:	linux-ftpd
+Obsoletes:	muddleftpd
 Obsoletes:	pure-ftpd
+Obsoletes:	troll-ftpd
 Obsoletes:	wu-ftpd
 
 %description inetd
@@ -132,7 +135,9 @@ Obsoletes:	bftpd
 Obsoletes:	ftpd-BSD
 Obsoletes:	heimdal-ftpd
 Obsoletes:	linux-ftpd
+Obsoletes:	muddleftpd
 Obsoletes:	pure-ftpd
+Obsoletes:	troll-ftpd
 Obsoletes:	wu-ftpd
 
 %description standalone
@@ -194,7 +199,7 @@ mv -f contrib/README contrib/README.modules
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers
 :> $RPM_BUILD_ROOT/var/log/xferlog
 
-ln -s proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
+ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 :> $RPM_BUILD_ROOT/etc/security/blacklist.ftp
 
