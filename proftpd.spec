@@ -36,6 +36,7 @@ Patch6:		%{name}-noautopriv.patch
 Patch7:		%{name}-betterlog.patch
 Patch8:		%{name}-DESTDIR.patch
 Patch9:		%{name}-wtmp.patch
+Patch10:	%{name}-link.patch
 URL:		http://www.proftpd.net/
 %{?!bcond_off_pam:BuildRequires:	pam-devel}
 %{?bcond_on_ldap:BuildRequires:		openldap-devel}
@@ -111,6 +112,7 @@ ProFTPD configs for running as a standalone daemon.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
 install -m644 %{SOURCE7} contrib/mod_tcpd.c
 
 %build
