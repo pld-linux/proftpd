@@ -1,88 +1,170 @@
 diff -ur proftpd-1.2.0rc2.orig/src/log.c proftpd-1.2.0rc2/src/log.c
 --- proftpd-1.2.0rc2.orig/src/log.c	Wed Jul 26 13:03:17 2000
-+++ proftpd-1.2.0rc2/src/log.c	Wed Aug  9 17:24:32 2000
-@@ -529,21 +529,11 @@
- 
++++ proftpd-1.2.0rc2/src/log.c	Sun Aug 20 01:07:51 2000
+@@ -530,93 +530,96 @@
  int log_wtmp(char *line, char *name, char *host, p_in_addr_t *ip)
  {
--  struct stat buf;
+   struct stat buf;
 -  struct utmp ut;
    int res = 0;
 -  static int fd = -1;
- 
+-
 -#if defined(SVR4) || defined(__SVR4)
 -#if !(defined(LINUX) || defined(__hpux) || defined (_AIX))
-+#ifdef HAVE_UTMPX_H
-   /* This "auxilliary" utmp doesn't exist under linux. */
-   struct utmpx utx;
--  static int fdx = -1;
--
+-  /* This "auxilliary" utmp doesn't exist under linux. */
+-  struct utmpx utx;
+   static int fdx = -1;
++  static int fd = -1;
+ 
 -  if(fdx < 0 && (fdx = open(WTMPX_FILE, O_WRONLY | O_APPEND, 0)) < 0) {
 -    log_pri(LOG_WARNING,"wtmpx %s: %s",WTMPX_FILE,strerror(errno));
 -    return -1;
 -  }
- 
-   /* Unfortunately, utmp string fields are terminated by '\0' if they are
-    * shorter than the size of the field, but if they are exactly the size of
-@@ -551,37 +541,29 @@
-    * Insane if you ask me.  Unless there's massive uproar, I prefer to err on
-    * the side of caution and always null-terminate our strings.
-    */
+-
+-  /* Unfortunately, utmp string fields are terminated by '\0' if they are
+-   * shorter than the size of the field, but if they are exactly the size of
+-   * the field they don't have to be terminated at all.  Frankly, this sucks.
+-   * Insane if you ask me.  Unless there's massive uproar, I prefer to err on
+-   * the side of caution and always null-terminate our strings.
+-   */
 -  if(fstat(fdx,&buf) == 0) {
-     memset(&utx,0,sizeof(utx));
-     sstrncpy(utx.ut_user,name,sizeof(utx.ut_user));
-     sstrncpy(utx.ut_id,"ftp",sizeof(utx.ut_user));
-     sstrncpy(utx.ut_line,line,sizeof(utx.ut_line));
-     sstrncpy(utx.ut_host,host,sizeof(utx.ut_host));
+-    memset(&utx,0,sizeof(utx));
+-    sstrncpy(utx.ut_user,name,sizeof(utx.ut_user));
+-    sstrncpy(utx.ut_id,"ftp",sizeof(utx.ut_user));
+-    sstrncpy(utx.ut_line,line,sizeof(utx.ut_line));
+-    sstrncpy(utx.ut_host,host,sizeof(utx.ut_host));
 -    utx.ut_syslen = strlen(utx.ut_host)+1;
-     utx.ut_pid = getpid();
-     time(&utx.ut_tv.tv_sec);
-     if(*name)
-       utx.ut_type = USER_PROCESS;
-     else
-       utx.ut_type = DEAD_PROCESS;
-+#if defined(__linux)
-+    utx.ut_exit.__e_termination = 0;
-+    utx.ut_exit.__e_exit = 0;
-+#else
-     utx.ut_exit.e_termination = 0;
-     utx.ut_exit.e_exit = 0;
+-    utx.ut_pid = getpid();
+-    time(&utx.ut_tv.tv_sec);
+-    if(*name)
+-      utx.ut_type = USER_PROCESS;
+-    else
+-      utx.ut_type = DEAD_PROCESS;
+-    utx.ut_exit.e_termination = 0;
+-    utx.ut_exit.e_exit = 0;
 -    if(write(fdx,(char*)&utx,sizeof(utx)) != sizeof(utx))
 -      ftruncate(fdx, buf.st_size);
 -  } else {
 -    log_debug(DEBUG0,"%s fstat(): %s",WTMPX_FILE,strerror(errno));
 -    res = -1;
 -  }
--
++  if (fdx >= 0 || access(_PATH_WTMP"x", F_OK) == 0) {
++    struct utmpx utx;
+ 
++    if(fdx < 0 && (fdx = open(_PATH_WTMP"x", O_WRONLY | O_APPEND, 0)) < 0) {
++      log_pri(LOG_WARNING,"wtmpx %s: %s",_PATH_WTMP"x",strerror(errno));
++      return -1;
++    }
++
++    /* Unfortunately, utmp string fields are terminated by '\0' if they are
++     * shorter than the size of the field, but if they are exactly the size of
++     * the field they don't have to be terminated at all.  Frankly, this sucks.
++     * Insane if you ask me.  Unless there's massive uproar, I prefer to err on
++     * the side of caution and always null-terminate our strings.
++     */
++    if(fstat(fdx,&buf) == 0) {
++      memset(&utx,0,sizeof(utx));
++      if(name && *name)
++        sstrncpy(utx.ut_user,name,sizeof(utx.ut_user));
++      sstrncpy(utx.ut_id,"ftp",sizeof(utx.ut_id));
++      sstrncpy(utx.ut_line,line,sizeof(utx.ut_line));
++      if(host && *host)
++        sstrncpy(utx.ut_host,host,sizeof(utx.ut_host));
++#ifndef LINUX
++      utx.ut_syslen = strlen(utx.ut_host)+1;
++      utx.ut_exit.e_termination = 0;
++      utx.ut_exit.e_exit = 0;
  #endif
 -#endif /* SVR4 */
-+    updwtmpx(_PATH_WTMP, &utx);
-+
-+#else
-+  struct utmp ut;
++      utx.ut_pid = getpid();
++      time(&utx.ut_tv.tv_sec);
++      if(name && *name)
++        utx.ut_type = USER_PROCESS;
++      else
++        utx.ut_type = DEAD_PROCESS;
++      if(ip)
++        memcpy(&utx.ut_addr,ip,sizeof(utx.ut_addr));
++      if(write(fdx,(char*)&utx,sizeof(utx)) != sizeof(utx))
++        ftruncate(fdx, buf.st_size);
++    } else {
++      log_debug(DEBUG0,"%s fstat(): %s",_PATH_WTMP"x",strerror(errno));
++      res = -1;
++    }
++  } else {
++    struct utmp ut;
  
 -  if(fd < 0 && (fd = open(WTMP_FILE,O_WRONLY|O_APPEND,0)) < 0) {
 -    log_pri(LOG_WARNING,"wtmp %s: %s",WTMP_FILE,strerror(errno));
 -    return -1;
 -  }
-- 
++    if(fd < 0 && (fd = open(WTMP_FILE,O_WRONLY|O_APPEND,0)) < 0) {
++      log_pri(LOG_WARNING,"wtmp %s: %s",WTMP_FILE,strerror(errno));
++      return -1;
++    }
+  
 -  if(fstat(fd,&buf) == 0) {
-     memset(&ut,0,sizeof(ut));
+-    memset(&ut,0,sizeof(ut));
++    if(fstat(fd,&buf) == 0) {
++      memset(&ut,0,sizeof(ut));
  #ifdef HAVE_UTMAXTYPE
  #ifdef LINUX
-@@ -612,12 +594,8 @@
+-    if(ip)
+-      memcpy(&ut.ut_addr,ip,sizeof(ut.ut_addr));
++      if(ip)
++        memcpy(&ut.ut_addr,ip,sizeof(ut.ut_addr));
+ #else
+-    sstrncpy(ut.ut_id,"ftp",sizeof(ut.ut_id));
+-    ut.ut_exit.e_termination = 0;
+-    ut.ut_exit.e_exit = 0;
++      sstrncpy(ut.ut_id,"ftp",sizeof(ut.ut_id));
++      ut.ut_exit.e_termination = 0;
++      ut.ut_exit.e_exit = 0;
+ #endif
+-    sstrncpy(ut.ut_line,line,sizeof(ut.ut_line));
+-    if(name && *name)
+-      sstrncpy(ut.ut_user,name,sizeof(ut.ut_user));
+-    ut.ut_pid = getpid();
+-    if(name && *name)
+-      ut.ut_type = USER_PROCESS;
+-    else
+-      ut.ut_type = DEAD_PROCESS;
++      sstrncpy(ut.ut_line,line,sizeof(ut.ut_line));
++      if(name && *name)
++        sstrncpy(ut.ut_user,name,sizeof(ut.ut_user));
++      ut.ut_pid = getpid();
++      if(name && *name)
++        ut.ut_type = USER_PROCESS;
++      else
++        ut.ut_type = DEAD_PROCESS;
+ #else  /* !HAVE_UTMAXTYPE */
+-    sstrncpy(ut.ut_line,line,sizeof(ut.ut_line));
+-    if(name && *name)
+-      sstrncpy(ut.ut_name,name,sizeof(ut.ut_name));
++      sstrncpy(ut.ut_line,line,sizeof(ut.ut_line));
++      if(name && *name)
++        sstrncpy(ut.ut_name,name,sizeof(ut.ut_name));
+ #endif /* HAVE_UTMAXTYPE */
+ 
+ #ifdef HAVE_UT_UT_HOST
+-    if(host && *host)
+-      sstrncpy(ut.ut_host,host,sizeof(ut.ut_host));
++      if(host && *host)
++        sstrncpy(ut.ut_host,host,sizeof(ut.ut_host));
  #endif /* HAVE_UT_UT_HOST */
  
-     time(&ut.ut_time);
+-    time(&ut.ut_time);
 -    if(write(fd,(char*)&ut,sizeof(ut)) != sizeof(ut))
 -      ftruncate(fd,buf.st_size);
 -  } else {
 -    log_debug(DEBUG0,"%s fstat(): %s",WTMP_FILE,strerror(errno));
 -    res = -1;
--  }
-+    updwtmp(_PATH_WTMP, &ut);
-+#endif
++      time(&ut.ut_time);
++      if(write(fd,(char*)&ut,sizeof(ut)) != sizeof(ut))
++        ftruncate(fd,buf.st_size);
++    } else {
++      log_debug(DEBUG0,"%s fstat(): %s",WTMP_FILE,strerror(errno));
++      res = -1;
++    }
+   }
  
    return res;
- }
-Only in proftpd-1.2.0rc2/src: log.c~
