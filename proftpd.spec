@@ -12,8 +12,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.2rc1
-Release:	4
-Epoch:		0
+Release:	5
 License:	GPL
 Group:		Daemons
 Group(de):	Server
@@ -41,7 +40,7 @@ URL:		http://www.proftpd.org/
 %{?!bcond_off_pam:BuildRequires:	pam-devel}
 %{?bcond_on_ldap:BuildRequires:		openldap-devel}
 %{?bcond_on_mysql:BuildRequires:	mysql-devel}
-%{?!bcond_off_ssl:BuildRequires:	openssl-devel}
+%{?!bcond_off_ssl:BuildRequires:	openssl-devel >= 0.9.6a}
 BuildRequires:	libwrap-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -83,7 +82,6 @@ ProFTPD jest wysoce konfigurowalnym serwerem ftp dla systemów Unix.
 ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
 dokunentacja jest dostêpna on-line pod http://www.proftpd.org/
 w³±cznie z dokumentacj± dotycz±c± konfigurowania.
-
 
 %package inetd
 Summary:	inetd configs for proftpd
