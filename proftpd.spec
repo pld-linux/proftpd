@@ -12,7 +12,7 @@ Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.2rc3
-Release:	6
+Release:	7
 Epoch:		0
 License:	GPL
 Group:		Daemons
@@ -122,6 +122,7 @@ Group(de):	Server
 Group(pl):	Serwery
 Prereq:		%{name}-common = %{version}
 Prereq:		rc-scripts
+Prereq:		/sbin/chkconfig
 Provides:	proftpd = %{epoch}:%{version}-%{release}
 Provides:	ftpserver
 Obsoletes:	proftpd-inetd
@@ -199,7 +200,9 @@ ln -s proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 gzip -9nf sample-configurations/{virtual,anonymous}.conf ChangeLog README \
 	README.linux-* contrib/README.modules README.IPv6 README.PAM README.TLS
-	 
+ 
+%clean
+rm -rf $RPM_BUILD_ROOT
 
 %post 
 touch /var/log/xferlog
@@ -243,9 +246,6 @@ if [ "$1" = "0" -a -f /var/lock/subsys/proftpd ]; then
 	/etc/rc.d/init.d/proftpd stop 1>&2
 fi
 /sbin/chkconfig --del proftpd
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %files common
 %defattr(644,root,root,755)
