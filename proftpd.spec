@@ -1,8 +1,15 @@
+# 
+# Conditional builds:
+# nopam - disable PAM support
+# ldap - enable LDAP suppoer
+# quota - enable quota support
+# linuxprivs - enable libcap support
+#
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl):	PROfesionalny serwer FTP  
 Name:		proftpd
 Version:	1.2.0rc2
-Release:	9
+Release:	10
 License:	GPL
 Group:		Daemons
 Group(de):	Server
