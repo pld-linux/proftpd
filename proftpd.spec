@@ -75,7 +75,7 @@ rm -f $RPM_BUILD_ROOT/usr/sbin/in.proftpd
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/ftpd
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/proftpd
 
-gzip -9fn $RPM_BUILD_ROOT/usr/man/man[158]/* 
+gzip -9fn $RPM_BUILD_ROOT%{_mandir}/man[158]/* 
 bzip2 -9  sample-configurations/{virtual,anonymous}.conf changelog README
 
 %clean
@@ -92,7 +92,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %attr(755,root,root) /usr/bin/*
 %attr(755,root,root) /usr/sbin/*
-%attr(644,root, man) /usr/man/man[158]/*
+%attr(644,root, man) %{_mandir}/man[158]/*
 
 %dir /home/ftp
 %dir /home/ftp/pub
