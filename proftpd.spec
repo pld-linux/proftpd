@@ -16,7 +16,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.9
-Release:	1
+Release:	2
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -39,6 +39,7 @@ Patch5:		%{name}-vmail.patch
 Patch6:		%{name}-IPv6.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
+BuildRequires:	automake
 BuildRequires:	libwrap-devel
 %{?_with_mysql:BuildRequires:	mysql-devel}
 %{?_with_pgsql:BuildRequires:	postgresql-devel}
@@ -178,6 +179,7 @@ standalone.
 #patch6 -p1
 
 %build
+cp -f /usr/share/automake/config.sub .
 %{__autoconf}
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %configure \
