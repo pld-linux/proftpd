@@ -89,7 +89,7 @@ Requires:	logrotate
 %{?!_without_pam:Requires:	pam >= 0.67}
 Obsoletes:	proftpd < 0:1.2.2rc1-3
 
-%description  common
+%description common
 ProFTPD is a highly configurable ftp daemon for unix and unix-like
 operating systems. ProFTPD is designed to be somewhat of a "drop-in"
 replacement for wu-ftpd. Full online documentation is available at
