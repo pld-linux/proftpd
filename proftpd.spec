@@ -15,7 +15,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器.
 Name:		proftpd
 Version:	1.2.5
-Release:	3
+Release:	4
 Epoch:		1
 License:	GPL
 Group:		Daemons
@@ -227,7 +227,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %post common
 touch /var/log/xferlog
-awk 'BEGIN { FS = ":" }; { if(($3 < 1000)&&($1 != "ftp")) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
+awk 'BEGIN { FS = ":" }; { if(($3 < 500)&&($1 != "ftp")) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
 if [ ! -f %{_sysconfdir}/ftpusers ]; then
 	( cd %{_sysconfdir}; mv -f ftpusers.default ftpusers )
 fi
