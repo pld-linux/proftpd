@@ -53,27 +53,27 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		_localstatedir	/var/run
 
 %description
-ProFTPD is a highly configurable ftp daemon for unix and unix-like
+ProFTPD is a highly configurable FTP daemon for unix and unix-like
 operating systems. ProFTPD is designed to be somewhat of a "drop-in"
 replacement for wu-ftpd. Full online documentation is available at
 http://www.proftpd.org/, including a server configuration directive
 reference manual.
 
 %description -l es
-ProFTPD es un servidor ftp altamente configurable para sistemas
+ProFTPD es un servidor FTP altamente configurable para sistemas
 operativos unix. Está proyectado para ser un substituto directo al
 wu-ftpd. La documentación completa está disponible en
 http://www.proftpd.org, incluido el manual de referencia para las
 directivas de configuración del servidor.
 
 %description -l pl
-ProFTPD jest wysoce konfigurowalnym serwerem ftp dla systemów Unix.
+ProFTPD jest wysoce konfigurowalnym serwerem FTP dla systemów Unix.
 ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
 dokumentacja jest dostêpna on-line pod http://www.proftpd.org/
 w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 
 %description -l pt_BR
-O ProFTPD é um servidor ftp altamente configurável para sistemas
+O ProFTPD é um servidor FTP altamente configurável para sistemas
 operacionais unix.
 
 É projetado para ser um substituto direto para o wu-ftpd. A
@@ -92,14 +92,14 @@ Requires:	logrotate
 Obsoletes:	proftpd < 0:1.2.2rc1-3
 
 %description common
-ProFTPD is a highly configurable ftp daemon for unix and unix-like
+ProFTPD is a highly configurable FTP daemon for unix and unix-like
 operating systems. ProFTPD is designed to be somewhat of a "drop-in"
 replacement for wu-ftpd. Full online documentation is available at
 http://www.proftpd.org/, including a server configuration directive
 reference manual.
 
 %description common -l pl
-ProFTPD jest wysoce konfigurowalnym serwerem ftp dla systemów Unix.
+ProFTPD jest wysoce konfigurowalnym serwerem FTP dla systemów Unix.
 ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
 dokunentacja jest dostêpna on-line pod http://www.proftpd.org/
 w³±cznie z dokumentacj± dotycz±c± konfigurowania.
