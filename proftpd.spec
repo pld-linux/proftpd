@@ -36,7 +36,7 @@ Patch2:		%{name}-paths.patch
 Patch3:		%{name}-noautopriv.patch
 Patch4:		%{name}-wtmp.patch
 Patch5:		%{name}-port-65535.patch
-Patch6:		%{name}-vmail_crypt.patch
+Patch6:		%{name}-vmail.patch
 Patch7:		%{name}-IPv6.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
