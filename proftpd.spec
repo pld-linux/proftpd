@@ -175,7 +175,7 @@ standalone.
 install -m644 %{SOURCE7} contrib/mod_tcpd.c
 
 %build
-autoconf
+%{__autoconf}
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %configure \
 	--enable-autoshadow \
