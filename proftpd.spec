@@ -14,7 +14,7 @@ Summary(pl):	PROfesionalny serwer FTP
 Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Name:		proftpd
 Version:	1.2.5rc1
-Release:	4
+Release:	5
 Epoch:		0
 License:	GPL
 Group:		Daemons
@@ -122,6 +122,7 @@ Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
 Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
+Obsoletes:	vsftpd
 Obsoletes:	wu-ftpd
 
 %description inetd
@@ -149,6 +150,7 @@ Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
 Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
+Obsoletes:	vsftpd
 Obsoletes:	wu-ftpd
 
 %description standalone
