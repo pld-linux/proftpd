@@ -291,6 +291,7 @@ fi
 
 %{_mandir}/man[18]/*
 
+%dir /home/services/ftp
 %dir /home/services/ftp/pub
 %attr(711,root,root) %dir /home/services/ftp/pub/Incoming
 
