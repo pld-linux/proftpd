@@ -1,0 +1,4 @@
+- bcond_* macros
+- new conditional builds:
+  --with mysql
+  --without ipv6
