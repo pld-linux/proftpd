@@ -1,0 +1,8 @@
+- release 6
+- removed libcap patch (proftpd use _modified_ libcap)
+- added more docs
+- added conditional building for some modules
+- --define 'nopam 1' to disable pam support
+- --define 'ldap 1' to enable ldap support
+- --define 'quota 1' to enable quota support
+- --define 'linuxprivs 1' to enable libcap support
