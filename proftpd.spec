@@ -2,12 +2,13 @@ Summary:     PROfessional FTP Daemon with apache-like configuration syntax
 Summary(pl): PROfesionalny FTP Demon z podobnym do apache sposobem konfigurowania
 Name:        proftpd
 Version:     1.1.6pre4
-Release:     1
+Release:     2
 URL:         http://www.proftpd.org/
 Source0:     ftp://ftp.proftpd.org/distrib/%{name}-%{version}.tar.gz
 Source1:     configuration.html
 Source2:     reference.html
-Patch:       proftpd-mdtm-localtime.patch
+Patch0:      proftpd-mdtm-localtime.patch
+Patch1:      proftpd-1.1.6pre4-compat_wu-ftpd.patch
 Copyright:   GPL
 Group:       Networking/Daemons
 Provides:    ftpserver
@@ -32,7 +33,8 @@ z pe³n± dokumentacj± dotycz±c± konfigurowania.
 
 %prep
 %setup -q
-%patch -p1
+%patch0 -p1
+%patch1 -p1 -b .compat_wu-ftpd
 
 %build
 CFLAGS="$RPM_OPT_FLAGS" LDFLAGS=-s \
@@ -65,6 +67,11 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644, root,  man) /usr/man/man[58]/*
 
 %changelog
+* Sat Aug 22 1998 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
+  [1.1.6pre4-2]
+- added proftpd-1.1.6pre4-compat_wu-ftpd.patch (null handling some wu-ftpd
+  cmdl options).
+
 * Thu Aug  6 1998 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
   [1.1.6pre4-1]
 - added pl translation,
