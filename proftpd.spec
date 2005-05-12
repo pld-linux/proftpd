@@ -21,7 +21,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.10
-Release:	4.1
+Release:	5
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -44,6 +44,7 @@ Patch3:		%{name}-noautopriv.patch
 Patch4:		%{name}-wtmp.patch
 Patch5:		%{name}-sendfile64.patch
 URL:		http://www.proftpd.org/
+%{?with_pam:Requires:		pam >= 0.79.0}
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libwrap-devel
