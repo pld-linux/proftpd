@@ -44,7 +44,6 @@ Patch3:		%{name}-noautopriv.patch
 Patch4:		%{name}-wtmp.patch
 Patch5:		%{name}-sendfile64.patch
 URL:		http://www.proftpd.org/
-%{?with_pam:Requires:		pam >= 0.79.0}
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libwrap-devel
@@ -101,7 +100,7 @@ Group:		Daemons
 Requires(post):	awk
 Requires(post):	fileutils
 Requires:	logrotate
-%{?with_pam:Requires:	pam >= 0.77.3}
+%{?with_pam:Requires:	pam >= 0.79.0}
 Obsoletes:	proftpd < 0:1.2.2rc1-3
 
 %description common
