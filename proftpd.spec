@@ -316,8 +316,8 @@ if [ "$1" = "0" ]; then
 	/sbin/chkconfig --del proftpd
 fi
 
-%triggerpostun -- %{name}-inetd <= 1.2.10-1
-echo "Changing deprecated config uptions"
+%triggerpostun inetd -- %{name}-inetd <= 1.2.10-1
+echo "Changing deprecated config options"
 cp /etc/ftpd/proftpd.conf /etc/ftpd/proftpd.conf.backup
 sed -i -e 's/AuthPAMAuthoritative\b/AuthPAM/' /etc/ftpd/proftpd.conf
 sed -i -e 's/TCPDServiceName/TCPServiceName/' /etc/ftpd/proftpd.conf
@@ -325,8 +325,8 @@ grep -v UseTCPD /etc/ftpd/proftpd.conf > /etc/ftpd/proftpd.conf.tmp
 mv -f /etc/ftpd/proftpd.conf.tmp /etc/ftpd/proftpd.conf
 chmod 640 /etc/ftpd/proftpd.conf
 
-%triggerpostun -- %{name}-standalone <= 1.2.10-1
-echo "Changing deprecated config uptions"
+%triggerpostun standalone -- %{name}-standalone <= 1.2.10-1
+echo "Changing deprecated config options"
 cp /etc/ftpd/proftpd.conf /etc/ftpd/proftpd.conf.backup
 sed -i -e 's/AuthPAMAuthoritative\b/AuthPAM/' /etc/ftpd/proftpd.conf
 sed -i -e 's/TCPDServiceName/TCPServiceName/' /etc/ftpd/proftpd.conf
