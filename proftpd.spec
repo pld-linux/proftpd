@@ -1,87 +1,94 @@
 #
-# Conditional builds:
-# _without_pam - disable PAM support
-# _with_ldap - enable LDAP suppoer
-# _with_mysql - enable MySQL suppoer
-# _with_quota - enable quota support
-# _with_linuxprivs - enable libcap support
-# _without_ipv6 - disable IPv6 and TCPD support
-# _without_ssl - disbale TLS/SSL support
-# --without pam --with ldap --with mysql --with quota --with linuxprivs
+# Conditional build:
+%bcond_without	pam		# disable PAM support
+%bcond_without	ipv6		# disable IPv6 and TCPD support
+%bcond_without	ssl		# disbale TLS/SSL support
+%bcond_with	ldap		# enable LDAP support
+%bcond_with	mysql		# enable MySQL support
+%bcond_with	pgsql		# enable PostgreSQL support
+%bcond_with	quotafile	# enable quota file support
+%bcond_with	quotaldap	# enable quota ldap support
+%bcond_with	quotamysql	# enable quota mysql support
+%bcond_with	quotapgsql	# enable quota pgsql support
+%bcond_with	linuxprivs	# enable libcap support
+#
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
 Summary(pl):	PROfesionalny serwer FTP
 Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
-Summary(zh_CN):	Ò×ÓÚ¹ÜÀíµÄ,°²È«µÄ FTP ·þÎñÆ÷.
+Summary(zh_CN):	Ò×ÓÚ¹ÜÀíµÄ,°²È«µÄ FTP ·þÎñÆ÷
 Name:		proftpd
-Version:	1.2.5
-Release:	10
+Version:	1.2.10
+Release:	2
 Epoch:		1
-License:	GPL
+License:	GPL v2+
 Group:		Daemons
-Source0:	ftp://ftp.proftpd.org/historic/v1.2/%{name}-%{version}.tar.bz2
-# Source0-md5:	100a374dfcaa4852cb767dc6afeb4277
+Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
+# Source0-md5:	5feb4a7348e12faefc25e34fd92efdd6
 Source1:	%{name}.conf
 Source2:	%{name}.logrotate
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
 Source5:	%{name}.sysconfig
 Source6:	%{name}.init
-Source7:	%{name}-mod_tcpd.c
-Source8:	ftpusers.tar.bz2
-# Source8-md5:  76c80b6ec9f4d079a1e27316edddbe16
-Patch0:		%{name}-1.2.5-v6-20020808.patch.gz
-# ftp://ftp.runestig.com/pub/proftpd-tls/
-Patch1:		%{name}-1.2.2rc3+v6-tls.20010505.patch.gz
-Patch2:		%{name}-umode_t.patch
-Patch3:		%{name}-glibc.patch
-Patch4:		%{name}-paths.patch
-Patch5:		%{name}-release.patch
-Patch6:		%{name}-noautopriv.patch
-Patch7:		%{name}-DESTDIR.patch
-Patch8:		%{name}-wtmp.patch
-Patch9:		%{name}-link.patch
-Patch10:	%{name}-port-65535.patch
-# from debian
-Patch11:	%{name}-mod_sql_postgres.c.diff
+Source7:	ftpusers.tar.bz2
+# Source7-md5:	76c80b6ec9f4d079a1e27316edddbe16
+Source8:	http://www.castaglia.org/proftpd/modules/proftpd-mod-shaper-0.5.5.tar.gz
+# Source8-md5:	ca3d63ffbc6ad5b6a9063f79b36d1b55
+Patch0:		%{name}-umode_t.patch
+Patch1:		%{name}-glibc.patch
+Patch2:		%{name}-paths.patch
+Patch3:		%{name}-noautopriv.patch
+Patch4:		%{name}-wtmp.patch
+Patch5:		%{name}-sendfile64.patch
+Patch6:		%{name}-CAN-2005-2390.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
+BuildRequires:	automake
 BuildRequires:	libwrap-devel
-%{?_with_mysql:BuildRequires:	mysql-devel}
-%{?_with_ldap:BuildRequires:		openldap-devel}
-%{?!_without_ssl:BuildRequires:	openssl-devel >= 0.9.6m}
-%{?!_without_pam:BuildRequires:	pam-devel}
+%{?with_mysql:BuildRequires:		mysql-devel}
+%{?with_quotamysql:BuildRequires:	mysql-devel}
+BuildRequires:	ncurses-devel
+%{?with_ldap:BuildRequires:		openldap-devel}
+%{?with_quotaldap:BuildRequires:	openldap-devel}
+%{?with_ssl:BuildRequires:		openssl-devel >= 0.9.6m}
+%{?with_pam:BuildRequires:		pam-devel}
+%{?with_pgsql:BuildRequires:		postgresql-devel}
+%{?with_quotapgsql:BuildRequires:	postgresql-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir	/etc/ftpd
 %define		_localstatedir	/var/run
 
 %description
-ProFTPD is a highly configurable ftp daemon for unix and unix-like
+ProFTPD is a highly configurable FTP daemon for unix and unix-like
 operating systems. ProFTPD is designed to be somewhat of a "drop-in"
 replacement for wu-ftpd. Full online documentation is available at
-http://www.proftpd.org/, including a server configuration directive
+<http://www.proftpd.org/>, including a server configuration directive
 reference manual.
 
+This package also includes mod_shaper module from
+<http://www.castaglia.org/proftpd/>
+
 %description -l es
-ProFTPD es un servidor ftp altamente configurable para sistemas
+ProFTPD es un servidor FTP altamente configurable para sistemas
 operativos unix. Está proyectado para ser un substituto directo al
 wu-ftpd. La documentación completa está disponible en
-http://www.proftpd.org, incluido el manual de referencia para las
+<http://www.proftpd.org/>, incluido el manual de referencia para las
 directivas de configuración del servidor.
 
 %description -l pl
-ProFTPD jest wysoce konfigurowalnym serwerem ftp dla systemów Unix.
+ProFTPD jest wysoce konfigurowalnym serwerem FTP dla systemów Unix.
 ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
-dokunentacja jest dostêpna on-line pod http://www.proftpd.org/
+dokumentacja jest dostêpna on-line pod <http://www.proftpd.org/>
 w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 
 %description -l pt_BR
-O ProFTPD é um servidor ftp altamente configurável para sistemas
+O ProFTPD é um servidor FTP altamente configurável para sistemas
 operacionais unix.
 
 É projetado para ser um substituto direto para o wu-ftpd. A
-documentação completa está disponível em http://www.proftpd.org,
+documentação completa está disponível em <http://www.proftpd.org/>,
 incluindo o manual de referência para as diretivas de configuração do
 servidor.
 
@@ -89,21 +96,21 @@ servidor.
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax - common files
 Summary(pl):	PROfesionalny serwer FTP  - wspólne pliki
 Group:		Daemons
-Prereq:		awk
-Prereq:		fileutils
+Requires(post):	awk
+Requires(post):	fileutils
 Requires:	logrotate
-%{?!_without_pam:Requires:	pam >= 0.67}
+%{?with_pam:Requires:	pam >= 0.67}
 Obsoletes:	proftpd < 0:1.2.2rc1-3
 
-%description  common
-ProFTPD is a highly configurable ftp daemon for unix and unix-like
+%description common
+ProFTPD is a highly configurable FTP daemon for unix and unix-like
 operating systems. ProFTPD is designed to be somewhat of a "drop-in"
 replacement for wu-ftpd. Full online documentation is available at
-http://www.proftpd.org/, including a server configuration directive
+<http://www.proftpd.org/>, including a server configuration directive
 reference manual.
 
 %description common -l pl
-ProFTPD jest wysoce konfigurowalnym serwerem ftp dla systemów Unix.
+ProFTPD jest wysoce konfigurowalnym serwerem FTP dla systemów Unix.
 ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
 dokunentacja jest dostêpna on-line pod http://www.proftpd.org/
 w³±cznie z dokumentacj± dotycz±c± konfigurowania.
@@ -112,19 +119,22 @@ w³±cznie z dokumentacj± dotycz±c± konfigurowania.
 Summary:	inetd configs for proftpd
 Summary(pl):	Pliki konfiguracyjne do u¿ycia proftpd poprzez inetd
 Group:		Daemons
-Prereq:		%{name}-common = %{epoch}:%{version}
-Prereq:		rc-inetd
+PreReq:		%{name}-common = %{epoch}:%{version}-%{release}
+PreReq:		rc-inetd
+Requires(post):	fileutils
+Requires(post):	grep
+Requires(post):	sed
 Provides:	proftpd = %{epoch}:%{version}-%{release}
-Requires:	inetdaemon
 Provides:	ftpserver
+Obsoletes:	proftpd-standalone
+Obsoletes:	ftpserver
 Obsoletes:	anonftp
 Obsoletes:	bftpd
 Obsoletes:	ftpd-BSD
-Obsoletes:	ftpserver
+Obsoletes:	glftpd
 Obsoletes:	heimdal-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
-Obsoletes:	proftpd-standalone
 Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
 Obsoletes:	vsftpd
@@ -138,22 +148,26 @@ ProFTPD configs for running from inetd.
 Pliki konfiguracyjna ProFTPD do startowania demona poprzez inetd.
 
 %package standalone
-Summary:	standalone daemon configs for proftpd
+Summary:	Standalone daemon configs for proftpd
 Summary(pl):	Pliki konfiguracyjne do startowania proftpd w trybie standalone
 Group:		Daemons
-Prereq:		%{name}-common = %{epoch}:%{version}
-Prereq:		rc-scripts
-Prereq:		/sbin/chkconfig
+PreReq:		%{name}-common = %{epoch}:%{version}-%{release}
+PreReq:		rc-scripts
+Requires(post,preun):	/sbin/chkconfig
+Requires(post):	fileutils
+Requires(post):	grep
+Requires(post):	sed
 Provides:	proftpd = %{epoch}:%{version}-%{release}
 Provides:	ftpserver
+Obsoletes:	proftpd-inetd
+Obsoletes:	ftpserver
 Obsoletes:	anonftp
 Obsoletes:	bftpd
 Obsoletes:	ftpd-BSD
-Obsoletes:	ftpserver
+Obsoletes:	glftpd
 Obsoletes:	heimdal-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
-Obsoletes:	proftpd-inetd
 Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
 Obsoletes:	vsftpd
@@ -168,7 +182,12 @@ Pliki konfiguracyjne ProFTPD do startowania demona w trybie
 standalone.
 
 %prep
-%setup  -q
+%if %{with mysql} && %{with pgsql}
+echo "Error: You can't build at once --with mysql and --with pgsql"
+exit 1
+%endif
+
+%setup -q -a 8
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -176,22 +195,39 @@ standalone.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p0
-%patch11 -p1
-
-install -m644 %{SOURCE7} contrib/mod_tcpd.c
+# move mod_shaper code on to the source tree
+mv mod_shaper/mod_shaper.c contrib/
 
 %build
+cp -f /usr/share/automake/config.sub .
 %{__autoconf}
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
+CFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I/usr/include/mysql}"
+CPPFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I/usr/include/mysql}"
+
+MODULES="
+mod_ratio
+mod_readme
+mod_shaper
+%{?with_ssl:mod_tls}
+%{?with_ipv6:mod_wrap}
+%{?with_pam:mod_auth_pam}
+%{?with_ldap:mod_ldap}
+%{?with_quotafile:mod_quotatab mod_quotatab_file}
+%{?with_quotaldap:mod_quotatab mod_quotatab_ldap}
+%{?with_quotamysql:mod_quotatab mod_quotatab_sql}
+%{?with_quotapgsql:mod_quotatab mod_quotatab_sql}
+%{?with_linuxprivs:mod_linuxprivs}
+%{?with_mysql:mod_sql mod_sql_mysql}
+%{?with_pgsql:mod_sql mod_sql_postgres}
+"
+
 %configure \
 	--enable-autoshadow \
-	--with-modules=mod_ratio:mod_readme%{?!_without_ipv6::mod_tcpd}%{?!_without_pam::mod_pam}%{?_with_ldap::mod_ldap}%{?_with_quota::mod_quota}%{?_with_linuxprivs::mod_linuxprivs}%{?_with_mysql::mod_sql:mod_sql_mysql} \
-	%{?!_without_ipv6:--enable-ipv6} \
-	%{?_without_ssl:--disable-tls} \
+	--with-modules=$(echo $MODULES | tr ' ' ':') \
+	%{?with_ipv6:--enable-ipv6} \
+	%{!?with_ssl:--disable-tls} \
+	--enable-ctrls \
 	--enable-sendfile
 
 %{__make}
@@ -199,24 +235,24 @@ RUN_DIR=%{_localstatedir} ; export RUN_DIR
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/{logrotate.d,pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
-	$RPM_BUILD_ROOT/{home/ftp/pub/Incoming,var/log}
+	$RPM_BUILD_ROOT/var/{lib/ftp/pub/Incoming,log}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
-	INSTALL_USER=`id -u` \
-	INSTALL_GROUP=`id -g`
+	INSTALL_USER=%(id -u) \
+	INSTALL_GROUP=%(id -g)
 
 rm -f $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/logrotate.d/ftpd
-%{?!_without_pam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
+%{?with_pam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/ftpd
 install %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/proftpd
 install %{SOURCE6} $RPM_BUILD_ROOT/etc/rc.d/init.d/proftpd
 install contrib/xferstats.holger-preiss $RPM_BUILD_ROOT%{_bindir}/xferstat
 
-bzip2 -dc %{SOURCE8} | tar xf - -C $RPM_BUILD_ROOT%{_mandir}
+bzip2 -dc %{SOURCE7} | tar xf - -C $RPM_BUILD_ROOT%{_mandir}
 
 mv -f contrib/README contrib/README.modules
 
@@ -232,13 +268,15 @@ ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 rm -rf $RPM_BUILD_ROOT
 
 %post common
+umask 027
 touch /var/log/xferlog
 awk 'BEGIN { FS = ":" }; { if(($3 < 500)&&($1 != "ftp")) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
 if [ ! -f %{_sysconfdir}/ftpusers ]; then
-	( cd %{_sysconfdir}; mv -f ftpusers.default ftpusers )
+	cp -f %{_sysconfdir}/ftpusers.default %{_sysconfdir}/ftpusers
 fi
 
 %post inetd
+umask 027
 if grep -iEqs "^ServerType[[:space:]]+standalone" %{_sysconfdir}/proftpd.conf ; then
 	cp -a %{_sysconfdir}/proftpd.conf %{_sysconfdir}/proftpd.conf.rpmorig
 	sed -e "s/^ServerType[[:space:]]\+standalone/ServerType			inetd/g" \
@@ -276,20 +314,39 @@ if [ "$1" = "0" ]; then
 	/sbin/chkconfig --del proftpd
 fi
 
+%triggerpostun inetd -- proftpd-inetd < 1.2.10
+echo "Changing deprecated config options"
+cp /etc/ftpd/proftpd.conf /etc/ftpd/proftpd.conf.backup
+sed -i -e 's/AuthPAMAuthoritative\b/AuthPAM/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TCPDServiceName/TCPServiceName/' /etc/ftpd/proftpd.conf
+grep -v UseTCPD /etc/ftpd/proftpd.conf > /etc/ftpd/proftpd.conf.tmp
+mv -f /etc/ftpd/proftpd.conf.tmp /etc/ftpd/proftpd.conf
+chmod 640 /etc/ftpd/proftpd.conf
+
+%triggerpostun standalone -- proftpd-standalone < 1.2.10
+echo "Changing deprecated config options"
+cp /etc/ftpd/proftpd.conf /etc/ftpd/proftpd.conf.backup
+sed -i -e 's/AuthPAMAuthoritative\b/AuthPAM/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TCPDServiceName/TCPServiceName/' /etc/ftpd/proftpd.conf
+grep -v UseTCPD /etc/ftpd/proftpd.conf > /etc/ftpd/proftpd.conf.tmp
+mv -f /etc/ftpd/proftpd.conf.tmp /etc/ftpd/proftpd.conf
+chmod 640 /etc/ftpd/proftpd.conf
+
 %files common
 %defattr(644,root,root,755)
-%doc sample-configurations/{virtual,anonymous}.conf ChangeLog README
-%doc README.linux-* contrib/README.modules README.IPv6 README.PAM
-%doc README.TLS README.mod_sql README.LDAP doc/*html
+%doc sample-configurations/*.conf CREDITS ChangeLog NEWS RELEASE_NOTES
+%doc README README.LDAP README.PAM README.capabilities README.classes README.controls README.IPv6
+%doc README.modules
+%doc doc/*html contrib/*.html
 
 %attr(750,root,ftp) %dir %{_sysconfdir}
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
-%attr(640,root,root) /etc/logrotate.d/*
-%attr(640,root,root) %ghost /var/log/*
-%{?!_without_pam:%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*}
-
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %ghost %{_sysconfdir}/ftpusers
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
-%attr(640,root,root) %ghost %{_sysconfdir}/ftpusers
+%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/logrotate.d/*
+%attr(640,root,root) %ghost /var/log/*
+%{?with_pam:%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*}
+
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/security/blacklist.ftp
 
 %attr(755,root,root) %{_bindir}/*
@@ -297,8 +354,9 @@ fi
 
 %{_mandir}/man[18]/*
 
-%dir /home/ftp/pub
-%attr(711,root,root) %dir /home/ftp/pub/Incoming
+%dir /var/lib/ftp
+%dir /var/lib/ftp/pub
+%attr(711,ftp,ftp) %dir /var/lib/ftp/pub/Incoming
 
 %files inetd
 %defattr(644,root,root,755)
