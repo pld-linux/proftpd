@@ -123,10 +123,10 @@ Summary(pl):	Pliki konfiguracyjne do u¿ycia proftpd poprzez inetd
 Group:		Daemons
 PreReq:		%{name}-common = %{epoch}:%{version}-%{release}
 PreReq:		rc-inetd
-Requires(triggerpostun):	sed >= 4.0
 Requires(post):	fileutils
 Requires(post):	grep
-Requires(post):	sed
+Requires(post):	sed >= 4.0
+Requires(triggerpostun):	sed >= 4.0
 Provides:	proftpd = %{epoch}:%{version}-%{release}
 Provides:	ftpserver
 Obsoletes:	proftpd-standalone
@@ -156,11 +156,11 @@ Summary(pl):	Pliki konfiguracyjne do startowania proftpd w trybie standalone
 Group:		Daemons
 PreReq:		%{name}-common = %{epoch}:%{version}-%{release}
 PreReq:		rc-scripts
-Requires(triggerpostun):	sed >= 4.0
 Requires(post,preun):	/sbin/chkconfig
 Requires(post):	fileutils
 Requires(post):	grep
-Requires(post):	sed
+Requires(post):	sed >= 4.0
+Requires(triggerpostun):	sed >= 4.0
 Provides:	proftpd = %{epoch}:%{version}-%{release}
 Provides:	ftpserver
 Obsoletes:	proftpd-inetd
@@ -274,17 +274,15 @@ rm -rf $RPM_BUILD_ROOT
 %post common
 umask 027
 touch /var/log/xferlog
-awk 'BEGIN { FS = ":" }; { if(($3 < 500)&&($1 != "ftp")) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
+awk -F: '{ if (($3 < 500) && ($1 != "ftp")) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
 if [ ! -f %{_sysconfdir}/ftpusers ]; then
 	cp -f %{_sysconfdir}/ftpusers.default %{_sysconfdir}/ftpusers
 fi
 
 %post inetd
-umask 027
 if grep -iEqs "^ServerType[[:space:]]+standalone" %{_sysconfdir}/proftpd.conf ; then
-	cp -a %{_sysconfdir}/proftpd.conf %{_sysconfdir}/proftpd.conf.rpmorig
-	sed -e "s/^ServerType[[:space:]]\+standalone/ServerType			inetd/g" \
-		%{_sysconfdir}/proftpd.conf.rpmorig >%{_sysconfdir}/proftpd.conf
+	cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
+	sed -i -e 's/^ServerType[[:space:]]\+standalone/ServerType			inetd/g' %{_sysconfdir}/proftpd.conf
 fi
 if [ -f /var/lock/subsys/rc-inetd ]; then
 	/etc/rc.d/init.d/rc-inetd reload 1>&2
@@ -293,16 +291,15 @@ else
 fi
 
 %postun inetd
-if [ "$1" = "0" -a -f /var/lock/subsys/rc-inetd ]; then
+if [ "$1" = "0" ] && [ -f /var/lock/subsys/rc-inetd ]; then
 	/etc/rc.d/init.d/rc-inetd reload 1>&2
 fi
 
 %post standalone
 /sbin/chkconfig --add proftpd
 if grep -iEqs "^ServerType[[:space:]]+inetd" %{_sysconfdir}/proftpd.conf ; then
-	cp -a %{_sysconfdir}/proftpd.conf %{_sysconfdir}/proftpd.conf.rpmorig
-	sed -e "s/^ServerType[[:space:]]\+inetd/ServerType			standalone/g" \
-		%{_sysconfdir}/proftpd.conf.rpmorig >%{_sysconfdir}/proftpd.conf
+	cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
+	sed -i -e 's/^ServerType[[:space:]]\+inetd/ServerType			standalone/g' %{_sysconfdir}/proftpd.conf
 fi
 if [ -f /var/lock/subsys/proftpd ]; then
 	/etc/rc.d/init.d/proftpd restart 1>&2
@@ -320,7 +317,7 @@ fi
 
 %triggerpostun inetd -- %{name}-inetd <= 1.2.10-1
 echo "Changing deprecated config options"
-cp -f /etc/ftpd/proftpd.conf{,.rpmsave}
+cp -f /etc/ftpd/proftpd.conf{,.rpmorig}
 sed -i -e '
 	s/AuthPAMAuthoritative\b/AuthPAM/
 	s/TCPDServiceName/TCPServiceName/
@@ -337,7 +334,7 @@ sed -i -e '
 
 %triggerpostun standalone -- %{name}-standalone <= 1.2.10-1
 echo "Changing deprecated config options"
-cp -f /etc/ftpd/proftpd.conf{,.rpmsave}
+cp -f /etc/ftpd/proftpd.conf{,.rpmorig}
 sed -i -e '
 	s/AuthPAMAuthoritative\b/AuthPAM/
 	s/TCPDServiceName/TCPServiceName/
