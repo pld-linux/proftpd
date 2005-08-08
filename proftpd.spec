@@ -123,6 +123,7 @@ Summary(pl):	Pliki konfiguracyjne do u¿ycia proftpd poprzez inetd
 Group:		Daemons
 PreReq:		%{name}-common = %{epoch}:%{version}-%{release}
 PreReq:		rc-inetd
+Requires(triggerpostun):	sed >= 4.0
 Requires(post):	fileutils
 Requires(post):	grep
 Requires(post):	sed
@@ -155,6 +156,7 @@ Summary(pl):	Pliki konfiguracyjne do startowania proftpd w trybie standalone
 Group:		Daemons
 PreReq:		%{name}-common = %{epoch}:%{version}-%{release}
 PreReq:		rc-scripts
+Requires(triggerpostun):	sed >= 4.0
 Requires(post,preun):	/sbin/chkconfig
 Requires(post):	fileutils
 Requires(post):	grep
@@ -318,37 +320,37 @@ fi
 
 %triggerpostun inetd -- %{name}-inetd <= 1.2.10-1
 echo "Changing deprecated config options"
-cp /etc/ftpd/proftpd.conf /etc/ftpd/proftpd.conf.backup
-sed -i -e 's/AuthPAMAuthoritative\b/AuthPAM/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TCPDServiceName/TCPServiceName/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsRsaCertFile/TLSRSACertificateFile/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsRsaKeyFile/TLSRSACertificateKeyFile/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsDsaCertFile/TLSDSACertificateFile/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsDsaKeyFile/TLSDSACertificateKeyFile/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsCrlFile/TLSCARevocationFile/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsDhParamFile/TLSDHParamFile/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsCipherList/TLSCipherSuite/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsCertsOk/TLSVerifyClient/' /etc/ftpd/proftpd.conf
-grep -v UseTCPD /etc/ftpd/proftpd.conf > /etc/ftpd/proftpd.conf.tmp
-mv -f /etc/ftpd/proftpd.conf.tmp /etc/ftpd/proftpd.conf
-chmod 640 /etc/ftpd/proftpd.conf
+cp -f /etc/ftpd/proftpd.conf{,.rpmsave}
+sed -i -e '
+	s/AuthPAMAuthoritative\b/AuthPAM/
+	s/TCPDServiceName/TCPServiceName/
+	s/TlsRsaCertFile/TLSRSACertificateFile/
+	s/TlsRsaKeyFile/TLSRSACertificateKeyFile/
+	s/TlsDsaCertFile/TLSDSACertificateFile/
+	s/TlsDsaKeyFile/TLSDSACertificateKeyFile/
+	s/TlsCrlFile/TLSCARevocationFile/
+	s/TlsDhParamFile/TLSDHParamFile/
+	s/TlsCipherList/TLSCipherSuite/
+	s/TlsCertsOk/TLSVerifyClient/
+	/UseTCPD/d
+' /etc/ftpd/proftpd.conf
 
 %triggerpostun standalone -- %{name}-standalone <= 1.2.10-1
 echo "Changing deprecated config options"
-cp /etc/ftpd/proftpd.conf /etc/ftpd/proftpd.conf.backup
-sed -i -e 's/AuthPAMAuthoritative\b/AuthPAM/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TCPDServiceName/TCPServiceName/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsRsaCertFile/TLSRSACertificateFile/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsRsaKeyFile/TLSRSACertificateKeyFile/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsDsaCertFile/TLSDSACertificateFile/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsDsaKeyFile/TLSDSACertificateKeyFile/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsCrlFile/TLSCARevocationFile/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsDhParamFile/TLSDHParamFile/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsCipherList/TLSCipherSuite/' /etc/ftpd/proftpd.conf
-sed -i -e 's/TlsCertsOk/TLSVerifyClient/' /etc/ftpd/proftpd.conf
-grep -v UseTCPD /etc/ftpd/proftpd.conf > /etc/ftpd/proftpd.conf.tmp
-mv -f /etc/ftpd/proftpd.conf.tmp /etc/ftpd/proftpd.conf
-chmod 640 /etc/ftpd/proftpd.conf
+cp -f /etc/ftpd/proftpd.conf{,.rpmsave}
+sed -i -e '
+	s/AuthPAMAuthoritative\b/AuthPAM/
+	s/TCPDServiceName/TCPServiceName/
+	s/TlsRsaCertFile/TLSRSACertificateFile/
+	s/TlsRsaKeyFile/TLSRSACertificateKeyFile/
+	s/TlsDsaCertFile/TLSDSACertificateFile/
+	s/TlsDsaKeyFile/TLSDSACertificateKeyFile/
+	s/TlsCrlFile/TLSCARevocationFile/
+	s/TlsDhParamFile/TLSDHParamFile/
+	s/TlsCipherList/TLSCipherSuite/
+	s/TlsCertsOk/TLSVerifyClient/
+	/UseTCPD/d
+' /etc/ftpd/proftpd.conf
 
 %files common
 %defattr(644,root,root,755)
