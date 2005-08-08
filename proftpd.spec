@@ -321,6 +321,14 @@ echo "Changing deprecated config options"
 cp /etc/ftpd/proftpd.conf /etc/ftpd/proftpd.conf.backup
 sed -i -e 's/AuthPAMAuthoritative\b/AuthPAM/' /etc/ftpd/proftpd.conf
 sed -i -e 's/TCPDServiceName/TCPServiceName/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsRsaCertFile/TLSRSACertificateFile/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsRsaKeyFile/TLSRSACertificateKeyFile/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsDsaCertFile/TLSDSACertificateFile/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsDsaKeyFile/TLSDSACertificateKeyFile/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsCrlFile/TLSCARevocationFile/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsDhParamFile/TLSDHParamFile/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsCipherList/TLSCipherSuite/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsCertsOk/TLSVerifyClient/' /etc/ftpd/proftpd.conf
 grep -v UseTCPD /etc/ftpd/proftpd.conf > /etc/ftpd/proftpd.conf.tmp
 mv -f /etc/ftpd/proftpd.conf.tmp /etc/ftpd/proftpd.conf
 chmod 640 /etc/ftpd/proftpd.conf
@@ -330,6 +338,14 @@ echo "Changing deprecated config options"
 cp /etc/ftpd/proftpd.conf /etc/ftpd/proftpd.conf.backup
 sed -i -e 's/AuthPAMAuthoritative\b/AuthPAM/' /etc/ftpd/proftpd.conf
 sed -i -e 's/TCPDServiceName/TCPServiceName/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsRsaCertFile/TLSRSACertificateFile/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsRsaKeyFile/TLSRSACertificateKeyFile/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsDsaCertFile/TLSDSACertificateFile/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsDsaKeyFile/TLSDSACertificateKeyFile/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsCrlFile/TLSCARevocationFile/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsDhParamFile/TLSDHParamFile/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsCipherList/TLSCipherSuite/' /etc/ftpd/proftpd.conf
+sed -i -e 's/TlsCertsOk/TLSVerifyClient/' /etc/ftpd/proftpd.conf
 grep -v UseTCPD /etc/ftpd/proftpd.conf > /etc/ftpd/proftpd.conf.tmp
 mv -f /etc/ftpd/proftpd.conf.tmp /etc/ftpd/proftpd.conf
 chmod 640 /etc/ftpd/proftpd.conf
