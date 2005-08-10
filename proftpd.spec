@@ -12,7 +12,10 @@
 %bcond_with	quotaldap	# enable quota ldap support
 %bcond_with	quotamysql	# enable quota mysql support
 %bcond_with	quotapgsql	# enable quota pgsql support
+%bcond_with	dso			# enable DSO (available since 1.3.0)
 %bcond_with	linuxprivs	# enable libcap support
+
+%define	with_dso 1
 #
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
@@ -20,13 +23,14 @@ Summary(pl):	PROfesionalny serwer FTP
 Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN):	Ò×ÓÚ¹ÜÀíµÄ,°²È«µÄ FTP ·þÎñÆ÷
 Name:		proftpd
-Version:	1.2.10
-Release:	7
+Version:	1.3.0
+%define	_rc	rc1
+Release:	%{_rc}.4
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
-Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
-# Source0-md5:	5feb4a7348e12faefc25e34fd92efdd6
+Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}%{_rc}.tar.bz2
+# Source0-md5:	3faad77dba49262d26abd3f4f2e1c62d
 Source1:	%{name}.conf
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
@@ -34,8 +38,8 @@ Source5:	%{name}.sysconfig
 Source6:	%{name}.init
 Source7:	ftpusers.tar.bz2
 # Source7-md5:	76c80b6ec9f4d079a1e27316edddbe16
-Source8:	http://www.castaglia.org/proftpd/modules/%{name}-mod-shaper-0.5.5.tar.gz
-# Source8-md5:	ca3d63ffbc6ad5b6a9063f79b36d1b55
+Source8:	http://www.castaglia.org/proftpd/modules/%{name}-mod-shaper-0.5.6.tar.gz
+# Source8-md5:	a81c3ed2d45f7c938416a970fd559703
 Patch0:		%{name}-umode_t.patch
 Patch1:		%{name}-glibc.patch
 Patch2:		%{name}-paths.patch
@@ -185,14 +189,14 @@ echo "Error: You can't build at once --with mysql and --with pgsql"
 exit 1
 %endif
 
-%setup -q -a 8
+%setup -q -a 8 -n %{name}-%{version}%{?_rc}
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1
+#%patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
-%patch6 -p1
+#%patch5 -p1
+#%patch6 -p1
 # move mod_shaper code on to the source tree
 mv mod_shaper/mod_shaper.c contrib/
 
@@ -222,7 +226,8 @@ mod_shaper
 
 %configure \
 	--enable-autoshadow \
-	--with-modules=$(echo $MODULES | tr ' ' ':') \
+	%{?with_dso:--enable-dso --with-shared=$(echo $MODULES | tr ' ' ':')} \
+	%{!?with_dso:--with-modules=$(echo $MODULES | tr ' ' ':')} \
 	%{?with_ipv6:--enable-ipv6} \
 	%{!?with_ssl:--disable-tls} \
 	--enable-ctrls \
@@ -235,8 +240,12 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/{pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
 	$RPM_BUILD_ROOT/var/{lib/ftp/pub/Incoming,log}
 
+install -d $RPM_BUILD_ROOT%{_libdir}/%{name}
+install -d $RPM_BUILD_ROOT/var/run/proftpd
+
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
+	LIBEXECDIR=$RPM_BUILD_ROOT%{_libdir}/%{name} \
 	INSTALL_USER=%(id -u) \
 	INSTALL_GROUP=%(id -g)
 
@@ -260,6 +269,11 @@ ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 :> $RPM_BUILD_ROOT/etc/security/blacklist.ftp
 
 rm -f $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
+
+%if %{with dso}
+rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/*.a
+rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/*.la
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -347,7 +361,8 @@ sed -i -e '
 %doc sample-configurations/*.conf CREDITS ChangeLog NEWS RELEASE_NOTES
 %doc README README.LDAP README.PAM README.capabilities README.classes README.controls README.IPv6
 %doc README.modules
-%doc doc/*html contrib/*.html
+%doc doc/*html
+#%doc doc/*html contrib/*.html
 
 %attr(750,root,ftp) %dir %{_sysconfdir}
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
@@ -360,6 +375,15 @@ sed -i -e '
 
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
+
+%if %{with dso}
+%dir %{_libdir}/%{name}
+%attr(755,root,root) %{_libdir}/%{name}/*.so
+# works without .la. so don't include it?
+#%{_libdir}/%{name}/*.la
+%endif
+
+%dir /var/run/proftpd
 
 %{_mandir}/man[18]/*
 
