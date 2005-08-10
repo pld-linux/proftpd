@@ -21,7 +21,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhant
 Summary(zh_CN):	Ò×ÓÚ¹ÜÀíµÄ,°²È«µÄ FTP ·þÎñÆ÷
 Name:		proftpd
 Version:	1.2.10
-Release:	6.2
+Release:	7
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -61,37 +61,8 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		_sysconfdir		/etc/ftpd
 %define		_localstatedir	/var/run
 
+# There is no main package.
 %description
-ProFTPD is a highly configurable FTP daemon for unix and unix-like
-operating systems. ProFTPD is designed to be somewhat of a "drop-in"
-replacement for wu-ftpd. Full online documentation is available at
-<http://www.proftpd.org/>, including a server configuration directive
-reference manual.
-
-This package also includes mod_shaper module from
-<http://www.castaglia.org/proftpd/>
-
-%description -l es
-ProFTPD es un servidor FTP altamente configurable para sistemas
-operativos unix. Está proyectado para ser un substituto directo al
-wu-ftpd. La documentación completa está disponible en
-<http://www.proftpd.org/>, incluido el manual de referencia para las
-directivas de configuración del servidor.
-
-%description -l pl
-ProFTPD jest wysoce konfigurowalnym serwerem FTP dla systemów Unix.
-ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
-dokumentacja jest dostêpna on-line pod <http://www.proftpd.org/>
-w³±cznie z dokumentacj± dotycz±c± konfigurowania.
-
-%description -l pt_BR
-O ProFTPD é um servidor FTP altamente configurável para sistemas
-operacionais unix.
-
-É projetado para ser um substituto direto para o wu-ftpd. A
-documentação completa está disponível em <http://www.proftpd.org/>,
-incluindo o manual de referência para as diretivas de configuração do
-servidor.
 
 %package common
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax - common files
@@ -109,11 +80,36 @@ replacement for wu-ftpd. Full online documentation is available at
 <http://www.proftpd.org/>, including a server configuration directive
 reference manual.
 
+This package also includes mod_shaper module from
+<http://www.castaglia.org/proftpd/>
+
 %description common -l pl
 ProFTPD jest wysoce konfigurowalnym serwerem FTP dla systemów Unix.
 ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
-dokunentacja jest dostêpna on-line pod http://www.proftpd.org/
+dokunentacja jest dostêpna on-line pod <http://www.proftpd.org/>
 w³±cznie z dokumentacj± dotycz±c± konfigurowania.
+
+%description common -l es
+ProFTPD es un servidor FTP altamente configurable para sistemas
+operativos unix. Está proyectado para ser un substituto directo al
+wu-ftpd. La documentación completa está disponible en
+<http://www.proftpd.org/>, incluido el manual de referencia para las
+directivas de configuración del servidor.
+
+%description common -l pl
+ProFTPD jest wysoce konfigurowalnym serwerem FTP dla systemów Unix.
+ProFTPD jest robiony jako bezpo¶redni zamiennik wu-ftpd. Pe³na
+dokumentacja jest dostêpna on-line pod <http://www.proftpd.org/>
+w³±cznie z dokumentacj± dotycz±c± konfigurowania.
+
+%description common -l pt_BR
+O ProFTPD é um servidor FTP altamente configurável para sistemas
+operacionais unix.
+
+É projetado para ser um substituto direto para o wu-ftpd. A
+documentação completa está disponível em <http://www.proftpd.org/>,
+incluindo o manual de referência para as diretivas de configuração do
+servidor.
 
 %package inetd
 Summary:	inetd configs for proftpd
