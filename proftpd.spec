@@ -35,7 +35,7 @@ Source5:	%{name}.sysconfig
 Source6:	%{name}.init
 Source7:	ftpusers.tar.bz2
 # Source7-md5:	76c80b6ec9f4d079a1e27316edddbe16
-Source8:	http://www.castaglia.org/proftpd/modules/proftpd-mod-shaper-0.5.5.tar.gz
+Source8:	http://www.castaglia.org/proftpd/modules/%{name}-mod-shaper-0.5.5.tar.gz
 # Source8-md5:	ca3d63ffbc6ad5b6a9063f79b36d1b55
 Patch0:		%{name}-umode_t.patch
 Patch1:		%{name}-glibc.patch
@@ -59,7 +59,7 @@ BuildRequires:	ncurses-devel
 %{?with_quotapgsql:BuildRequires:	postgresql-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_sysconfdir	/etc/ftpd
+%define		_sysconfdir		/etc/ftpd
 %define		_localstatedir	/var/run
 
 %description
@@ -206,8 +206,8 @@ mv mod_shaper/mod_shaper.c contrib/
 cp -f /usr/share/automake/config.sub .
 %{__autoconf}
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
-CFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I/usr/include/mysql}"
-CPPFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I/usr/include/mysql}"
+CFLAGS="%{rpmcflags} -I%{_includedir}/ncurses %{?with_mysql:-I%{_includedir}/mysql}"
+CPPFLAGS="%{rpmcflags} -I%{_includedir}/ncurses %{?with_mysql:-I%{_includedir}/mysql}"
 
 MODULES="
 mod_ratio
@@ -268,6 +268,8 @@ ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 :> $RPM_BUILD_ROOT/etc/security/blacklist.ftp
 
+rm -f %{_mandir}/ftpusers-path.diff*
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -317,7 +319,7 @@ fi
 
 %triggerpostun inetd -- %{name}-inetd <= 1.2.10-1
 echo "Changing deprecated config options"
-cp -f /etc/ftpd/proftpd.conf{,.rpmorig}
+cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
 sed -i -e '
 	s/AuthPAMAuthoritative\b/AuthPAM/
 	s/TCPDServiceName/TCPServiceName/
@@ -330,11 +332,11 @@ sed -i -e '
 	s/TlsCipherList/TLSCipherSuite/
 	s/TlsCertsOk/TLSVerifyClient/
 	/UseTCPD/d
-' /etc/ftpd/proftpd.conf
+' %{_sysconfdir}/proftpd.conf
 
 %triggerpostun standalone -- %{name}-standalone <= 1.2.10-1
 echo "Changing deprecated config options"
-cp -f /etc/ftpd/proftpd.conf{,.rpmorig}
+cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
 sed -i -e '
 	s/AuthPAMAuthoritative\b/AuthPAM/
 	s/TCPDServiceName/TCPServiceName/
@@ -347,7 +349,7 @@ sed -i -e '
 	s/TlsCipherList/TLSCipherSuite/
 	s/TlsCertsOk/TLSVerifyClient/
 	/UseTCPD/d
-' /etc/ftpd/proftpd.conf
+' %{_sysconfdir}/proftpd.conf
 
 %files common
 %defattr(644,root,root,755)
@@ -360,7 +362,7 @@ sed -i -e '
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %ghost %{_sysconfdir}/ftpusers
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
-%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/logrotate.d/*
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/*
 %attr(640,root,root) %ghost /var/log/*
 %{?with_pam:%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*}
 
@@ -386,7 +388,7 @@ sed -i -e '
 
 %files standalone
 %defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/proftpd
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/proftpd
 %attr(754,root,root) /etc/rc.d/init.d/proftpd
 %{_mandir}/man5/*
 %lang(ja) %{_mandir}/ja/man5/ftpusers*
