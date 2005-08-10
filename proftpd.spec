@@ -21,14 +21,13 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.2.10
-Release:	6
+Release:	6.2
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
 # Source0-md5:	5feb4a7348e12faefc25e34fd92efdd6
 Source1:	%{name}.conf
-Source2:	%{name}.logrotate
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
 Source5:	%{name}.sysconfig
@@ -100,7 +99,6 @@ Summary(pl):	PROfesionalny serwer FTP  - wsp髄ne pliki
 Group:		Daemons
 Requires(post):	awk
 Requires(post):	fileutils
-Requires:	logrotate
 %{?with_pam:Requires:	pam >= 0.79.0}
 Obsoletes:	proftpd < 0:1.2.2rc1-3
 
@@ -238,7 +236,7 @@ mod_shaper
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/etc/{logrotate.d,pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
+install -d $RPM_BUILD_ROOT/etc/{pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
 	$RPM_BUILD_ROOT/var/{lib/ftp/pub/Incoming,log}
 
 %{__make} install \
@@ -249,7 +247,6 @@ install -d $RPM_BUILD_ROOT/etc/{logrotate.d,pam.d,security,sysconfig/rc-inetd,rc
 rm -f $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}
-install %{SOURCE2} $RPM_BUILD_ROOT/etc/logrotate.d/ftpd
 %{?with_pam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/ftpd
 install %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/proftpd
@@ -257,8 +254,6 @@ install %{SOURCE6} $RPM_BUILD_ROOT/etc/rc.d/init.d/proftpd
 install contrib/xferstats.holger-preiss $RPM_BUILD_ROOT%{_bindir}/xferstat
 
 bzip2 -dc %{SOURCE7} | tar xf - -C $RPM_BUILD_ROOT%{_mandir}
-
-mv -f contrib/README contrib/README.modules
 
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers.default
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers
@@ -268,7 +263,7 @@ ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 :> $RPM_BUILD_ROOT/etc/security/blacklist.ftp
 
-rm -f %{_mandir}/ftpusers-path.diff*
+rm -f $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -362,7 +357,6 @@ sed -i -e '
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %ghost %{_sysconfdir}/ftpusers
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/*
 %attr(640,root,root) %ghost /var/log/*
 %{?with_pam:%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*}
 
