@@ -1,0 +1,11 @@
+--- ./include/proftpd.h.org	Mon Oct 22 01:32:03 2001
++++ ./include/proftpd.h	Mon Oct 22 01:33:00 2001
+@@ -99,7 +99,7 @@
+ 
+   long flags;				/* Session & State flags */
+   struct sockaddr_storage data_addr;	/* Remote data address */
+-  short data_port;			/* Remote data port */
++  unsigned short data_port;		/* Remote data port */
+ 
+   char *ident_user;			/* User identified by ident protocol */
+ 
