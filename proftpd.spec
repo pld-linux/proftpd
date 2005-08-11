@@ -308,7 +308,7 @@ if [ "$1" = "0" ]; then
 	/sbin/chkconfig --del proftpd
 fi
 
-%triggerpostun inetd -- %{name}-inetd <= 1.2.10-1
+%triggerpostun inetd -- %{name}-inetd <= 1:1.2.10
 echo "Changing deprecated config options"
 cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
 sed -i -e '
@@ -325,7 +325,7 @@ sed -i -e '
 	/UseTCPD/d
 ' %{_sysconfdir}/proftpd.conf
 
-%triggerpostun standalone -- %{name}-standalone <= 1.2.10-1
+%triggerpostun standalone -- %{name}-standalone <= 1:1.2.10
 echo "Changing deprecated config options"
 cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
 sed -i -e '
