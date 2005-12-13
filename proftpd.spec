@@ -119,12 +119,12 @@ This package also includes mod_shaper module from
 Summary:	inetd configs for proftpd
 Summary(pl):	Pliki konfiguracyjne do u¿ycia proftpd poprzez inetd
 Group:		Daemons
-PreReq:		%{name}-common = %{epoch}:%{version}-%{release}
-PreReq:		rc-inetd
 Requires(post):	fileutils
 Requires(post):	grep
 Requires(post):	sed >= 4.0
 Requires(triggerpostun):	sed >= 4.0
+Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+Requires:	rc-inetd
 Provides:	proftpd = %{epoch}:%{version}-%{release}
 Provides:	ftpserver
 Obsoletes:	proftpd-standalone
@@ -152,13 +152,13 @@ Pliki konfiguracyjna ProFTPD do startowania demona poprzez inetd.
 Summary:	Standalone daemon configs for proftpd
 Summary(pl):	Pliki konfiguracyjne do startowania proftpd w trybie standalone
 Group:		Daemons
-PreReq:		%{name}-common = %{epoch}:%{version}-%{release}
-PreReq:		rc-scripts
-Requires(post,preun):	/sbin/chkconfig
 Requires(post):	fileutils
 Requires(post):	grep
 Requires(post):	sed >= 4.0
+Requires(post,preun):	/sbin/chkconfig
 Requires(triggerpostun):	sed >= 4.0
+Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+Requires:	rc-scripts
 Provides:	proftpd = %{epoch}:%{version}-%{release}
 Provides:	ftpserver
 Obsoletes:	proftpd-inetd
@@ -204,8 +204,8 @@ mv mod_shaper/mod_shaper.c contrib/
 cp -f /usr/share/automake/config.sub .
 %{__autoconf}
 RUN_DIR=%{_localstatedir} ; export RUN_DIR
-CFLAGS="%{rpmcflags} -I%{_includedir}/ncurses %{?with_mysql:-I%{_includedir}/mysql}"
-CPPFLAGS="%{rpmcflags} -I%{_includedir}/ncurses %{?with_mysql:-I%{_includedir}/mysql}"
+CFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I%{_includedir}/mysql}"
+CPPFLAGS="%{rpmcflags} -I/usr/include/ncurses %{?with_mysql:-I%{_includedir}/mysql}"
 
 MODULES="
 mod_ratio
