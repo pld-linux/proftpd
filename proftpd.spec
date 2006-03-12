@@ -44,15 +44,16 @@ URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libwrap-devel
-%{?with_mysql:BuildRequires:		mysql-devel}
+%{?with_quotamysql:BuildRequires:	mysql-devel}
 %{?with_quotamysql:BuildRequires:	mysql-devel}
 BuildRequires:	ncurses-devel
-%{?with_ldap:BuildRequires:		openldap-devel}
 %{?with_quotaldap:BuildRequires:	openldap-devel}
-%{?with_ssl:BuildRequires:		openssl-devel >= 0.9.7d}
+%{?with_quotaldap:BuildRequires:	openldap-devel}
+%{?with_ssl:BuildRequires:	openssl-devel >= 0.9.7d}
 %{?with_pam:BuildRequires:		pam-devel}
-%{?with_pgsql:BuildRequires:		postgresql-devel}
 %{?with_quotapgsql:BuildRequires:	postgresql-devel}
+%{?with_quotapgsql:BuildRequires:	postgresql-devel}
+BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir		/etc/ftpd
@@ -125,17 +126,17 @@ Requires(post):	sed >= 4.0
 Requires(triggerpostun):	sed >= 4.0
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	rc-inetd
-Provides:	proftpd = %{epoch}:%{version}-%{release}
 Provides:	ftpserver
-Obsoletes:	proftpd-standalone
-Obsoletes:	ftpserver
+Provides:	proftpd = %{epoch}:%{version}-%{release}
 Obsoletes:	anonftp
 Obsoletes:	bftpd
 Obsoletes:	ftpd-BSD
+Obsoletes:	ftpserver
 Obsoletes:	glftpd
 Obsoletes:	heimdal-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
+Obsoletes:	proftpd-standalone
 Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
 Obsoletes:	vsftpd
@@ -159,17 +160,17 @@ Requires(post,preun):	/sbin/chkconfig
 Requires(triggerpostun):	sed >= 4.0
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	rc-scripts
-Provides:	proftpd = %{epoch}:%{version}-%{release}
 Provides:	ftpserver
-Obsoletes:	proftpd-inetd
-Obsoletes:	ftpserver
+Provides:	proftpd = %{epoch}:%{version}-%{release}
 Obsoletes:	anonftp
 Obsoletes:	bftpd
 Obsoletes:	ftpd-BSD
+Obsoletes:	ftpserver
 Obsoletes:	glftpd
 Obsoletes:	heimdal-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
+Obsoletes:	proftpd-inetd
 Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
 Obsoletes:	vsftpd
@@ -281,34 +282,24 @@ if grep -iEqs "^ServerType[[:space:]]+standalone" %{_sysconfdir}/proftpd.conf ; 
 	cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
 	sed -i -e 's/^ServerType[[:space:]]\+standalone/ServerType			inetd/g' %{_sysconfdir}/proftpd.conf
 fi
-if [ -f /var/lock/subsys/rc-inetd ]; then
-	/etc/rc.d/init.d/rc-inetd reload 1>&2
-else
-	echo "Type \"/etc/rc.d/init.d/rc-inetd start\" to start inet server" 1>&2
-fi
+%service -q rc-inetd reload
 
 %postun inetd
-if [ "$1" = "0" ] && [ -f /var/lock/subsys/rc-inetd ]; then
-	/etc/rc.d/init.d/rc-inetd reload 1>&2
+if [ "$1" = "0" ]; then
+	%service -q rc-inetd reload
 fi
 
 %post standalone
-/sbin/chkconfig --add proftpd
 if grep -iEqs "^ServerType[[:space:]]+inetd" %{_sysconfdir}/proftpd.conf ; then
 	cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
 	sed -i -e 's/^ServerType[[:space:]]\+inetd/ServerType			standalone/g' %{_sysconfdir}/proftpd.conf
 fi
-if [ -f /var/lock/subsys/proftpd ]; then
-	/etc/rc.d/init.d/proftpd restart 1>&2
-else
-	echo "Run \"/etc/rc.d/init.d/proftpd start\" to start ProFTPD daemon."
-fi
+/sbin/chkconfig --add proftpd
+%service proftpd restart "ProFTPD daemon"
 
 %preun standalone
 if [ "$1" = "0" ]; then
-	if [ -f /var/lock/subsys/proftpd ]; then
-		/etc/rc.d/init.d/proftpd stop 1>&2
-	fi
+	%service proftpd stop
 	/sbin/chkconfig --del proftpd
 fi
 
