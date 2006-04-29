@@ -20,7 +20,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.0
-Release:	0.1
+Release:	0.2
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -199,7 +199,7 @@ standalone.
 %prep
 %setup -q -a 8 -n %{name}-%{version}%{?_rc}
 %patch0 -p1
-%patch1 -p1
+#%patch1 -p1 CONFUSES mod_ls.c
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
@@ -237,7 +237,7 @@ MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 	--enable-autoshadow \
 	--enable-ctrls \
 	--enable-dso \
-	--enable-facl
+	--enable-facl \
 	%{?with_ipv6:--enable-ipv6} \
 	--enable-sendfile \
 	%{!?with_ssl:--disable-tls} \
@@ -250,15 +250,12 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/{pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
 	$RPM_BUILD_ROOT/var/{lib/ftp/pub/Incoming,log}
 
-install -d $RPM_BUILD_ROOT%{_libdir}/%{name}
-install -d $RPM_BUILD_ROOT/var/run/proftpd
-
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
 	INSTALL_USER=%(id -u) \
 	INSTALL_GROUP=%(id -g)
 
-rm -f $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
+rm $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}
 %{?with_pam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
@@ -273,17 +270,17 @@ bzip2 -dc %{SOURCE7} | tar xf - -C $RPM_BUILD_ROOT%{_mandir}
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers
 :> $RPM_BUILD_ROOT/var/log/xferlog
 
+# only for -inetd package?
 ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 :> $RPM_BUILD_ROOT/etc/security/blacklist.ftp
 
-rm -f $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
-
-%if %{with dso}
+install -d $RPM_BUILD_ROOT%{_libdir}/%{name}
 mv $RPM_BUILD_ROOT%{_libdir}/mod_* $RPM_BUILD_ROOT%{_libdir}/%{name}
 rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/*.a
 rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/*.la
-%endif
+
+rm -f $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
 
 %clean
 rm -rf $RPM_BUILD_ROOT
