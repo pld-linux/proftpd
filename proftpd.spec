@@ -19,7 +19,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.0
-Release:	0.21
+Release:	0.24
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -33,6 +33,7 @@ Source6:	%{name}.init
 Source7:	ftpusers.tar.bz2
 # Source7-md5:	76c80b6ec9f4d079a1e27316edddbe16
 Source9:	%{name}-mod_pam.conf
+Source10:	%{name}-mod_tls.conf
 Patch0:		%{name}-umode_t.patch
 Patch1:		%{name}-glibc.patch
 Patch2:		%{name}-paths.patch
@@ -398,7 +399,7 @@ echo 'LoadModule        mod_readme.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod
 echo 'LoadModule        mod_sql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql.conf
 echo 'LoadModule        mod_sql_mysql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql_mysql.conf
 echo 'LoadModule        mod_sql_postgres.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql_postgres.conf
-echo 'LoadModule        mod_tls.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_tls.conf
+install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_tls.conf
 echo 'LoadModule        mod_wrap.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_wrap.conf
 
 %{?with_pam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
