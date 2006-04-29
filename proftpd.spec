@@ -11,10 +11,7 @@
 %bcond_without	quotaldap	# enable quota ldap support
 %bcond_without	quotamysql	# enable quota mysql support
 %bcond_without	quotapgsql	# enable quota pgsql support
-%bcond_without	dso			# enable DSO (available since 1.3.0)
 %bcond_with	linuxprivs	# enable libcap support
-
-%define	with_dso 1
 #
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
@@ -238,17 +235,17 @@ mod_shaper
 %{?with_mysql:mod_sql mod_sql_mysql}
 %{?with_pgsql:mod_sql mod_sql_postgres}
 "
-MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 
+MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 %configure \
 	--enable-autoshadow \
-	%{?with_dso:--enable-dso --with-shared=$MODARG} \
-	%{!?with_dso:--with-modules=$MODARG} \
-	%{?with_ipv6:--enable-ipv6} \
-	%{!?with_ssl:--disable-tls} \
 	--enable-ctrls \
-	--enable-sendfile \
+	--enable-dso \
 	--enable-facl
+	%{?with_ipv6:--enable-ipv6} \
+	--enable-sendfile \
+	%{!?with_ssl:--disable-tls} \
+	--with-shared=$MODARG \
 
 %{__make}
 
@@ -379,31 +376,21 @@ sed -i -e '
 %doc README README.LDAP README.PAM README.capabilities README.classes README.controls README.IPv6
 %doc README.modules
 %doc doc/*html
-#%doc doc/*html contrib/*.html
-
 %attr(750,root,ftp) %dir %{_sysconfdir}
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %ghost %{_sysconfdir}/ftpusers
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
 %attr(640,root,root) %ghost /var/log/*
 %{?with_pam:%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*}
-
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/security/blacklist.ftp
-
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
-
-%if %{with dso}
 %dir %{_libdir}/%{name}
 %attr(755,root,root) %{_libdir}/%{name}/*.so
 # works without .la. so don't include it?
 #%{_libdir}/%{name}/*.la
-%endif
-
 %dir /var/run/proftpd
-
 %{_mandir}/man[18]/*
-
 %dir /var/lib/ftp
 %dir /var/lib/ftp/pub
 %attr(711,ftp,ftp) %dir /var/lib/ftp/pub/Incoming
