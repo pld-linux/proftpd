@@ -1,6 +1,3 @@
-# TODO
-# - why main and -common package descriptions are same?
-#
 # Conditional build:
 %bcond_without	pam		# disable PAM support
 %bcond_without	ipv6		# disable IPv6 and TCPD support
@@ -24,13 +21,12 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.0
-%define	_rc	rc1
-Release:	%{_rc}.4
+Release:	0.1
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
-Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}%{_rc}.tar.bz2
-# Source0-md5:	c09df98d2e44b46af4f7a8174c59b294
+Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
+# Source0-md5:	fae47d01b52e035eb6b7190e74c17722
 Source1:	%{name}.conf
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
