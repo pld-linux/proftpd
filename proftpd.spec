@@ -41,20 +41,16 @@ Patch2:		%{name}-paths.patch
 Patch3:		%{name}-noautopriv.patch
 Patch4:		%{name}-wtmp.patch
 Patch5:		%{name}-sendfile64.patch
-Patch6:		%{name}-CAN-2005-2390.patch
-Patch7:		%{name}-configure.patch
+Patch6:		%{name}-configure.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libwrap-devel
 %{?with_quotamysql:BuildRequires:	mysql-devel}
-%{?with_quotamysql:BuildRequires:	mysql-devel}
 BuildRequires:	ncurses-devel
-%{?with_quotaldap:BuildRequires:	openldap-devel}
 %{?with_quotaldap:BuildRequires:	openldap-devel}
 %{?with_ssl:BuildRequires:	openssl-devel >= 0.9.7d}
 %{?with_pam:BuildRequires:		pam-devel}
-%{?with_quotapgsql:BuildRequires:	postgresql-devel}
 %{?with_quotapgsql:BuildRequires:	postgresql-devel}
 BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -202,14 +198,13 @@ standalone.
 
 %prep
 %setup -q -a 8 -n %{name}-%{version}%{?_rc}
-#%patch0 -p1
-#%patch1 -p1
-#%patch2 -p1
-#%patch3 -p1
-#%patch4 -p1
-#%patch5 -p1
-#%patch6 -p1
-%patch7 -p1
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+#%patch5 -p1 NEEDS UPDATE
+%patch6 -p1
 # move mod_shaper code on to the source tree
 mv mod_shaper/mod_shaper.c contrib/
 
