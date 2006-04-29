@@ -56,6 +56,7 @@ BuildRequires:	ncurses-devel
 %{?with_pam:BuildRequires:		pam-devel}
 %{?with_quotapgsql:BuildRequires:	postgresql-devel}
 %{?with_quotapgsql:BuildRequires:	postgresql-devel}
+BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir		/etc/ftpd
@@ -305,38 +306,28 @@ if grep -iEqs "^ServerType[[:space:]]+standalone" %{_sysconfdir}/proftpd.conf ; 
 	cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
 	sed -i -e 's/^ServerType[[:space:]]\+standalone/ServerType			inetd/g' %{_sysconfdir}/proftpd.conf
 fi
-if [ -f /var/lock/subsys/rc-inetd ]; then
-	/etc/rc.d/init.d/rc-inetd reload 1>&2
-else
-	echo "Type \"/etc/rc.d/init.d/rc-inetd start\" to start inet server" 1>&2
-fi
+%service -q rc-inetd reload
 
 %postun inetd
-if [ "$1" = "0" ] && [ -f /var/lock/subsys/rc-inetd ]; then
-	/etc/rc.d/init.d/rc-inetd reload 1>&2
+if [ "$1" = "0" ]; then
+	%service -q rc-inetd reload
 fi
 
 %post standalone
-/sbin/chkconfig --add proftpd
 if grep -iEqs "^ServerType[[:space:]]+inetd" %{_sysconfdir}/proftpd.conf ; then
 	cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
 	sed -i -e 's/^ServerType[[:space:]]\+inetd/ServerType			standalone/g' %{_sysconfdir}/proftpd.conf
 fi
-if [ -f /var/lock/subsys/proftpd ]; then
-	/etc/rc.d/init.d/proftpd restart 1>&2
-else
-	echo "Run \"/etc/rc.d/init.d/proftpd start\" to start ProFTPD daemon."
-fi
+/sbin/chkconfig --add proftpd
+%service proftpd restart "ProFTPD daemon"
 
 %preun standalone
 if [ "$1" = "0" ]; then
-	if [ -f /var/lock/subsys/proftpd ]; then
-		/etc/rc.d/init.d/proftpd stop 1>&2
-	fi
+	%service proftpd stop
 	/sbin/chkconfig --del proftpd
 fi
 
-%triggerpostun inetd -- %{name}-inetd <= 1.2.10-1
+%triggerpostun inetd -- %{name}-inetd <= 1:1.2.10
 echo "Changing deprecated config options"
 cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
 sed -i -e '
@@ -353,7 +344,7 @@ sed -i -e '
 	/UseTCPD/d
 ' %{_sysconfdir}/proftpd.conf
 
-%triggerpostun standalone -- %{name}-standalone <= 1.2.10-1
+%triggerpostun standalone -- %{name}-standalone <= 1:1.2.10
 echo "Changing deprecated config options"
 cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
 sed -i -e '
