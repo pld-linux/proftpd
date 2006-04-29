@@ -20,7 +20,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.0
-Release:	0.2
+Release:	0.4
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -57,6 +57,7 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir		/etc/ftpd
 %define		_localstatedir	/var/run
+%define		_libexecdir		%{_prefix}/%{_lib}/%{name}
 
 %description
 ProFTPD is a highly configurable FTP daemon for unix and unix-like
@@ -275,10 +276,8 @@ ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 :> $RPM_BUILD_ROOT/etc/security/blacklist.ftp
 
-install -d $RPM_BUILD_ROOT%{_libdir}/%{name}
-mv $RPM_BUILD_ROOT%{_libdir}/mod_* $RPM_BUILD_ROOT%{_libdir}/%{name}
-rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/*.a
-rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/*.la
+rm $RPM_BUILD_ROOT%{_libdir}/%{name}/*.a
+rm $RPM_BUILD_ROOT%{_libdir}/%{name}/*.la
 
 rm -f $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
 
