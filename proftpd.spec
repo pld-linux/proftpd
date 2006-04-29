@@ -1,3 +1,5 @@
+# TODO
+# - mod_caps uses uname -r for detection
 # Conditional build:
 %bcond_without	pam		# disable PAM support
 %bcond_without	ipv6		# disable IPv6 and TCPD support
@@ -9,7 +11,7 @@
 %bcond_with	quotaldap	# enable quota ldap support
 %bcond_with	quotamysql	# enable quota mysql support
 %bcond_with	quotapgsql	# enable quota pgsql support
-%bcond_with	dso			# enable DSO (available since 1.3.0)
+%bcond_without	dso			# enable DSO (available since 1.3.0)
 %bcond_with	linuxprivs	# enable libcap support
 
 %define	with_dso 1
@@ -43,6 +45,7 @@ Patch3:		%{name}-noautopriv.patch
 Patch4:		%{name}-wtmp.patch
 Patch5:		%{name}-sendfile64.patch
 Patch6:		%{name}-CAN-2005-2390.patch
+Patch7:		%{name}-configure.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -186,22 +189,23 @@ exit 1
 %endif
 
 %setup -q -a 8 -n %{name}-%{version}%{?_rc}
-%patch0 -p1
-%patch1 -p1
+#%patch0 -p1
+#%patch1 -p1
 #%patch2 -p1
-%patch3 -p1
-%patch4 -p1
+#%patch3 -p1
+#%patch4 -p1
 #%patch5 -p1
 #%patch6 -p1
+%patch7 -p1
 # move mod_shaper code on to the source tree
 mv mod_shaper/mod_shaper.c contrib/
 
 %build
 cp -f /usr/share/automake/config.sub .
 %{__autoconf}
-RUN_DIR=%{_localstatedir} ; export RUN_DIR
-CFLAGS="%{rpmcflags} -I%{_includedir}/ncurses %{?with_mysql:-I%{_includedir}/mysql}"
-CPPFLAGS="%{rpmcflags} -I%{_includedir}/ncurses %{?with_mysql:-I%{_includedir}/mysql}"
+#RUN_DIR=%{_localstatedir} ; export RUN_DIR
+#CFLAGS="%{rpmcflags} -I%{_includedir}/ncurses %{?with_mysql:-I%{_includedir}/mysql}"
+#CPPFLAGS="%{rpmcflags} -I%{_includedir}/ncurses %{?with_mysql:-I%{_includedir}/mysql}"
 
 MODULES="
 mod_ratio
@@ -220,14 +224,17 @@ mod_shaper
 %{?with_pgsql:mod_sql mod_sql_postgres}
 "
 
+MODARG=$(echo $MODULES | xargs | tr ' ' ':')
+
 %configure \
 	--enable-autoshadow \
-	%{?with_dso:--enable-dso --with-shared=$(echo $MODULES | tr ' ' ':')} \
-	%{!?with_dso:--with-modules=$(echo $MODULES | tr ' ' ':')} \
+	%{?with_dso:--enable-dso --with-shared=$MODARG} \
+	%{!?with_dso:--with-modules=$MODARG} \
 	%{?with_ipv6:--enable-ipv6} \
 	%{!?with_ssl:--disable-tls} \
 	--enable-ctrls \
-	--enable-sendfile
+	--enable-sendfile \
+	--enable-facl
 
 %{__make}
 
@@ -241,7 +248,6 @@ install -d $RPM_BUILD_ROOT/var/run/proftpd
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
-	LIBEXECDIR=$RPM_BUILD_ROOT%{_libdir}/%{name} \
 	INSTALL_USER=%(id -u) \
 	INSTALL_GROUP=%(id -g)
 
@@ -267,6 +273,7 @@ ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 rm -f $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
 
 %if %{with dso}
+mv $RPM_BUILD_ROOT%{_libdir}/mod_* $RPM_BUILD_ROOT%{_libdir}/%{name}
 rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/*.a
 rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/*.la
 %endif
