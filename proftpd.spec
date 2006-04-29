@@ -20,7 +20,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.0
-Release:	0.14
+Release:	0.15
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -216,9 +216,9 @@ Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 %description mod_ldap
 LDAP authentication support.
 
-mod_ldap provides LDAP authentication support for ProFTPD. It supports many
-features useful in "toaster" environments such as default UID/GID and
-autocreation/autogeneration of home directories.
+mod_ldap provides LDAP authentication support for ProFTPD. It supports
+many features useful in "toaster" environments such as default UID/GID
+and autocreation/autogeneration of home directories.
 
 %package mod_quotatab
 Summary:	ProFTPD quotatab module
@@ -226,27 +226,39 @@ Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_quotatab
+A module for managing FTP byte/file quotas via centralized tables.
 
 %package mod_quotatab_file
 Summary:	ProFTPD quotatab file module
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
 
 %description mod_quotatab_file
+A mod_quotatab sub-module for managing quota data via file-based
+tables.
 
 %package mod_quotatab_ldap
 Summary:	ProFTPD quotatab ldap module
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+Requires:	%{name}-mod_ldap = %{epoch}:%{version}-%{release}
+Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
 
 %description mod_quotatab_ldap
+A mod_quotatab sub-module for obtaining quota information from an LDAP
+directory.
 
 %package mod_quotatab_sql
 Summary:	ProFTPD quotatab sql module
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
+Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
 
 %description mod_quotatab_sql
+A mod_quotatab sub-module for managing quota data via SQL-based
+tables.
 
 %package mod_ratio
 Summary:	ProFTPD quotatab ratio module
@@ -254,6 +266,7 @@ Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_ratio
+Support upload/download ratios.
 
 %package mod_readme
 Summary:	ProFTPD readme module
@@ -269,6 +282,7 @@ Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_shaper
+A module implementing daemon-wide rate throttling via IPC.
 
 %package mod_sql
 Summary:	ProFTPD SQL support module
@@ -276,22 +290,26 @@ Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_sql
-This module provides the necessary support for SQL based authentication,
-logging and other features as required.
+This module provides the necessary support for SQL based
+authentication, logging and other features as required.
 
 %package mod_sql_mysql
 Summary:	ProFTPD sql mysql module
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
 
 %description mod_sql_mysql
+Support for connecting to MySQL databases.
 
 %package mod_sql_postgres
 Summary:	ProFTPD sql postgres module
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
 
 %description mod_sql_postgres
+Support for connecting to Postgres databases.
 
 %package mod_tls
 Summary:	ProFTPD TLS support
@@ -299,6 +317,7 @@ Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_tls
+An RFC2228 SSL/TLS module for ProFTPD.
 
 %package mod_wrap
 Summary:	ProFTPD Interface to libwrap
@@ -307,14 +326,14 @@ Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	libwrap
 
 %description mod_wrap
-It enables the daemon to use the common tcpwrappers access control library
-while in standalone mode, and in a very configurable manner.
+It enables the daemon to use the common tcpwrappers access control
+library while in standalone mode, and in a very configurable manner.
 
-Many programs will automatically add entries in the common allow/deny files,
-and use of this module will allow a ProFTPD daemon running in standalone mode
-to adapt as these entries are added. The portsentry program does this, for
-example: when illegal access is attempted, it will add hosts to the
-/etc/hosts.deny file.
+Many programs will automatically add entries in the common allow/deny
+files, and use of this module will allow a ProFTPD daemon running in
+standalone mode to adapt as these entries are added. The portsentry
+program does this, for example: when illegal access is attempted, it
+will add hosts to the /etc/hosts.deny file.
 
 %prep
 %setup -q -a 8 -n %{name}-%{version}%{?_rc}
@@ -378,11 +397,6 @@ rm $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_auth_pam.conf
-#install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_ldap.conf
-#install %{SOURCE11} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql_mysql.conf
-#install %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_tls.conf
-#install %{SOURCE13} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql_postgres.conf
-#install %{SOURCE14} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_wrap.conf
 echo 'LoadModule        mod_ldap.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_ldap.conf
 echo 'LoadModule        mod_quotatab.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab.conf
 echo 'LoadModule        mod_quotatab_file.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab_file.conf
