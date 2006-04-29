@@ -4,13 +4,13 @@
 %bcond_without	pam		# disable PAM support
 %bcond_without	ipv6		# disable IPv6 and TCPD support
 %bcond_without	ssl		# disbale TLS/SSL support
-%bcond_with	ldap		# enable LDAP support
-%bcond_with	mysql		# enable MySQL support
-%bcond_with	pgsql		# enable PostgreSQL support
-%bcond_with	quotafile	# enable quota file support
-%bcond_with	quotaldap	# enable quota ldap support
-%bcond_with	quotamysql	# enable quota mysql support
-%bcond_with	quotapgsql	# enable quota pgsql support
+%bcond_without	ldap		# enable LDAP support
+%bcond_without	mysql		# enable MySQL support
+%bcond_without	pgsql		# enable PostgreSQL support
+%bcond_without	quotafile	# enable quota file support
+%bcond_without	quotaldap	# enable quota ldap support
+%bcond_without	quotamysql	# enable quota mysql support
+%bcond_without	quotapgsql	# enable quota pgsql support
 %bcond_without	dso			# enable DSO (available since 1.3.0)
 %bcond_with	linuxprivs	# enable libcap support
 
@@ -183,11 +183,6 @@ Pliki konfiguracyjne ProFTPD do startowania demona w trybie
 standalone.
 
 %prep
-%if %{with mysql} && %{with pgsql}
-echo "Error: You can't build at once --with mysql and --with pgsql"
-exit 1
-%endif
-
 %setup -q -a 8 -n %{name}-%{version}%{?_rc}
 #%patch0 -p1
 #%patch1 -p1
@@ -204,8 +199,8 @@ mv mod_shaper/mod_shaper.c contrib/
 cp -f /usr/share/automake/config.sub .
 %{__autoconf}
 #RUN_DIR=%{_localstatedir} ; export RUN_DIR
-#CFLAGS="%{rpmcflags} -I%{_includedir}/ncurses %{?with_mysql:-I%{_includedir}/mysql}"
-#CPPFLAGS="%{rpmcflags} -I%{_includedir}/ncurses %{?with_mysql:-I%{_includedir}/mysql}"
+CFLAGS="%{rpmcflags} %{?with_mysql:-I%{_includedir}/mysql}"
+CPPFLAGS="%{rpmcflags} %{?with_mysql:-I%{_includedir}/mysql}"
 
 MODULES="
 mod_ratio
@@ -223,8 +218,7 @@ mod_shaper
 %{?with_mysql:mod_sql mod_sql_mysql}
 %{?with_pgsql:mod_sql mod_sql_postgres}
 "
-
-MODARG=$(echo $MODULES | xargs | tr ' ' ':')
+MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 
 %configure \
 	--enable-autoshadow \
