@@ -1,6 +1,5 @@
-diff -urN proftpd-1.2.10/include/data.h proftpd-1.2.10-sendfile64/include/data.h
---- proftpd-1.2.10/include/data.h	2004-05-21 19:19:02.000000000 +0200
-+++ proftpd-1.2.10-sendfile64/include/data.h	2005-02-03 17:18:39.676660624 +0100
+--- proftpd-1.3.0/include/data.h~	2006-04-29 14:20:36.776770520 +0300
++++ proftpd-1.3.0/include/data.h	2006-04-29 14:21:59.528616003 +0300
 @@ -36,25 +36,12 @@
  int pr_data_open(char *, char *, int, off_t);
  void pr_data_close(int);
@@ -24,12 +23,11 @@ diff -urN proftpd-1.2.10/include/data.h proftpd-1.2.10-sendfile64/include/data.h
 -
 -pr_sendfile_t;
 -
--pr_sendfile_t pr_data_sendfile(int retr_fd, off_t *offset, size_t count);
+-pr_sendfile_t pr_data_sendfile(int retr_fd, off_t *offset, off_t count);
 +off_t pr_data_sendfile(int retr_fd, off_t *offset, off_t count);
  #endif /* HAVE_SENDFILE */
  
  #endif /* PR_DATACONN_H */
-diff -urN proftpd-1.2.10/modules/mod_xfer.c proftpd-1.2.10-sendfile64/modules/mod_xfer.c
 --- proftpd-1.2.10/modules/mod_xfer.c	2004-08-25 00:24:18.000000000 +0200
 +++ proftpd-1.2.10-sendfile64/modules/mod_xfer.c	2005-02-03 17:18:26.109723112 +0100
 @@ -603,7 +603,7 @@
@@ -90,7 +88,6 @@ diff -urN proftpd-1.2.10/modules/mod_xfer.c proftpd-1.2.10-sendfile64/modules/mo
  
    /* This function sets static module variables for later potential
     * throttling of the transfer.
-diff -urN proftpd-1.2.10/src/data.c proftpd-1.2.10-sendfile64/src/data.c
 --- proftpd-1.2.10/src/data.c	2004-08-25 20:08:46.000000000 +0200
 +++ proftpd-1.2.10-sendfile64/src/data.c	2005-02-03 17:20:56.858805768 +0100
 @@ -772,9 +772,9 @@
