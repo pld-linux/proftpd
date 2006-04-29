@@ -553,7 +553,6 @@ sed -i -e '
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/anonftp.conf
 %attr(640,root,root) %ghost /var/log/*
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/security/blacklist.ftp
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/%{name}
@@ -590,6 +589,7 @@ sed -i -e '
 %defattr(644,root,root,755)
 %doc README.PAM
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/security/blacklist.ftp
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_auth_pam.conf
 %attr(755,root,root) %{_libexecdir}/mod_auth_pam.so
 
