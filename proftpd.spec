@@ -11,7 +11,6 @@
 %bcond_without	quotaldap	# enable quota ldap support
 %bcond_without	quotamysql	# enable quota mysql support
 %bcond_without	quotapgsql	# enable quota pgsql support
-%bcond_with	linuxprivs	# enable libcap support
 #
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es):	Servidor FTP profesional, con sintaxis de configuraci髇 semejante a la del apache
@@ -20,7 +19,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.0
-Release:	0.15
+Release:	0.19
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -33,9 +32,7 @@ Source5:	%{name}.sysconfig
 Source6:	%{name}.init
 Source7:	ftpusers.tar.bz2
 # Source7-md5:	76c80b6ec9f4d079a1e27316edddbe16
-Source8:	http://www.castaglia.org/proftpd/modules/%{name}-mod-shaper-0.5.6.tar.gz
 Source9:	%{name}-mod_pam.conf
-# Source8-md5:	a81c3ed2d45f7c938416a970fd559703
 Patch0:		%{name}-umode_t.patch
 Patch1:		%{name}-glibc.patch
 Patch2:		%{name}-paths.patch
@@ -103,9 +100,6 @@ operating systems. ProFTPD is designed to be somewhat of a "drop-in"
 replacement for wu-ftpd. Full online documentation is available at
 <http://www.proftpd.org/>, including a server configuration directive
 reference manual.
-
-This package also includes mod_shaper module from
-<http://www.castaglia.org/proftpd/>
 
 %description common -l es
 ProFTPD es un servidor FTP altamente configurable para sistemas
@@ -199,6 +193,13 @@ ProFTPD configs for running as a standalone daemon.
 Pliki konfiguracyjne ProFTPD do startowania demona w trybie
 standalone.
 
+%package devel
+Summary:	Header files ProFTPD
+Group:		Development/Libraries
+
+%description devel
+This is the package containing the header files for ProFTPD.
+
 %package mod_auth_pam
 Summary:	ProFTPD PAM auth module
 Group:		Daemons
@@ -276,14 +277,6 @@ Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 %description mod_readme
 "README" file support.
 
-%package mod_shaper
-Summary:	ProFTPD shaper module
-Group:		Daemons
-Requires:	%{name}-common = %{epoch}:%{version}-%{release}
-
-%description mod_shaper
-A module implementing daemon-wide rate throttling via IPC.
-
 %package mod_sql
 Summary:	ProFTPD SQL support module
 Group:		Daemons
@@ -336,7 +329,7 @@ program does this, for example: when illegal access is attempted, it
 will add hosts to the /etc/hosts.deny file.
 
 %prep
-%setup -q -a 8 -n %{name}-%{version}%{?_rc}
+%setup -q -n %{name}-%{version}%{?_rc}
 %patch0 -p1
 #%patch1 -p1 CONFUSES mod_ls.c
 %patch2 -p1
@@ -344,8 +337,6 @@ will add hosts to the /etc/hosts.deny file.
 %patch4 -p1
 #%patch5 -p1 NEEDS UPDATE
 %patch6 -p1
-# move mod_shaper code on to the source tree
-mv mod_shaper/mod_shaper.c contrib/
 
 %build
 cp -f /usr/share/automake/config.sub .
@@ -354,9 +345,8 @@ cp -f /usr/share/automake/config.sub .
 MODULES="
 mod_ratio
 mod_readme
-mod_shaper
+mod_wrap
 %{?with_ssl:mod_tls}
-%{?with_ipv6:mod_wrap}
 %{?with_pam:mod_auth_pam}
 %{?with_ldap:mod_ldap}
 %{?with_quotafile:mod_quotatab mod_quotatab_file}
@@ -386,7 +376,8 @@ MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/{pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
 	$RPM_BUILD_ROOT/var/{lib/ftp/pub/Incoming,log} \
-	$RPM_BUILD_ROOT%{_sysconfdir}/conf.d
+	$RPM_BUILD_ROOT%{_sysconfdir}/conf.d \
+	$RPM_BUILD_ROOT%{_includedir}/%{name}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
@@ -404,13 +395,11 @@ echo 'LoadModule        mod_quotatab_ldap.c' > $RPM_BUILD_ROOT%{_sysconfdir}/con
 echo 'LoadModule        mod_quotatab_sql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab_sql.conf
 echo 'LoadModule        mod_ratio.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_ratio.conf
 echo 'LoadModule        mod_readme.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_readme.conf
-echo 'LoadModule        mod_shaper.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_shaper.conf
 echo 'LoadModule        mod_sql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql.conf
 echo 'LoadModule        mod_sql_mysql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql_mysql.conf
 echo 'LoadModule        mod_sql_postgres.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql_postgres.conf
 echo 'LoadModule        mod_tls.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_tls.conf
 echo 'LoadModule        mod_wrap.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_wrap.conf
-
 
 %{?with_pam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/ftpd
@@ -433,6 +422,7 @@ rm $RPM_BUILD_ROOT%{_libdir}/%{name}/*.a
 rm $RPM_BUILD_ROOT%{_libdir}/%{name}/*.la
 
 rm -f $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
+cp -a include/* config.h $RPM_BUILD_ROOT%{_includedir}/%{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -507,7 +497,6 @@ fi
 %module_scripts mod_quotatab_sql
 %module_scripts mod_ratio
 %module_scripts mod_readme
-%module_scripts mod_shaper
 %module_scripts mod_sql
 %module_scripts mod_sql_mysql
 %module_scripts mod_sql_postgres
@@ -589,6 +578,10 @@ sed -i -e '
 %lang(pt_BR) %{_mandir}/pt_BR/man5/ftpusers*
 %lang(ru) %{_mandir}/ru/man5/ftpusers*
 
+%files devel
+%defattr(644,root,root,755)
+%{_includedir}/%{name}
+
 %files mod_auth_pam
 %defattr(644,root,root,755)
 %doc README.PAM
@@ -631,11 +624,6 @@ sed -i -e '
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_readme.conf
 %attr(755,root,root) %{_libexecdir}/mod_readme.so
-
-%files mod_shaper
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_shaper.conf
-%attr(755,root,root) %{_libexecdir}/mod_shaper.so
 
 %files mod_sql
 %defattr(644,root,root,755)
