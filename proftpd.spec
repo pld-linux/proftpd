@@ -50,21 +50,20 @@ URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libwrap-devel
-%{?with_mysql:BuildRequires:		mysql-devel}
+%{?with_quotamysql:BuildRequires:	mysql-devel}
 %{?with_quotamysql:BuildRequires:	mysql-devel}
 BuildRequires:	ncurses-devel
-%{?with_ldap:BuildRequires:		openldap-devel}
 %{?with_quotaldap:BuildRequires:	openldap-devel}
-%{?with_ssl:BuildRequires:		openssl-devel >= 0.9.7d}
+%{?with_quotaldap:BuildRequires:	openldap-devel}
+%{?with_ssl:BuildRequires:	openssl-devel >= 0.9.7d}
 %{?with_pam:BuildRequires:		pam-devel}
-%{?with_pgsql:BuildRequires:		postgresql-devel}
+%{?with_quotapgsql:BuildRequires:	postgresql-devel}
 %{?with_quotapgsql:BuildRequires:	postgresql-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir		/etc/ftpd
 %define		_localstatedir	/var/run
 
-# There is no main package.
 %description
 
 %package common
@@ -118,23 +117,23 @@ servidor.
 Summary:	inetd configs for proftpd
 Summary(pl):	Pliki konfiguracyjne do u¿ycia proftpd poprzez inetd
 Group:		Daemons
-PreReq:		%{name}-common = %{epoch}:%{version}-%{release}
-PreReq:		rc-inetd
 Requires(post):	fileutils
 Requires(post):	grep
 Requires(post):	sed >= 4.0
 Requires(triggerpostun):	sed >= 4.0
-Provides:	proftpd = %{epoch}:%{version}-%{release}
+Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+Requires:	rc-inetd
 Provides:	ftpserver
-Obsoletes:	proftpd-standalone
-Obsoletes:	ftpserver
+Provides:	proftpd = %{epoch}:%{version}-%{release}
 Obsoletes:	anonftp
 Obsoletes:	bftpd
 Obsoletes:	ftpd-BSD
+Obsoletes:	ftpserver
 Obsoletes:	glftpd
 Obsoletes:	heimdal-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
+Obsoletes:	proftpd-standalone
 Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
 Obsoletes:	vsftpd
@@ -151,24 +150,24 @@ Pliki konfiguracyjna ProFTPD do startowania demona poprzez inetd.
 Summary:	Standalone daemon configs for proftpd
 Summary(pl):	Pliki konfiguracyjne do startowania proftpd w trybie standalone
 Group:		Daemons
-PreReq:		%{name}-common = %{epoch}:%{version}-%{release}
-PreReq:		rc-scripts
-Requires(post,preun):	/sbin/chkconfig
 Requires(post):	fileutils
 Requires(post):	grep
 Requires(post):	sed >= 4.0
+Requires(post,preun):	/sbin/chkconfig
 Requires(triggerpostun):	sed >= 4.0
-Provides:	proftpd = %{epoch}:%{version}-%{release}
+Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+Requires:	rc-scripts
 Provides:	ftpserver
-Obsoletes:	proftpd-inetd
-Obsoletes:	ftpserver
+Provides:	proftpd = %{epoch}:%{version}-%{release}
 Obsoletes:	anonftp
 Obsoletes:	bftpd
 Obsoletes:	ftpd-BSD
+Obsoletes:	ftpserver
 Obsoletes:	glftpd
 Obsoletes:	heimdal-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
+Obsoletes:	proftpd-inetd
 Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
 Obsoletes:	vsftpd
