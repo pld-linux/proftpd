@@ -19,7 +19,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.0
-Release:	0.26
+Release:	0.30
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -362,7 +362,7 @@ mod_wrap
 
 MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 %configure \
-	%{?with_mysql:--with-includes=%{_includedir}/mysql} \
+	--with-includes=/usr/include/ncurses%{?with_mysql::%{_includedir}/mysql} \
 	--enable-autoshadow \
 	--enable-ctrls \
 	--enable-dso \
@@ -402,7 +402,7 @@ echo 'LoadModule        mod_sql_mysql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/
 echo 'LoadModule        mod_sql_postgres.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql_postgres.conf
 install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_tls.conf
 echo 'LoadModule        mod_wrap.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_wrap.conf
-install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/anonftp.conf
+install %{SOURCE11} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/anonftp.conf
 
 %{?with_pam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/ftpd
