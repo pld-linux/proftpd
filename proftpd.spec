@@ -197,13 +197,18 @@ standalone.
 
 %package devel
 Summary:	Header files ProFTPD
+Summary(pl):	Pliki nag³ówkowe ProFTPD
 Group:		Development/Libraries
 
 %description devel
 This is the package containing the header files for ProFTPD.
 
+%description devel -l pl
+Ten pakiet zawiera pliki nag³ówkowe ProFTPD
+
 %package mod_auth_pam
 Summary:	ProFTPD PAM auth module
+Summary(pl):	Modu³ uwierzytelnienia PAM dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	pam >= 0.79.0
@@ -211,28 +216,42 @@ Requires:	pam >= 0.79.0
 %description mod_auth_pam
 PAM authentication method for ProFTPD.
 
+%description mod_auth_pam -l pl
+Metoda uwierzytelnienia PAM dla ProFTPD.
+
 %package mod_ldap
 Summary:	ProFTPD OpenLDAP module
+Summary(pl):	Modu³ OpenLDAP dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_ldap
-LDAP authentication support.
-
 mod_ldap provides LDAP authentication support for ProFTPD. It supports
 many features useful in "toaster" environments such as default UID/GID
 and autocreation/autogeneration of home directories.
 
+%description mod_ldap -l pl
+mod_ldap dodaje obs³ugê uwierzytelnienia LDAP do ProFTPD. Obs³uguje
+wiele cech przydatnych w ¶rodowiskach "tosterowych", takich jak
+domy¶lny UID/GID i automatyczne tworzenie/generowanie katalogów
+domowych.
+
 %package mod_quotatab
 Summary:	ProFTPD quotatab module
+Summary(pl):	Modu³ quotatab dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_quotatab
 A module for managing FTP byte/file quotas via centralized tables.
 
+%description mod_quotatab -l pl
+Modu³ do zarz±dzania ograniczeniami bajtów/plików FTP poprzez
+scentralizowane tabele.
+
 %package mod_quotatab_file
 Summary:	ProFTPD quotatab file module
+Summary(pl):	Modu³ quotatab_file dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
@@ -241,8 +260,13 @@ Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
 A mod_quotatab sub-module for managing quota data via file-based
 tables.
 
+%description mod_quotatab_file -l pl
+Podmodu³ mod_quotatab do zarz±dzania danymi o ograniczeniach poprzez
+tabele zapisane w pliku.
+
 %package mod_quotatab_ldap
 Summary:	ProFTPD quotatab ldap module
+Summary(pl):	Modu³ quotatab_ldap dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_ldap = %{epoch}:%{version}-%{release}
@@ -252,8 +276,13 @@ Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
 A mod_quotatab sub-module for obtaining quota information from an LDAP
 directory.
 
+%description mod_quotatab_ldap -l pl
+Podmodu³ mod_quotatab do pobierania informacji o ograniczeniach z
+katalogu LDAP.
+
 %package mod_quotatab_sql
 Summary:	ProFTPD quotatab sql module
+Summary(pl):	Modu³ quotatab_sql dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
@@ -263,24 +292,37 @@ Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
 A mod_quotatab sub-module for managing quota data via SQL-based
 tables.
 
+%description mod_quotatab_sql -l pl
+Podmodu³ mod_quotatab do zarz±dzania danymi o ograniczeniach poprzez
+tabele SQL.
+
 %package mod_ratio
-Summary:	ProFTPD quotatab ratio module
+Summary:	ProFTPD ratio module
+Summary(pl):	Modu³ ratio dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_ratio
 Support upload/download ratios.
 
+%description mod_ratio -l pl
+Obs³uga wspó³czynników upload/download.
+
 %package mod_readme
 Summary:	ProFTPD readme module
+Summary(pl):	Modu³ readme dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_readme
 "README" file support.
 
+%description mod_readme -l pl
+Obs³uga pliku "README".
+
 %package mod_sql
 Summary:	ProFTPD SQL support module
+Summary(pl):	Modu³ obs³ugi SQL dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
@@ -288,8 +330,13 @@ Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 This module provides the necessary support for SQL based
 authentication, logging and other features as required.
 
+%description mod_sql -l pl
+Ten modu³ dodaje obs³ugê SQL potrzebn± do uwierzytelniania, logowania
+i innych mo¿liwo¶ci opartych o SQL.
+
 %package mod_sql_mysql
 Summary:	ProFTPD sql mysql module
+Summary(pl):	Modu³ sql_mysql dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
@@ -297,25 +344,37 @@ Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
 %description mod_sql_mysql
 Support for connecting to MySQL databases.
 
+%description mod_sql_mysql -l pl
+Obs³uga ³±czenia siê z bazami danych MySQL.
+
 %package mod_sql_postgres
 Summary:	ProFTPD sql postgres module
+Summary(pl):	Modu³ sql_postgres dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
 
 %description mod_sql_postgres
-Support for connecting to Postgres databases.
+Support for connecting to PostgreSQL databases.
+
+%description mod_sql_postgres -l pl
+Obs³uga ³±czenia siê z bazami danych PostgreSQL.
 
 %package mod_tls
 Summary:	ProFTPD TLS support
+Summary(pl):	Obs³uga TLS dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_tls
 An RFC2228 SSL/TLS module for ProFTPD.
 
+%description mod_tls -l pl
+Modu³ SSL/TLS zgodny z RFC2228 dla ProFTPD.
+
 %package mod_wrap
-Summary:	ProFTPD Interface to libwrap
+Summary:	ProFTPD interface to libwrap
+Summary(pl):	Interfejs ProFTPD do libwrap
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	libwrap
@@ -329,6 +388,16 @@ files, and use of this module will allow a ProFTPD daemon running in
 standalone mode to adapt as these entries are added. The portsentry
 program does this, for example: when illegal access is attempted, it
 will add hosts to the /etc/hosts.deny file.
+
+%description mod_wrap -l pl
+Ten pakiet pozwala demonowi u¿ywaæ wspólnej biblioteki kontroli
+dostêpu tcpwrappers w trybie samodzielnym w bardzo wygodny sposób.
+
+Wiele programów automatycznie dodaje wpisy we wspólnych plikach
+allow/deny, a u¿ycie tego modu³u pozwala demonowi ProFTPD dzia³aj±cemu
+w trybie samodzielnym adaptowaæ te wpisy w miarê dodawania. Robi tak
+na przyk³ad program portsentry: przy próbie niedozwolonego dostêpu
+dodaje hosty do pliku /etc/hosts.deny.
 
 %prep
 %setup -q -n %{name}-%{version}%{?_rc}
