@@ -19,7 +19,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.0
-Release:	0.30
+Release:	0.31
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -205,6 +205,14 @@ This is the package containing the header files for ProFTPD.
 
 %description devel -l pl
 Ten pakiet zawiera pliki nag丑wkowe ProFTPD
+
+%package anonftp
+Summary:	Anonymous FTP config for ProFTPD
+Group:		Daemons
+Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+
+%description anonftp
+Anonymous FTP config for ProFTPD
 
 %package mod_auth_pam
 Summary:	ProFTPD PAM auth module
@@ -620,7 +628,6 @@ sed -i -e '
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %ghost %{_sysconfdir}/ftpusers
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/anonftp.conf
 %attr(640,root,root) %ghost /var/log/*
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
@@ -653,6 +660,10 @@ sed -i -e '
 %files devel
 %defattr(644,root,root,755)
 %{_includedir}/%{name}
+
+%files anonftp
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/anonftp.conf
 
 %files mod_auth_pam
 %defattr(644,root,root,755)
