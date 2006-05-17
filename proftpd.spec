@@ -208,11 +208,15 @@ Ten pakiet zawiera pliki nag³ówkowe ProFTPD
 
 %package anonftp
 Summary:	Anonymous FTP config for ProFTPD
+Summary(pl):	Konfiguracja anonimowego FTP dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description anonftp
-Anonymous FTP config for ProFTPD
+Anonymous FTP config for ProFTPD.
+
+%description anonftp -l pl
+Konfiguracja anonimowego FTP dla ProFTPD.
 
 %package mod_auth_pam
 Summary:	ProFTPD PAM auth module
