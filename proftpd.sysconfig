@@ -1,8 +1,0 @@
-# Customized settings for proftpd
-
-# Nice level for proftpd
-SERVICE_RUN_NICE_LEVEL="+5"
-
-# Cmdline options 
-PROFTPD_OPTS=""
-
