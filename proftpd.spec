@@ -46,12 +46,18 @@ URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libwrap-devel
-%{?with_quotamysql:BuildRequires:	mysql-devel}
+%if %{with mysql} || %{with quotamysql}
+BuildRequires:	mysql-devel
+%endif
 BuildRequires:	ncurses-devel
-%{?with_quotaldap:BuildRequires:	openldap-devel}
+%if %{with ldap} || %{with quotaldap}
+BuildRequires:	openldap-devel
+%endif
 %{?with_ssl:BuildRequires:	openssl-devel >= 0.9.7d}
 %{?with_pam:BuildRequires:		pam-devel}
-%{?with_quotapgsql:BuildRequires:	postgresql-devel}
+%if %{with pgsql} || %{with quotapgsql}
+BuildRequires:	postgresql-devel
+%endif
 BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -475,16 +481,18 @@ rm $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_auth_pam.conf
-echo 'LoadModule        mod_ldap.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_ldap.conf
+%{?with_ldap:echo 'LoadModule        mod_ldap.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_ldap.conf}
 echo 'LoadModule        mod_quotatab.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab.conf
 echo 'LoadModule        mod_quotatab_file.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab_file.conf
-echo 'LoadModule        mod_quotatab_ldap.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab_ldap.conf
-echo 'LoadModule        mod_quotatab_sql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab_sql.conf
+%{?with_quotaldap:echo 'LoadModule        mod_quotatab_ldap.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab_ldap.conf}
 echo 'LoadModule        mod_ratio.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_ratio.conf
 echo 'LoadModule        mod_readme.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_readme.conf
+%if %{with mysql} || %{with pgsql}
+echo 'LoadModule        mod_quotatab_sql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab_sql.conf
 echo 'LoadModule        mod_sql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql.conf
-echo 'LoadModule        mod_sql_mysql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql_mysql.conf
-echo 'LoadModule        mod_sql_postgres.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql_postgres.conf
+%endif
+%{?with_mysql:echo 'LoadModule        mod_sql_mysql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql_mysql.conf}
+%{?with_pgsql:echo 'LoadModule        mod_sql_postgres.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql_postgres.conf}
 install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_tls.conf
 echo 'LoadModule        mod_wrap.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_wrap.conf
 install %{SOURCE11} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/anonftp.conf
@@ -673,6 +681,7 @@ sed -i -e '
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/anonftp.conf
 
+%if %{with pam}
 %files mod_auth_pam
 %defattr(644,root,root,755)
 %doc README.PAM
@@ -680,32 +689,41 @@ sed -i -e '
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/security/blacklist.ftp
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_auth_pam.conf
 %attr(755,root,root) %{_libexecdir}/mod_auth_pam.so
+%endif
 
+%if %{with ldap}
 %files mod_ldap
 %defattr(644,root,root,755)
 %doc README.LDAP
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_ldap.conf
 %attr(755,root,root) %{_libexecdir}/mod_ldap.so
+%endif
 
 %files mod_quotatab
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_quotatab.conf
 %attr(755,root,root) %{_libexecdir}/mod_quotatab.so
 
+%if %{with quotafile}
 %files mod_quotatab_file
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_quotatab_file.conf
 %attr(755,root,root) %{_libexecdir}/mod_quotatab_file.so
+%endif
 
+%if %{with quotaldap}
 %files mod_quotatab_ldap
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_quotatab_ldap.conf
 %attr(755,root,root) %{_libexecdir}/mod_quotatab_ldap.so
+%endif
 
+%if %{with quotamysql} || %{with quotapgsql}
 %files mod_quotatab_sql
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_quotatab_sql.conf
 %attr(755,root,root) %{_libexecdir}/mod_quotatab_sql.so
+%endif
 
 %files mod_ratio
 %defattr(644,root,root,755)
@@ -717,20 +735,26 @@ sed -i -e '
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_readme.conf
 %attr(755,root,root) %{_libexecdir}/mod_readme.so
 
+%if %{with mysql} || %{with pgsql}
 %files mod_sql
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_sql.conf
 %attr(755,root,root) %{_libexecdir}/mod_sql.so
+%endif
 
+%if %{with mysql}
 %files mod_sql_mysql
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_sql_mysql.conf
 %attr(755,root,root) %{_libexecdir}/mod_sql_mysql.so
+%endif
 
+%if %{with pgsql}
 %files mod_sql_postgres
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_sql_postgres.conf
 %attr(755,root,root) %{_libexecdir}/mod_sql_postgres.so
+%endif
 
 %files mod_tls
 %defattr(644,root,root,755)
