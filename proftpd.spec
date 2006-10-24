@@ -1,5 +1,6 @@
 # TODO
 # - mod_caps uses uname -r for detection
+#
 # Conditional build:
 %bcond_without	pam		# disable PAM support
 %bcond_without	ipv6		# disable IPv6 and TCPD support
@@ -19,7 +20,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.0
-Release:	1
+Release:	2
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -42,6 +43,7 @@ Patch3:		%{name}-noautopriv.patch
 Patch4:		%{name}-wtmp.patch
 Patch5:		%{name}-sendfile64.patch
 Patch6:		%{name}-configure.patch
+Patch7:		%{name}-pool.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -426,6 +428,7 @@ dodaje hosty do pliku /etc/hosts.deny.
 %patch4 -p1
 #%patch5 -p1 NEEDS UPDATE
 %patch6 -p1
+%patch7 -p1
 
 cp -f /usr/share/automake/config.sub .
 
