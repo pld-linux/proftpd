@@ -44,6 +44,7 @@ Patch4:		%{name}-wtmp.patch
 Patch5:		%{name}-sendfile64.patch
 Patch6:		%{name}-configure.patch
 Patch7:		%{name}-pool.patch
+Patch8:		%{name}-CVE-2006-5815.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -429,6 +430,7 @@ dodaje hosty do pliku /etc/hosts.deny.
 #%patch5 -p1 NEEDS UPDATE
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
 
 cp -f /usr/share/automake/config.sub .
 
