@@ -510,6 +510,7 @@ bzip2 -dc %{SOURCE7} | tar xf - -C $RPM_BUILD_ROOT%{_mandir}
 
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers.default
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers
+:> $RPM_BUILD_ROOT/var/log/xferlog
 
 # only for -inetd package?
 ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
@@ -527,6 +528,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %post common
 umask 027
+touch /var/log/xferlog
 awk -F: '{ if (($3 < 500) && ($1 != "ftp")) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
 if [ ! -f %{_sysconfdir}/ftpusers ]; then
 	cp -f %{_sysconfdir}/ftpusers.default %{_sysconfdir}/ftpusers
@@ -645,6 +647,7 @@ sed -i -e '
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %ghost %{_sysconfdir}/ftpusers
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
+%attr(640,root,root) %ghost /var/log/*
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/%{name}
