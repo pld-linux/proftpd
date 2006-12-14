@@ -37,13 +37,12 @@ Source9:	%{name}-mod_pam.conf
 Source10:	%{name}-mod_tls.conf
 Source11:	%{name}-anonftp.conf
 Patch0:		%{name}-umode_t.patch
-Patch1:		%{name}-glibc.patch
-Patch2:		%{name}-paths.patch
-Patch3:		%{name}-noautopriv.patch
-Patch4:		%{name}-wtmp.patch
-Patch5:		%{name}-sendfile64.patch
-Patch6:		%{name}-configure.patch
-Patch7:		%{name}-pool.patch
+Patch1:		%{name}-paths.patch
+Patch2:		%{name}-noautopriv.patch
+Patch3:		%{name}-wtmp.patch
+Patch4:		%{name}-configure.patch
+Patch5:		%{name}-pool.patch
+Patch6:		%{name}-CVE-2006-5815.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -422,13 +421,12 @@ dodaje hosty do pliku /etc/hosts.deny.
 %prep
 %setup -q -n %{name}-%{version}%{?_rc}
 %patch0 -p1
-#%patch1 -p1 CONFUSES mod_ls.c
+%patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-#%patch5 -p1 NEEDS UPDATE
+%patch5 -p1
 %patch6 -p1
-%patch7 -p1
 
 cp -f /usr/share/automake/config.sub .
 
@@ -510,6 +508,7 @@ bzip2 -dc %{SOURCE7} | tar xf - -C $RPM_BUILD_ROOT%{_mandir}
 
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers.default
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers
+:> $RPM_BUILD_ROOT/var/log/xferlog
 
 # only for -inetd package?
 ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
@@ -527,6 +526,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %post common
 umask 027
+touch /var/log/xferlog
 awk -F: '{ if (($3 < 500) && ($1 != "ftp")) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
 if [ ! -f %{_sysconfdir}/ftpusers ]; then
 	cp -f %{_sysconfdir}/ftpusers.default %{_sysconfdir}/ftpusers
@@ -645,6 +645,7 @@ sed -i -e '
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %ghost %{_sysconfdir}/ftpusers
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
+%attr(640,root,root) %ghost /var/log/*
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/%{name}
