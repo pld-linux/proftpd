@@ -20,7 +20,7 @@ Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configura玢o semelhant
 Summary(zh_CN):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.0
-Release:	3
+Release:	4
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
@@ -43,6 +43,7 @@ Patch3:		%{name}-wtmp.patch
 Patch4:		%{name}-configure.patch
 Patch5:		%{name}-pool.patch
 Patch6:		%{name}-CVE-2006-5815.patch
+Patch7:		%{name}-ctrls-reqarglen.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -427,6 +428,7 @@ dodaje hosty do pliku /etc/hosts.deny.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p0
 
 cp -f /usr/share/automake/config.sub .
 
