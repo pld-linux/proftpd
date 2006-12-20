@@ -9,12 +9,3 @@
    char pad[32];
  #endif
  
-@@ -363,7 +363,7 @@
- 
-   pr_alarms_block();
- 
--  blok = new_block(sz, TRUE);
-+  blok = new_block(sz + POOL_HDR_BYTES, TRUE);
- 
-   new_pool = (pool *) blok->h.first_avail;
-   blok->h.first_avail += POOL_HDR_BYTES;
