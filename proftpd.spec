@@ -19,13 +19,13 @@ Summary(pl):	PROfesionalny serwer FTP
 Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN):	Ò×ÓÚ¹ÜÀíµÄ,°²È«µÄ FTP ·þÎñÆ÷
 Name:		proftpd
-Version:	1.3.0
-Release:	4
+Version:	1.3.1rc1
+Release:	1
 Epoch:		1
 License:	GPL v2+
 Group:		Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
-# Source0-md5:	fae47d01b52e035eb6b7190e74c17722
+# Source0-md5:	08f4d526b46c84f10e9634d2d913052c
 Source1:	%{name}.conf
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
@@ -42,9 +42,6 @@ Patch2:		%{name}-noautopriv.patch
 Patch3:		%{name}-wtmp.patch
 Patch4:		%{name}-configure.patch
 Patch5:		%{name}-pool.patch
-Patch6:		%{name}-CVE-2006-5815.patch
-Patch7:		%{name}-ctrls-reqarglen.patch
-Patch8:		%{name}-CVE-2006-6170.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -428,9 +425,6 @@ dodaje hosty do pliku /etc/hosts.deny.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p1
-%patch7 -p0
-%patch8 -p1
 
 cp -f /usr/share/automake/config.sub .
 
@@ -512,6 +506,7 @@ bzip2 -dc %{SOURCE7} | tar xf - -C $RPM_BUILD_ROOT%{_mandir}
 
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers.default
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers
+:> $RPM_BUILD_ROOT/var/log/xferlog
 
 # only for -inetd package?
 ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
@@ -529,6 +524,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %post common
 umask 027
+touch /var/log/xferlog
 awk -F: '{ if (($3 < 500) && ($1 != "ftp")) print $1; }' < /etc/passwd >> %{_sysconfdir}/ftpusers.default
 if [ ! -f %{_sysconfdir}/ftpusers ]; then
 	cp -f %{_sysconfdir}/ftpusers.default %{_sysconfdir}/ftpusers
@@ -647,6 +643,7 @@ sed -i -e '
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %ghost %{_sysconfdir}/ftpusers
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
+%attr(640,root,root) %ghost /var/log/*
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/%{name}
