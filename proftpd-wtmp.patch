@@ -14,7 +14,7 @@
 -    (defined(__NetBSD__) && defined(HAVE_UTMPX_H))) && \
 -    !(defined(LINUX) || defined(__hpux) || defined (_AIX))
 -  /* This "auxilliary" utmp doesn't exist under linux. */
--#ifdef __sparcv9
+-#if defined(__sparcv9) && !defined(__NetBSD__)
 -  struct futmpx utx;
 -  time_t t;
 -#else
