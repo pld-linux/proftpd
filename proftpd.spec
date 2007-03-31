@@ -149,6 +149,7 @@ Obsoletes:	ftpd-BSD
 Obsoletes:	ftpserver
 Obsoletes:	glftpd
 Obsoletes:	heimdal-ftpd
+Obsoletes:	krb5-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
 Obsoletes:	proftpd-standalone
@@ -184,6 +185,7 @@ Obsoletes:	ftpd-BSD
 Obsoletes:	ftpserver
 Obsoletes:	glftpd
 Obsoletes:	heimdal-ftpd
+Obsoletes:	krb5-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
 Obsoletes:	proftpd-inetd
