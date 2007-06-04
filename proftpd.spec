@@ -5,13 +5,13 @@
 %bcond_without	pam		# disable PAM support
 %bcond_without	ipv6		# disable IPv6 and TCPD support
 %bcond_without	ssl		# disbale TLS/SSL support
-%bcond_without	ldap		# enable LDAP support
-%bcond_without	mysql		# enable MySQL support
-%bcond_without	pgsql		# enable PostgreSQL support
-%bcond_without	quotafile	# enable quota file support
-%bcond_without	quotaldap	# enable quota ldap support
-%bcond_without	quotamysql	# enable quota mysql support
-%bcond_without	quotapgsql	# enable quota pgsql support
+%bcond_without	ldap		# disable LDAP support
+%bcond_without	mysql		# disable MySQL support
+%bcond_without	pgsql		# disable PostgreSQL support
+%bcond_without	quotafile	# disable quota file support
+%bcond_without	quotaldap	# disable quota ldap support
+%bcond_without	quotamysql	# disable quota mysql support
+%bcond_without	quotapgsql	# disable quota pgsql support
 #
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es.UTF-8):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
