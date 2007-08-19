@@ -1,6 +1,6 @@
---- proftpd-1.3.0.orig/src/log.c	2005-11-14 17:33:06.000000000 +0100
-+++ proftpd-1.3.0/src/log.c	2007-02-21 00:31:27.000000000 +0100
-@@ -54,31 +54,13 @@
+--- proftpd-1.3.0/src/log.c	2005-11-14 18:33:06.000000000 +0200
++++ proftpd-1.3.0.utmp/src/log.c	2006-04-29 14:17:55.023163252 +0300
+@@ -54,32 +54,12 @@
  
  int log_wtmp(char *line, const char *name, const char *host,
      pr_netaddr_t *ip) {
@@ -8,8 +8,7 @@
    struct utmp ut;
    int res = 0;
 -  static int fd = -1;
-+  static int washere = 0;
- 
+-
 -#if ((defined(SVR4) || defined(__SVR4)) || \
 -    (defined(__NetBSD__) && defined(HAVE_UTMPX_H))) && \
 -    !(defined(LINUX) || defined(__hpux) || defined (_AIX))
@@ -21,21 +20,19 @@
 -  struct utmpx utx;
 -#endif
 -  static int fdx = -1;
--
--#if !defined(WTMPX_FILE) && defined(_PATH_WTMPX)
--# define WTMPX_FILE _PATH_WTMPX
--#endif
+ 
+ #if !defined(WTMPX_FILE) && defined(_PATH_WTMPX)
+ # define WTMPX_FILE _PATH_WTMPX
+ #endif
 -
 -  if (fdx < 0 &&
 -      (fdx = open(WTMPX_FILE, O_WRONLY|O_APPEND, 0)) < 0) {
 -    pr_log_pri(PR_LOG_WARNING, "wtmpx %s: %s", WTMPX_FILE, strerror(errno));
 -    return -1;
-+  if (!washere) {
-+    utmpname(_PATH_WTMP);
-+    washere = 1;
-   }
+-  }
  
    /* Unfortunately, utmp string fields are terminated by '\0' if they are
+    * shorter than the size of the field, but if they are exactly the size of
 @@ -87,52 +69,7 @@
     * Insane if you ask me.  Unless there's massive uproar, I prefer to err on
     * the side of caution and always null-terminate our strings.
@@ -89,7 +86,7 @@
      memset(&ut, 0, sizeof(ut));
  #ifdef HAVE_UTMAXTYPE
  # ifdef LINUX
-@@ -169,15 +106,12 @@
+@@ -169,15 +106,8 @@
  #endif /* HAVE_UT_UT_HOST */
  
      time(&ut.ut_time);
@@ -102,11 +99,7 @@
 -  }
 -#endif /* SVR4 */
  
-+  setutent();
-+  while ((getutent())) ;
-+  pututline(&ut);
-+  if (!washere)
-+    endutent();
++  updwtmpx(WTMPX_FILE, &ut);
    return res;
  }
  
