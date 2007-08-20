@@ -1,3 +1,25 @@
+--- proftpd-1.3.1rc2.utmpx/acconfig.h~	2002-12-15 19:05:09.000000000 +0100
++++ proftpd-1.3.1rc2.utmpx/acconfig.h	2007-08-20 14:13:20.000000000 +0200
+@@ -70,7 +70,7 @@
+ #undef HAVE_UT_UT_HOST
+ 
+ /* Define if your struct utmp uses ut_user and not ut_name */
+-#undef HAVE_UTMAXTYPE
++#undef HAVE_UT_UT_USER
+ 
+ #define PF_ARGV_NONE		0
+ #define PF_ARGV_NEW		1
+--- proftpd-1.3.1rc2.utmpx/config.h.in~	2007-08-20 13:25:55.000000000 +0200
++++ proftpd-1.3.1rc2.utmpx/config.h.in	2007-08-20 14:14:03.000000000 +0200
+@@ -119,7 +119,7 @@
+ #undef HAVE_UT_UT_HOST
+ 
+ /* Define if your struct utmp uses ut_user and not ut_name */
+-#undef HAVE_UTMAXTYPE
++#undef HAVE_UT_UT_USER
+ 
+ #define PF_ARGV_NONE		0
+ #define PF_ARGV_NEW		1
 diff -ur proftpd-1.3.1rc2/configure.in proftpd-1.3.1rc2.utmpx/configure.in
 --- proftpd-1.3.1rc2/configure.in	2007-08-20 14:07:40.000000000 +0200
 +++ proftpd-1.3.1rc2.utmpx/configure.in	2007-08-20 14:07:28.000000000 +0200
