@@ -25,7 +25,8 @@ Release:	0.%{_rc}1
 Epoch:		2
 License:	GPL v2+
 Group:		Daemons
-Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}%{_rc}.tar.bz2
+#Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}%{_rc}.tar.bz2
+Source0:	%{name}-%{version}%{_rc}.tar.bz2
 # Source0-md5:	485af3aee9ecebfeae1ae2003250a3a9
 Source1:	%{name}.conf
 Source3:	ftp.pamd
