@@ -21,7 +21,7 @@ Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.1
 %define	_rc	rc3
-Release:	0.%{_rc}1
+Release:	0.%{_rc}.1
 Epoch:		2
 License:	GPL v2+
 Group:		Daemons
