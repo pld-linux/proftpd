@@ -13,6 +13,7 @@
 %bcond_without	quotamysql	# disable quota mysql support
 %bcond_without	quotapgsql	# disable quota pgsql support
 #
+%define	_rc	rc3
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es.UTF-8):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
 Summary(pl.UTF-8):	PROfesionalny serwer FTP
@@ -20,7 +21,6 @@ Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração s
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.1
-%define	_rc	rc3
 Release:	0.%{_rc}.1
 Epoch:		2
 License:	GPL v2+
@@ -47,6 +47,7 @@ Patch6:		%{name}-mysql-typo.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
+BuildRequires:	libstdc++-devel
 BuildRequires:	libwrap-devel
 %if %{with mysql} || %{with quotamysql}
 BuildRequires:	mysql-devel
