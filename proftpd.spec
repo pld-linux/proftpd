@@ -54,7 +54,7 @@ BuildRequires:	mysql-devel
 %endif
 BuildRequires:	ncurses-devel
 %if %{with ldap} || %{with quotaldap}
-BuildRequires:	openldap-devel
+BuildRequires:	openldap-devel >= 2.4.6
 %endif
 %{?with_ssl:BuildRequires:	openssl-devel >= 0.9.7d}
 %{?with_pam:BuildRequires:		pam-devel}
