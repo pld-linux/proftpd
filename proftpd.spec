@@ -1,5 +1,6 @@
 # TODO
 # - mod_caps uses uname -r for detection
+# - don't use internal libltdl
 #
 # Conditional build:
 %bcond_without	pam		# disable PAM support
@@ -13,7 +14,6 @@
 %bcond_without	quotamysql	# disable quota mysql support
 %bcond_without	quotapgsql	# disable quota pgsql support
 #
-%define	_rc	rc3
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es.UTF-8):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
 Summary(pl.UTF-8):	PROfesionalny serwer FTP
@@ -21,12 +21,12 @@ Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração s
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.1
-Release:	0.%{_rc}.2
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Daemons
-Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}%{_rc}.tar.bz2
-# Source0-md5:	485af3aee9ecebfeae1ae2003250a3a9
+Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
+# Source0-md5:	175958df8de92d5209b7b1e2e23a5a28
 Source1:	%{name}.conf
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
@@ -43,7 +43,6 @@ Patch2:		%{name}-noautopriv.patch
 Patch3:		%{name}-wtmp.patch
 Patch4:		%{name}-configure.patch
 Patch5:		%{name}-pool.patch
-Patch6:		%{name}-mysql-typo.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -54,7 +53,7 @@ BuildRequires:	mysql-devel
 %endif
 BuildRequires:	ncurses-devel
 %if %{with ldap} || %{with quotaldap}
-BuildRequires:	openldap-devel >= 2.4.6
+BuildRequires:	openldap-devel
 %endif
 %{?with_ssl:BuildRequires:	openssl-devel >= 0.9.7d}
 %{?with_pam:BuildRequires:		pam-devel}
@@ -430,7 +429,6 @@ dodaje hosty do pliku /etc/hosts.deny.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p1
 
 cp -f /usr/share/automake/config.sub .
 

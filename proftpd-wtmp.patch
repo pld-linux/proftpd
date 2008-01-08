@@ -1,3 +1,14 @@
+--- proftpd-1.3.1/src/log.c	2008-01-08 22:33:30.946409026 +0200
++++ proftpd-1.3.1rc3/src/log.c	2007-02-15 18:54:09.000000000 +0200
+@@ -117,7 +117,7 @@
+     utx.ut_exit.e_exit = 0;
+ #endif /* HAVE_UT_UT_EXIT */
+     if (write(fdx, (char *)&utx, sizeof(utx)) != sizeof(utx))
+-      (void) ftruncate(fdx, buf.st_size);
++      ftruncate(fdx, buf.st_size);
+ 
+   } else {
+     pr_log_debug(DEBUG0, "%s fstat(): %s", WTMPX_FILE, strerror(errno));
 diff -ur proftpd-1.3.1rc2/acconfig.h proftpd-1.3.1rc2.wtmpx/acconfig.h
 --- proftpd-1.3.1rc2/acconfig.h	2002-12-15 19:05:09.000000000 +0100
 +++ proftpd-1.3.1rc2.wtmpx/acconfig.h	2007-08-20 14:44:18.000000000 +0200
@@ -221,7 +232,7 @@ diff -ur proftpd-1.3.1rc2/src/log.c proftpd-1.3.1rc2.wtmpx/src/log.c
 -  if (fd < 0 &&
 -      (fd = open(WTMP_FILE, O_WRONLY|O_APPEND, 0)) < 0) {
 +      if (write(fdx, (char *)&utx, sizeof(utx)) != sizeof(utx))
-+        ftruncate(fdx, buf.st_size);
++        (void )ftruncate(fdx, buf.st_size);
 +    } else {
 +      pr_log_debug(DEBUG0, "%s fstat(): %s", wtmpx_file, strerror(errno));
 +      res = -1;
