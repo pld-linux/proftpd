@@ -1,31 +1,32 @@
 # TODO
 # - mod_caps uses uname -r for detection
+# - don't use internal libltdl
 #
 # Conditional build:
 %bcond_without	pam		# disable PAM support
 %bcond_without	ipv6		# disable IPv6 and TCPD support
 %bcond_without	ssl		# disbale TLS/SSL support
-%bcond_without	ldap		# enable LDAP support
-%bcond_without	mysql		# enable MySQL support
-%bcond_without	pgsql		# enable PostgreSQL support
-%bcond_without	quotafile	# enable quota file support
-%bcond_without	quotaldap	# enable quota ldap support
-%bcond_without	quotamysql	# enable quota mysql support
-%bcond_without	quotapgsql	# enable quota pgsql support
+%bcond_without	ldap		# disable LDAP support
+%bcond_without	mysql		# disable MySQL support
+%bcond_without	pgsql		# disable PostgreSQL support
+%bcond_without	quotafile	# disable quota file support
+%bcond_without	quotaldap	# disable quota ldap support
+%bcond_without	quotamysql	# disable quota mysql support
+%bcond_without	quotapgsql	# disable quota pgsql support
 #
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
-Summary(es):	Servidor FTP profesional, con sintaxis de configuraciÛn semejante a la del apache
-Summary(pl):	PROfesionalny serwer FTP
-Summary(pt_BR):	Servidor FTP profissional, com sintaxe de configuraÁ„o semelhante ‡ do apache
-Summary(zh_CN):	“◊”⁄π‹¿Ìµƒ,∞≤»´µƒ FTP ∑˛ŒÒ∆˜
+Summary(es.UTF-8):	Servidor FTP profesional, con sintaxis de configuraci√≥n semejante a la del apache
+Summary(pl.UTF-8):	PROfesionalny serwer FTP
+Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configura√ß√£o semelhante √† do apache
+Summary(zh_CN.UTF-8):	Êòì‰∫éÁÆ°ÁêÜÁöÑ,ÂÆâÂÖ®ÁöÑ FTP ÊúçÂä°Âô®
 Name:		proftpd
-Version:	1.3.0
+Version:	1.3.1
 Release:	3
-Epoch:		1
+Epoch:		2
 License:	GPL v2+
 Group:		Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
-# Source0-md5:	fae47d01b52e035eb6b7190e74c17722
+# Source0-md5:	175958df8de92d5209b7b1e2e23a5a28
 Source1:	%{name}.conf
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
@@ -37,16 +38,15 @@ Source9:	%{name}-mod_pam.conf
 Source10:	%{name}-mod_tls.conf
 Source11:	%{name}-anonftp.conf
 Patch0:		%{name}-umode_t.patch
-Patch1:		%{name}-glibc.patch
-Patch2:		%{name}-paths.patch
-Patch3:		%{name}-noautopriv.patch
-Patch4:		%{name}-wtmp.patch
-Patch5:		%{name}-sendfile64.patch
-Patch6:		%{name}-configure.patch
-Patch7:		%{name}-pool.patch
+Patch1:		%{name}-paths.patch
+Patch2:		%{name}-noautopriv.patch
+Patch3:		%{name}-wtmp.patch
+Patch4:		%{name}-configure.patch
+Patch5:		%{name}-pool.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
+BuildRequires:	libstdc++-devel
 BuildRequires:	libwrap-devel
 %if %{with mysql} || %{with quotamysql}
 BuildRequires:	mysql-devel
@@ -74,31 +74,31 @@ replacement for wu-ftpd. Full online documentation is available at
 <http://www.proftpd.org/>, including a server configuration directive
 reference manual.
 
-%description -l es
+%description -l es.UTF-8
 ProFTPD es un servidor FTP altamente configurable para sistemas
-operativos unix. Est· proyectado para ser un substituto directo al
-wu-ftpd. La documentaciÛn completa est· disponible en
+operativos unix. Est√° proyectado para ser un substituto directo al
+wu-ftpd. La documentaci√≥n completa est√° disponible en
 <http://www.proftpd.org/>, incluido el manual de referencia para las
-directivas de configuraciÛn del servidor.
+directivas de configuraci√≥n del servidor.
 
-%description -l pl
-ProFTPD jest wysoce konfigurowalnym serwerem FTP dla systemÛw Unix.
-ProFTPD jest robiony jako bezpo∂redni zamiennik wu-ftpd. Pe≥na
-dokumentacja jest dostÍpna on-line pod <http://www.proftpd.org/>
-w≥±cznie z dokumentacj± dotycz±c± konfigurowania.
+%description -l pl.UTF-8
+ProFTPD jest wysoce konfigurowalnym serwerem FTP dla system√≥w Unix.
+ProFTPD jest robiony jako bezpo≈õredni zamiennik wu-ftpd. Pe≈Çna
+dokumentacja jest dostƒôpna on-line pod <http://www.proftpd.org/>
+w≈ÇƒÖcznie z dokumentacjƒÖ dotyczƒÖcƒÖ konfigurowania.
 
-%description -l pt_BR
-O ProFTPD È um servidor FTP altamente configur·vel para sistemas
+%description -l pt_BR.UTF-8
+O ProFTPD √© um servidor FTP altamente configur√°vel para sistemas
 operacionais unix.
 
-… projetado para ser um substituto direto para o wu-ftpd. A
-documentaÁ„o completa est· disponÌvel em <http://www.proftpd.org/>,
-incluindo o manual de referÍncia para as diretivas de configuraÁ„o do
+√â projetado para ser um substituto direto para o wu-ftpd. A
+documenta√ß√£o completa est√° dispon√≠vel em <http://www.proftpd.org/>,
+incluindo o manual de refer√™ncia para as diretivas de configura√ß√£o do
 servidor.
 
 %package common
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax - common files
-Summary(pl):	PROfesionalny serwer FTP  - wspÛlne pliki
+Summary(pl.UTF-8):	PROfesionalny serwer FTP  - wsp√≥lne pliki
 Group:		Daemons
 Requires(post):	awk
 Requires(post):	fileutils
@@ -111,31 +111,31 @@ replacement for wu-ftpd. Full online documentation is available at
 <http://www.proftpd.org/>, including a server configuration directive
 reference manual.
 
-%description common -l es
+%description common -l es.UTF-8
 ProFTPD es un servidor FTP altamente configurable para sistemas
-operativos unix. Est· proyectado para ser un substituto directo al
-wu-ftpd. La documentaciÛn completa est· disponible en
+operativos unix. Est√° proyectado para ser un substituto directo al
+wu-ftpd. La documentaci√≥n completa est√° disponible en
 <http://www.proftpd.org/>, incluido el manual de referencia para las
-directivas de configuraciÛn del servidor.
+directivas de configuraci√≥n del servidor.
 
-%description common -l pl
-ProFTPD jest wysoce konfigurowalnym serwerem FTP dla systemÛw Unix.
-ProFTPD jest robiony jako bezpo∂redni zamiennik wu-ftpd. Pe≥na
-dokumentacja jest dostÍpna on-line pod <http://www.proftpd.org/>
-w≥±cznie z dokumentacj± dotycz±c± konfigurowania.
+%description common -l pl.UTF-8
+ProFTPD jest wysoce konfigurowalnym serwerem FTP dla system√≥w Unix.
+ProFTPD jest robiony jako bezpo≈õredni zamiennik wu-ftpd. Pe≈Çna
+dokumentacja jest dostƒôpna on-line pod <http://www.proftpd.org/>
+w≈ÇƒÖcznie z dokumentacjƒÖ dotyczƒÖcƒÖ konfigurowania.
 
-%description common -l pt_BR
-O ProFTPD È um servidor FTP altamente configur·vel para sistemas
+%description common -l pt_BR.UTF-8
+O ProFTPD √© um servidor FTP altamente configur√°vel para sistemas
 operacionais unix.
 
-… projetado para ser um substituto direto para o wu-ftpd. A
-documentaÁ„o completa est· disponÌvel em <http://www.proftpd.org/>,
-incluindo o manual de referÍncia para as diretivas de configuraÁ„o do
+√â projetado para ser um substituto direto para o wu-ftpd. A
+documenta√ß√£o completa est√° dispon√≠vel em <http://www.proftpd.org/>,
+incluindo o manual de refer√™ncia para as diretivas de configura√ß√£o do
 servidor.
 
 %package inetd
 Summary:	inetd configs for proftpd
-Summary(pl):	Pliki konfiguracyjne do uøycia proftpd poprzez inetd
+Summary(pl.UTF-8):	Pliki konfiguracyjne do u≈ºycia proftpd poprzez inetd
 Group:		Daemons
 Requires(post):	fileutils
 Requires(post):	grep
@@ -151,6 +151,7 @@ Obsoletes:	ftpd-BSD
 Obsoletes:	ftpserver
 Obsoletes:	glftpd
 Obsoletes:	heimdal-ftpd
+Obsoletes:	krb5-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
 Obsoletes:	proftpd-standalone
@@ -164,12 +165,12 @@ Conflicts:	rpm < 4.4.2-0.2
 %description inetd
 ProFTPD configs for running from inetd.
 
-%description inetd -l pl
+%description inetd -l pl.UTF-8
 Pliki konfiguracyjna ProFTPD do startowania demona poprzez inetd.
 
 %package standalone
 Summary:	Standalone daemon configs for proftpd
-Summary(pl):	Pliki konfiguracyjne do startowania proftpd w trybie standalone
+Summary(pl.UTF-8):	Pliki konfiguracyjne do startowania proftpd w trybie standalone
 Group:		Daemons
 Requires(post):	fileutils
 Requires(post):	grep
@@ -186,6 +187,7 @@ Obsoletes:	ftpd-BSD
 Obsoletes:	ftpserver
 Obsoletes:	glftpd
 Obsoletes:	heimdal-ftpd
+Obsoletes:	krb5-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
 Obsoletes:	proftpd-inetd
@@ -199,36 +201,37 @@ Conflicts:	rpm < 4.4.2-0.2
 %description standalone
 ProFTPD configs for running as a standalone daemon.
 
-%description standalone -l pl
+%description standalone -l pl.UTF-8
 Pliki konfiguracyjne ProFTPD do startowania demona w trybie
 standalone.
 
 %package devel
 Summary:	Header files ProFTPD
-Summary(pl):	Pliki nag≥Ûwkowe ProFTPD
+Summary(pl.UTF-8):	Pliki nag≈Ç√≥wkowe ProFTPD
 Group:		Development/Libraries
+Requires:	acl-devel
 
 %description devel
 This is the package containing the header files for ProFTPD.
 
-%description devel -l pl
-Ten pakiet zawiera pliki nag≥Ûwkowe ProFTPD
+%description devel -l pl.UTF-8
+Ten pakiet zawiera pliki nag≈Ç√≥wkowe ProFTPD
 
 %package anonftp
 Summary:	Anonymous FTP config for ProFTPD
-Summary(pl):	Konfiguracja anonimowego FTP dla ProFTPD
+Summary(pl.UTF-8):	Konfiguracja anonimowego FTP dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description anonftp
 Anonymous FTP config for ProFTPD.
 
-%description anonftp -l pl
+%description anonftp -l pl.UTF-8
 Konfiguracja anonimowego FTP dla ProFTPD.
 
 %package mod_auth_pam
 Summary:	ProFTPD PAM auth module
-Summary(pl):	Modu≥ uwierzytelnienia PAM dla ProFTPD
+Summary(pl.UTF-8):	Modu≈Ç uwierzytelnienia PAM dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	pam >= 0.79.0
@@ -236,12 +239,12 @@ Requires:	pam >= 0.79.0
 %description mod_auth_pam
 PAM authentication method for ProFTPD.
 
-%description mod_auth_pam -l pl
+%description mod_auth_pam -l pl.UTF-8
 Metoda uwierzytelnienia PAM dla ProFTPD.
 
 %package mod_ldap
 Summary:	ProFTPD OpenLDAP module
-Summary(pl):	Modu≥ OpenLDAP dla ProFTPD
+Summary(pl.UTF-8):	Modu≈Ç OpenLDAP dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
@@ -250,28 +253,28 @@ mod_ldap provides LDAP authentication support for ProFTPD. It supports
 many features useful in "toaster" environments such as default UID/GID
 and autocreation/autogeneration of home directories.
 
-%description mod_ldap -l pl
-mod_ldap dodaje obs≥ugÍ uwierzytelnienia LDAP do ProFTPD. Obs≥uguje
-wiele cech przydatnych w ∂rodowiskach "tosterowych", takich jak
-domy∂lny UID/GID i automatyczne tworzenie/generowanie katalogÛw
+%description mod_ldap -l pl.UTF-8
+mod_ldap dodaje obs≈Çugƒô uwierzytelnienia LDAP do ProFTPD. Obs≈Çuguje
+wiele cech przydatnych w ≈õrodowiskach "tosterowych", takich jak
+domy≈õlny UID/GID i automatyczne tworzenie/generowanie katalog√≥w
 domowych.
 
 %package mod_quotatab
 Summary:	ProFTPD quotatab module
-Summary(pl):	Modu≥ quotatab dla ProFTPD
+Summary(pl.UTF-8):	Modu≈Ç quotatab dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_quotatab
 A module for managing FTP byte/file quotas via centralized tables.
 
-%description mod_quotatab -l pl
-Modu≥ do zarz±dzania ograniczeniami bajtÛw/plikÛw FTP poprzez
+%description mod_quotatab -l pl.UTF-8
+Modu≈Ç do zarzƒÖdzania ograniczeniami bajt√≥w/plik√≥w FTP poprzez
 scentralizowane tabele.
 
 %package mod_quotatab_file
 Summary:	ProFTPD quotatab file module
-Summary(pl):	Modu≥ quotatab_file dla ProFTPD
+Summary(pl.UTF-8):	Modu≈Ç quotatab_file dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
@@ -280,13 +283,13 @@ Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
 A mod_quotatab sub-module for managing quota data via file-based
 tables.
 
-%description mod_quotatab_file -l pl
-Podmodu≥ mod_quotatab do zarz±dzania danymi o ograniczeniach poprzez
+%description mod_quotatab_file -l pl.UTF-8
+Podmodu≈Ç mod_quotatab do zarzƒÖdzania danymi o ograniczeniach poprzez
 tabele zapisane w pliku.
 
 %package mod_quotatab_ldap
 Summary:	ProFTPD quotatab ldap module
-Summary(pl):	Modu≥ quotatab_ldap dla ProFTPD
+Summary(pl.UTF-8):	Modu≈Ç quotatab_ldap dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_ldap = %{epoch}:%{version}-%{release}
@@ -296,13 +299,13 @@ Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
 A mod_quotatab sub-module for obtaining quota information from an LDAP
 directory.
 
-%description mod_quotatab_ldap -l pl
-Podmodu≥ mod_quotatab do pobierania informacji o ograniczeniach z
+%description mod_quotatab_ldap -l pl.UTF-8
+Podmodu≈Ç mod_quotatab do pobierania informacji o ograniczeniach z
 katalogu LDAP.
 
 %package mod_quotatab_sql
 Summary:	ProFTPD quotatab sql module
-Summary(pl):	Modu≥ quotatab_sql dla ProFTPD
+Summary(pl.UTF-8):	Modu≈Ç quotatab_sql dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
@@ -312,37 +315,37 @@ Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
 A mod_quotatab sub-module for managing quota data via SQL-based
 tables.
 
-%description mod_quotatab_sql -l pl
-Podmodu≥ mod_quotatab do zarz±dzania danymi o ograniczeniach poprzez
+%description mod_quotatab_sql -l pl.UTF-8
+Podmodu≈Ç mod_quotatab do zarzƒÖdzania danymi o ograniczeniach poprzez
 tabele SQL.
 
 %package mod_ratio
 Summary:	ProFTPD ratio module
-Summary(pl):	Modu≥ ratio dla ProFTPD
+Summary(pl.UTF-8):	Modu≈Ç ratio dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_ratio
 Support upload/download ratios.
 
-%description mod_ratio -l pl
-Obs≥uga wspÛ≥czynnikÛw upload/download.
+%description mod_ratio -l pl.UTF-8
+Obs≈Çuga wsp√≥≈Çczynnik√≥w upload/download.
 
 %package mod_readme
 Summary:	ProFTPD readme module
-Summary(pl):	Modu≥ readme dla ProFTPD
+Summary(pl.UTF-8):	Modu≈Ç readme dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_readme
 "README" file support.
 
-%description mod_readme -l pl
-Obs≥uga pliku "README".
+%description mod_readme -l pl.UTF-8
+Obs≈Çuga pliku "README".
 
 %package mod_sql
 Summary:	ProFTPD SQL support module
-Summary(pl):	Modu≥ obs≥ugi SQL dla ProFTPD
+Summary(pl.UTF-8):	Modu≈Ç obs≈Çugi SQL dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
@@ -350,13 +353,13 @@ Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 This module provides the necessary support for SQL based
 authentication, logging and other features as required.
 
-%description mod_sql -l pl
-Ten modu≥ dodaje obs≥ugÍ SQL potrzebn± do uwierzytelniania, logowania
-i innych moøliwo∂ci opartych o SQL.
+%description mod_sql -l pl.UTF-8
+Ten modu≈Ç dodaje obs≈Çugƒô SQL potrzebnƒÖ do uwierzytelniania, logowania
+i innych mo≈ºliwo≈õci opartych o SQL.
 
 %package mod_sql_mysql
 Summary:	ProFTPD sql mysql module
-Summary(pl):	Modu≥ sql_mysql dla ProFTPD
+Summary(pl.UTF-8):	Modu≈Ç sql_mysql dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
@@ -364,12 +367,12 @@ Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
 %description mod_sql_mysql
 Support for connecting to MySQL databases.
 
-%description mod_sql_mysql -l pl
-Obs≥uga ≥±czenia siÍ z bazami danych MySQL.
+%description mod_sql_mysql -l pl.UTF-8
+Obs≈Çuga ≈ÇƒÖczenia siƒô z bazami danych MySQL.
 
 %package mod_sql_postgres
 Summary:	ProFTPD sql postgres module
-Summary(pl):	Modu≥ sql_postgres dla ProFTPD
+Summary(pl.UTF-8):	Modu≈Ç sql_postgres dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
@@ -377,24 +380,24 @@ Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
 %description mod_sql_postgres
 Support for connecting to PostgreSQL databases.
 
-%description mod_sql_postgres -l pl
-Obs≥uga ≥±czenia siÍ z bazami danych PostgreSQL.
+%description mod_sql_postgres -l pl.UTF-8
+Obs≈Çuga ≈ÇƒÖczenia siƒô z bazami danych PostgreSQL.
 
 %package mod_tls
 Summary:	ProFTPD TLS support
-Summary(pl):	Obs≥uga TLS dla ProFTPD
+Summary(pl.UTF-8):	Obs≈Çuga TLS dla ProFTPD
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_tls
 An RFC2228 SSL/TLS module for ProFTPD.
 
-%description mod_tls -l pl
-Modu≥ SSL/TLS zgodny z RFC2228 dla ProFTPD.
+%description mod_tls -l pl.UTF-8
+Modu≈Ç SSL/TLS zgodny z RFC2228 dla ProFTPD.
 
 %package mod_wrap
 Summary:	ProFTPD interface to libwrap
-Summary(pl):	Interfejs ProFTPD do libwrap
+Summary(pl.UTF-8):	Interfejs ProFTPD do libwrap
 Group:		Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	libwrap
@@ -409,26 +412,24 @@ standalone mode to adapt as these entries are added. The portsentry
 program does this, for example: when illegal access is attempted, it
 will add hosts to the /etc/hosts.deny file.
 
-%description mod_wrap -l pl
-Ten pakiet pozwala demonowi uøywaÊ wspÛlnej biblioteki kontroli
-dostÍpu tcpwrappers w trybie samodzielnym w bardzo wygodny sposÛb.
+%description mod_wrap -l pl.UTF-8
+Ten pakiet pozwala demonowi u≈ºywaƒá wsp√≥lnej biblioteki kontroli
+dostƒôpu tcpwrappers w trybie samodzielnym w bardzo wygodny spos√≥b.
 
-Wiele programÛw automatycznie dodaje wpisy we wspÛlnych plikach
-allow/deny, a uøycie tego modu≥u pozwala demonowi ProFTPD dzia≥aj±cemu
-w trybie samodzielnym adaptowaÊ te wpisy w miarÍ dodawania. Robi tak
-na przyk≥ad program portsentry: przy prÛbie niedozwolonego dostÍpu
+Wiele program√≥w automatycznie dodaje wpisy we wsp√≥lnych plikach
+allow/deny, a u≈ºycie tego modu≈Çu pozwala demonowi ProFTPD dzia≈ÇajƒÖcemu
+w trybie samodzielnym adaptowaƒá te wpisy w miarƒô dodawania. Robi tak
+na przyk≈Çad program portsentry: przy pr√≥bie niedozwolonego dostƒôpu
 dodaje hosty do pliku /etc/hosts.deny.
 
 %prep
 %setup -q -n %{name}-%{version}%{?_rc}
 %patch0 -p1
-#%patch1 -p1 CONFUSES mod_ls.c
+%patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-#%patch5 -p1 NEEDS UPDATE
-%patch6 -p1
-%patch7 -p1
+%patch5 -p1
 
 cp -f /usr/share/automake/config.sub .
 
@@ -600,40 +601,6 @@ fi
 %module_scripts mod_tls
 %module_scripts mod_wrap
 
-%triggerpostun inetd -- %{name}-inetd <= 1:1.2.10
-echo "Changing deprecated config options"
-cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
-sed -i -e '
-	s/AuthPAMAuthoritative\b/AuthPAM/
-	s/TCPDServiceName/TCPServiceName/
-	s/TlsRsaCertFile/TLSRSACertificateFile/
-	s/TlsRsaKeyFile/TLSRSACertificateKeyFile/
-	s/TlsDsaCertFile/TLSDSACertificateFile/
-	s/TlsDsaKeyFile/TLSDSACertificateKeyFile/
-	s/TlsCrlFile/TLSCARevocationFile/
-	s/TlsDhParamFile/TLSDHParamFile/
-	s/TlsCipherList/TLSCipherSuite/
-	s/TlsCertsOk/TLSVerifyClient/
-	/UseTCPD/d
-' %{_sysconfdir}/proftpd.conf
-
-%triggerpostun standalone -- %{name}-standalone <= 1:1.2.10
-echo "Changing deprecated config options"
-cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
-sed -i -e '
-	s/AuthPAMAuthoritative\b/AuthPAM/
-	s/TCPDServiceName/TCPServiceName/
-	s/TlsRsaCertFile/TLSRSACertificateFile/
-	s/TlsRsaKeyFile/TLSRSACertificateKeyFile/
-	s/TlsDsaCertFile/TLSDSACertificateFile/
-	s/TlsDsaKeyFile/TLSDSACertificateKeyFile/
-	s/TlsCrlFile/TLSCARevocationFile/
-	s/TlsDhParamFile/TLSDHParamFile/
-	s/TlsCipherList/TLSCipherSuite/
-	s/TlsCertsOk/TLSVerifyClient/
-	/UseTCPD/d
-' %{_sysconfdir}/proftpd.conf
-
 %files common
 %defattr(644,root,root,755)
 %doc sample-configurations/*.conf CREDITS ChangeLog NEWS RELEASE_NOTES
@@ -645,6 +612,7 @@ sed -i -e '
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %ghost %{_sysconfdir}/ftpusers
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
+#%attr(640,root,root) %ghost /var/log/*
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/%{name}

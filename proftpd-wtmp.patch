@@ -1,48 +1,145 @@
---- proftpd-1.3.0/src/log.c	2005-11-14 18:33:06.000000000 +0200
-+++ proftpd-1.3.0.utmp/src/log.c	2006-04-29 14:17:55.023163252 +0300
-@@ -54,31 +54,13 @@
+--- proftpd-1.3.1-wtmp/acconfig.h	2002-12-15 20:05:09.000000000 +0200
++++ proftpd-1.3.1/acconfig.h	2008-01-09 00:43:47.043739566 +0200
+@@ -70,7 +70,7 @@
+ #undef HAVE_UT_UT_HOST
  
- int log_wtmp(char *line, const char *name, const char *host,
-     pr_netaddr_t *ip) {
--  struct stat buf;
-   struct utmp ut;
+ /* Define if your struct utmp uses ut_user and not ut_name */
+-#undef HAVE_UTMAXTYPE
++#undef HAVE_UT_UT_USER
+ 
+ #define PF_ARGV_NONE		0
+ #define PF_ARGV_NEW		1
+--- proftpd-1.3.1-wtmp/config.h.in	2008-01-09 00:43:32.506904225 +0200
++++ proftpd-1.3.1/config.h.in	2008-01-09 00:43:47.043739566 +0200
+@@ -122,7 +122,7 @@
+ #undef HAVE_UT_UT_HOST
+ 
+ /* Define if your struct utmp uses ut_user and not ut_name */
+-#undef HAVE_UTMAXTYPE
++#undef HAVE_UT_UT_USER
+ 
+ #define PF_ARGV_NONE		0
+ #define PF_ARGV_NEW		1
+--- proftpd-1.3.1-wtmp/configure.in	2007-05-22 23:54:09.000000000 +0300
++++ proftpd-1.3.1/configure.in	2008-01-09 00:43:47.043739566 +0200
+@@ -1063,7 +1063,7 @@
+ AC_CHECK_HEADERS(sys/stat.h errno.h sys/socket.h sys/termios.h sys/termio.h)
+ AC_CHECK_HEADERS(sys/statvfs.h sys/un.h sys/vfs.h sys/select.h)
+ AC_CHECK_HEADERS(dirent.h ndir.h sys/ndir.h sys/dir.h vmsdir.h)
+-AC_CHECK_HEADERS(ucontext.h utime.h utmpx.h)
++AC_CHECK_HEADERS(ucontext.h utime.h)
+ AC_CHECK_HEADERS(regex.h)
+ AC_CHECK_HEADER(syslog.h,have_syslog_h="yes",)
+ AC_CHECK_HEADERS(curses.h ncurses.h)
+@@ -1143,10 +1143,10 @@
+ 
+ if test $have_utmp; then
+   AC_CACHE_CHECK(whether your struct utmp has ut_user,
+-  		pr_cv_header_utmaxtype,
++  		pr_cv_header_ut_user,
+ 	AC_EGREP_HEADER([ *ut_user.*;],utmp.h,
+-			pr_cv_header_utmaxtype="yes",
+-			pr_cv_header_utmaxtype="no"))
++			pr_cv_header_ut_user="yes",
++			pr_cv_header_ut_user="no"))
+   AC_CACHE_CHECK(whether your struct utmp has ut_host,
+   		pr_cv_header_ut_host,
+ 	AC_EGREP_HEADER([ *ut_host.*;],utmp.h,
+@@ -1157,8 +1157,8 @@
+ 	AC_EGREP_HEADER([ *ut_exit.*;],utmp.h,
+ 			pr_cv_header_ut_exit="yes",
+ 			pr_cv_header_ut_exit="no"))
+-  if test "$pr_cv_header_utmaxtype" = "yes"; then
+-    AC_DEFINE(HAVE_UTMAXTYPE, 1, [If struct utmp has ut_user.])
++  if test "$pr_cv_header_ut_user" = "yes"; then
++    AC_DEFINE(HAVE_UT_UT_USER, 1, [If struct utmp has ut_user.])
+   fi
+   if test "$pr_cv_header_ut_host" = "yes"; then
+     AC_DEFINE(HAVE_UT_UT_HOST, 1, [If struct utmp has ut_host.])
+@@ -1168,6 +1168,28 @@
+   fi
+ fi
+ 
++dnl See what type of utmp exists
++AC_CHECK_HEADERS(utmpx.h, have_utmpx=1, have_utmpx=0)
++
++if test $have_utmpx; then
++  AC_CACHE_CHECK(whether your struct utmpx has ut_exit,
++		pr_cv_header_utx_exit,
++	AC_EGREP_HEADER([ *ut_exit.*;],utmpx.h,
++			pr_cv_header_utx_exit="yes",
++			pr_cv_header_utx_exit="no"))
++  AC_CACHE_CHECK(whether your struct utmpx has ut_syslen,
++		pr_cv_header_utx_syslen,
++	AC_EGREP_HEADER([ *ut_syslen.*;],utmpx.h,
++			pr_cv_header_utx_syslen="yes",
++			pr_cv_header_utx_syslen="no"))
++  if test "$pr_cv_header_utx_exit" = "yes"; then
++    AC_DEFINE(HAVE_UTX_UT_EXIT, 1, [If struct utmpx has ut_exit.])
++  fi
++  if test "$pr_cv_header_utx_syslen" = "yes"; then
++    AC_DEFINE(HAVE_UTX_UT_SYSLEN, 1, [If struct utmpx has ut_syslen.])
++  fi
++fi
++
+ dnl See if various LOG_ macros are defined
+ if test "$have_syslog_h" = "yes"; then
+   AC_DEFINE(HAVE_SYSLOG_H)
+--- proftpd-1.3.1-wtmp/src/log.c	2007-09-11 03:49:44.000000000 +0300
++++ proftpd-1.3.1/src/log.c	2008-01-09 00:43:47.043739566 +0200
+@@ -59,119 +59,124 @@
    int res = 0;
--  static int fd = -1;
-+  static int washere = 0;
+   static int fd = -1;
  
 -#if ((defined(SVR4) || defined(__SVR4)) || \
 -    (defined(__NetBSD__) && defined(HAVE_UTMPX_H))) && \
 -    !(defined(LINUX) || defined(__hpux) || defined (_AIX))
 -  /* This "auxilliary" utmp doesn't exist under linux. */
--#ifdef __sparcv9
+-#if defined(__sparcv9) && !defined(__NetBSD__)
 -  struct futmpx utx;
 -  time_t t;
 -#else
 -  struct utmpx utx;
 -#endif
--  static int fdx = -1;
--
--#if !defined(WTMPX_FILE) && defined(_PATH_WTMPX)
--# define WTMPX_FILE _PATH_WTMPX
--#endif
--
++#if defined(HAVE_UTMPX_H)
++  char *wtmpx_file = NULL;
+   static int fdx = -1;
+ 
+ #if !defined(WTMPX_FILE) && defined(_PATH_WTMPX)
+ # define WTMPX_FILE _PATH_WTMPX
+ #endif
++  if (access(WTMPX_FILE, F_OK) == 0)
++    wtmpx_file = strdup(WTMPX_FILE);
++  else if (access(WTMPX_FILE"x", F_OK) == 0)
++    wtmpx_file = strdup(WTMPX_FILE"x");
+ 
 -  if (fdx < 0 &&
 -      (fdx = open(WTMPX_FILE, O_WRONLY|O_APPEND, 0)) < 0) {
 -    pr_log_pri(PR_LOG_WARNING, "wtmpx %s: %s", WTMPX_FILE, strerror(errno));
 -    return -1;
-+  if (!washere) {
-+    utmpname(_PATH_WTMP);
-+    washere = 1;
-   }
+-  }
++  if (fdx >= 0 || wtmpx_file != NULL)
++  {
++#if defined(__sparcv9) && !defined(__NetBSD__)
++    struct futmpx utx;
++#else
++    struct utmpx utx;
++    time_t t;
++#endif
  
-   /* Unfortunately, utmp string fields are terminated by '\0' if they are
-@@ -87,52 +69,7 @@
-    * Insane if you ask me.  Unless there's massive uproar, I prefer to err on
-    * the side of caution and always null-terminate our strings.
-    */
+-  /* Unfortunately, utmp string fields are terminated by '\0' if they are
+-   * shorter than the size of the field, but if they are exactly the size of
+-   * the field they don't have to be terminated at all.  Frankly, this sucks.
+-   * Insane if you ask me.  Unless there's massive uproar, I prefer to err on
+-   * the side of caution and always null-terminate our strings.
+-   */
 -  if (fstat(fdx, &buf) == 0) {
 -    memset(&utx, 0, sizeof(utx));
--
++    if (fdx < 0 && (fdx = open(wtmpx_file, O_WRONLY|O_APPEND, 0)) < 0) {
++      pr_log_pri(PR_LOG_WARNING, "wtmpx %s: %s", wtmpx_file, strerror(errno));
++      return -1;
++    }
+ 
 -    sstrncpy(utx.ut_user, name, sizeof(utx.ut_user));
 -    sstrncpy(utx.ut_id, "ftp", sizeof(utx.ut_user));
 -    sstrncpy(utx.ut_line, line, sizeof(utx.ut_line));
@@ -60,7 +157,15 @@
 -    time(&utx.ut_tv.tv_sec);
 -#  endif
 -#endif /* SVR4 */
--
++    /* Unfortunately, utmp string fields are terminated by '\0' if they are
++     * shorter than the size of the field, but if they are exactly the size of
++     * the field they don't have to be terminated at all.  Frankly, this sucks.
++     * Insane if you ask me.  Unless there's massive uproar, I prefer to err on
++     * the side of caution and always null-terminate our strings.
++     */
++    if (fstat(fdx, &buf) == 0) {
++      memset(&utx, 0, sizeof(utx));
+ 
 -    if (*name)
 -      utx.ut_type = USER_PROCESS;
 -    else
@@ -68,45 +173,125 @@
 -#ifdef HAVE_UT_UT_EXIT
 -    utx.ut_exit.e_termination = 0;
 -    utx.ut_exit.e_exit = 0;
--#endif /* HAVE_UT_UT_EXIT */
++      if (name && *name) {
++        sstrncpy(utx.ut_user, name, sizeof(utx.ut_user));
++        utx.ut_type = USER_PROCESS;
++      } else {
++        utx.ut_type = DEAD_PROCESS;
++      }
++      utx.ut_pid = getpid();
++      sstrncpy(utx.ut_line, line, sizeof(utx.ut_line));
++      sstrncpy(utx.ut_id, "ftp", sizeof(utx.ut_user));
++      if (host && *host)
++        sstrncpy(utx.ut_host, host, sizeof(utx.ut_host));
++#ifdef HAVE_UTX_UT_EXIT
++      utx.ut_exit.e_termination = 0;
++      utx.ut_exit.e_exit = 0;
+ #endif /* HAVE_UT_UT_EXIT */
 -    if (write(fdx, (char *)&utx, sizeof(utx)) != sizeof(utx))
--      ftruncate(fdx, buf.st_size);
--
+-      (void) ftruncate(fdx, buf.st_size);
+ 
 -  } else {
 -    pr_log_debug(DEBUG0, "%s fstat(): %s", WTMPX_FILE, strerror(errno));
 -    res = -1;
 -  }
--
++#ifdef HAVE_UTX_UT_SYSLEN
++      utx.ut_syslen = strlen(utx.ut_host)+1;
++#endif
++#if defined(__NetBSD__)
++      memcpy(&utx.ut_ss, pr_netaddr_get_inaddr(ip), sizeof(utx.ut_ss));
++      gettimeofday(&utx.ut_tv, NULL);
++#else
++      time(&t);
++      utx.ut_tv.tv_sec = t;
++#endif
+ 
 -#else /* Non-SVR4 systems */
--
++      if (ip)
++#ifndef PR_USE_IPV6
++        memcpy(&utx.ut_addr, pr_netaddr_get_inaddr(ip), sizeof(utx.ut_addr));
++#else
++        memcpy(&utx.ut_addr_v6, pr_netaddr_get_inaddr(ip), sizeof(utx.ut_addr_v6));
++#endif /* !PR_USE_IPV6 */
+ 
 -  if (fd < 0 &&
 -      (fd = open(WTMP_FILE, O_WRONLY|O_APPEND, 0)) < 0) {
--    pr_log_pri(PR_LOG_WARNING, "wtmp %s: %s", WTMP_FILE, strerror(errno));
--    return -1;
--  }
++      if (write(fdx, (char *)&utx, sizeof(utx)) != sizeof(utx))
++        (void )ftruncate(fdx, buf.st_size);
++    } else {
++      pr_log_debug(DEBUG0, "%s fstat(): %s", wtmpx_file, strerror(errno));
++      res = -1;
++    }
++
++    free(wtmpx_file);
++    return res;
++  }
++#else /* HAVE_UTMPX_H */
++  if (fd < 0 && (fd = open(WTMP_FILE, O_WRONLY|O_APPEND, 0)) < 0) {
+     pr_log_pri(PR_LOG_WARNING, "wtmp %s: %s", WTMP_FILE, strerror(errno));
+     return -1;
+   }
  
--  if (fstat(fd, &buf) == 0) {
+   if (fstat(fd, &buf) == 0) {
      memset(&ut, 0, sizeof(ut));
- #ifdef HAVE_UTMAXTYPE
- # ifdef LINUX
-@@ -169,15 +106,12 @@
- #endif /* HAVE_UT_UT_HOST */
- 
-     time(&ut.ut_time);
--    if (write(fd, (char *)&ut, sizeof(ut)) != sizeof(ut))
--      ftruncate(fd, buf.st_size);
+-#ifdef HAVE_UTMAXTYPE
+-# ifdef LINUX
+-    if (ip)
+-#  ifndef PR_USE_IPV6
+-      memcpy(&ut.ut_addr, pr_netaddr_get_inaddr(ip), sizeof(ut.ut_addr));
+-#  else
+-      memcpy(&ut.ut_addr_v6, pr_netaddr_get_inaddr(ip), sizeof(ut.ut_addr_v6));
+-#  endif /* !PR_USE_IPV6 */
+-# else
+-    sstrncpy(ut.ut_id, "ftp", sizeof(ut.ut_id));
+-#  ifdef HAVE_UT_UT_EXIT
+-    ut.ut_exit.e_termination = 0;
+-    ut.ut_exit.e_exit = 0;
+-#  endif /* !HAVE_UT_UT_EXIT */
+-# endif /* !LINUX */
+-    sstrncpy(ut.ut_line, line, sizeof(ut.ut_line));
+-    if (name && *name)
++    if (name && *name) {
++#ifdef HAVE_UT_UT_USER
+       sstrncpy(ut.ut_user, name, sizeof(ut.ut_user));
+-    ut.ut_pid = getpid();
+-    if (name && *name)
++#else
++      sstrncpy(ut.ut_name, name, sizeof(ut.ut_name));
++#endif
+       ut.ut_type = USER_PROCESS;
+-    else
++    } else {
+       ut.ut_type = DEAD_PROCESS;
+-#else  /* !HAVE_UTMAXTYPE */
++    }
++    ut.ut_pid = getpid();
+     sstrncpy(ut.ut_line, line, sizeof(ut.ut_line));
+-    if (name && *name)
+-      sstrncpy(ut.ut_name, name, sizeof(ut.ut_name));
+-#endif /* HAVE_UTMAXTYPE */
 -
--  } else {
--    pr_log_debug(DEBUG0, "%s fstat(): %s",WTMP_FILE,strerror(errno));
--    res = -1;
--  }
--#endif /* SVR4 */
- 
-+  setutent();
-+  while ((getutent())) ;
-+  pututline(&ut);
-+  if (!washere)
-+    endutent();
-   return res;
- }
- 
++    sstrncpy(ut.ut_id, "ftp", sizeof(ut.ut_id));
+ #ifdef HAVE_UT_UT_HOST
+     if (host && *host)
+       sstrncpy(ut.ut_host, host, sizeof(ut.ut_host));
+ #endif /* HAVE_UT_UT_HOST */
+-
++#ifdef HAVE_UT_UT_EXIT
++    ut.ut_exit.e_termination = 0;
++    ut.ut_exit.e_exit = 0;
++#endif /* !HAVE_UT_UT_EXIT */
+     time(&ut.ut_time);
++    if (ip)
++#ifndef PR_USE_IPV6
++      memcpy(&ut.ut_addr, pr_netaddr_get_inaddr(ip), sizeof(ut.ut_addr));
++#else
++      memcpy(&ut.ut_addr_v6, pr_netaddr_get_inaddr(ip), sizeof(ut.ut_addr_v6));
++#endif /* !PR_USE_IPV6 */
++
+     if (write(fd, (char *)&ut, sizeof(ut)) != sizeof(ut))
+       ftruncate(fd, buf.st_size);
+-
+   } else {
+     pr_log_debug(DEBUG0, "%s fstat(): %s",WTMP_FILE,strerror(errno));
+     res = -1;
