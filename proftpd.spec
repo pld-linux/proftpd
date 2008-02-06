@@ -21,7 +21,7 @@ Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração s
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.1
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL v2+
 Group:		Daemons
@@ -600,40 +600,6 @@ fi
 %module_scripts mod_sql_postgres
 %module_scripts mod_tls
 %module_scripts mod_wrap
-
-%triggerpostun inetd -- %{name}-inetd <= 1:1.2.10
-echo "Changing deprecated config options"
-cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
-sed -i -e '
-	s/AuthPAMAuthoritative\b/AuthPAM/
-	s/TCPDServiceName/TCPServiceName/
-	s/TlsRsaCertFile/TLSRSACertificateFile/
-	s/TlsRsaKeyFile/TLSRSACertificateKeyFile/
-	s/TlsDsaCertFile/TLSDSACertificateFile/
-	s/TlsDsaKeyFile/TLSDSACertificateKeyFile/
-	s/TlsCrlFile/TLSCARevocationFile/
-	s/TlsDhParamFile/TLSDHParamFile/
-	s/TlsCipherList/TLSCipherSuite/
-	s/TlsCertsOk/TLSVerifyClient/
-	/UseTCPD/d
-' %{_sysconfdir}/proftpd.conf
-
-%triggerpostun standalone -- %{name}-standalone <= 1:1.2.10
-echo "Changing deprecated config options"
-cp -f %{_sysconfdir}/proftpd.conf{,.rpmorig}
-sed -i -e '
-	s/AuthPAMAuthoritative\b/AuthPAM/
-	s/TCPDServiceName/TCPServiceName/
-	s/TlsRsaCertFile/TLSRSACertificateFile/
-	s/TlsRsaKeyFile/TLSRSACertificateKeyFile/
-	s/TlsDsaCertFile/TLSDSACertificateFile/
-	s/TlsDsaKeyFile/TLSDSACertificateKeyFile/
-	s/TlsCrlFile/TLSCARevocationFile/
-	s/TlsDhParamFile/TLSDHParamFile/
-	s/TlsCipherList/TLSCipherSuite/
-	s/TlsCertsOk/TLSVerifyClient/
-	/UseTCPD/d
-' %{_sysconfdir}/proftpd.conf
 
 %files common
 %defattr(644,root,root,755)
