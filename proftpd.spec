@@ -68,7 +68,7 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		_libexecdir		%{_prefix}/%{_lib}/%{name}
 
 %description
-ProFTPD is a highly configurable FTP daemon for unix and unix-like
+ProFTPD is a highly configurable FTP daemon for Unix and Unix-like
 operating systems. ProFTPD is designed to be somewhat of a "drop-in"
 replacement for wu-ftpd. Full online documentation is available at
 <http://www.proftpd.org/>, including a server configuration directive
@@ -76,7 +76,7 @@ reference manual.
 
 %description -l es.UTF-8
 ProFTPD es un servidor FTP altamente configurable para sistemas
-operativos unix. Está proyectado para ser un substituto directo al
+operativos Unix. Está proyectado para ser un substituto directo al
 wu-ftpd. La documentación completa está disponible en
 <http://www.proftpd.org/>, incluido el manual de referencia para las
 directivas de configuración del servidor.
@@ -89,7 +89,7 @@ włącznie z dokumentacją dotyczącą konfigurowania.
 
 %description -l pt_BR.UTF-8
 O ProFTPD é um servidor FTP altamente configurável para sistemas
-operacionais unix.
+operacionais Unix.
 
 É projetado para ser um substituto direto para o wu-ftpd. A
 documentação completa está disponível em <http://www.proftpd.org/>,
@@ -105,7 +105,7 @@ Requires(post):	fileutils
 Obsoletes:	proftpd < 0:1.2.2rc1-3
 
 %description common
-ProFTPD is a highly configurable FTP daemon for unix and unix-like
+ProFTPD is a highly configurable FTP daemon for Unix and Unix-like
 operating systems. ProFTPD is designed to be somewhat of a "drop-in"
 replacement for wu-ftpd. Full online documentation is available at
 <http://www.proftpd.org/>, including a server configuration directive
@@ -113,7 +113,7 @@ reference manual.
 
 %description common -l es.UTF-8
 ProFTPD es un servidor FTP altamente configurable para sistemas
-operativos unix. Está proyectado para ser un substituto directo al
+operativos Unix. Está proyectado para ser un substituto directo al
 wu-ftpd. La documentación completa está disponible en
 <http://www.proftpd.org/>, incluido el manual de referencia para las
 directivas de configuración del servidor.
@@ -126,7 +126,7 @@ włącznie z dokumentacją dotyczącą konfigurowania.
 
 %description common -l pt_BR.UTF-8
 O ProFTPD é um servidor FTP altamente configurável para sistemas
-operacionais unix.
+operacionais Unix.
 
 É projetado para ser um substituto direto para o wu-ftpd. A
 documentação completa está disponível em <http://www.proftpd.org/>,
