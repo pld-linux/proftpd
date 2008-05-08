@@ -465,7 +465,6 @@ mod_wrap
 %{?with_pgsql:mod_sql mod_sql_postgres}
 "
 
-XMODS=mod_rewrite
 MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 %configure \
 	--with-includes=/usr/include/ncurses%{?with_mysql::%{_includedir}/mysql} \
