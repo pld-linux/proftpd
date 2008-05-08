@@ -343,6 +343,15 @@ Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 %description mod_readme -l pl.UTF-8
 Obsługa pliku "README".
 
+%package mod_rewrite
+Summary:	ProFTPD rewrite module
+Summary(pl.UTF-8):	Moduł rewrite dla ProFTPD
+Group:		Daemons
+Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+
+%description mod_rewrite
+Runtime rewrite engine.
+
 %package mod_sql
 Summary:	ProFTPD SQL support module
 Summary(pl.UTF-8):	Moduł obsługi SQL dla ProFTPD
@@ -442,6 +451,7 @@ find . '(' -name '*~' -o -name '*.orig' ')' -print0 | xargs -0 -r -l512 rm -f
 MODULES="
 mod_ratio
 mod_readme
+mod_rewrite
 mod_wrap
 %{?with_ssl:mod_tls}
 %{?with_pam:mod_auth_pam}
@@ -455,6 +465,7 @@ mod_wrap
 %{?with_pgsql:mod_sql mod_sql_postgres}
 "
 
+XMODS=mod_rewrite
 MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 %configure \
 	--with-includes=/usr/include/ncurses%{?with_mysql::%{_includedir}/mysql} \
@@ -491,6 +502,7 @@ echo 'LoadModule        mod_quotatab_file.c' > $RPM_BUILD_ROOT%{_sysconfdir}/con
 %{?with_quotaldap:echo 'LoadModule        mod_quotatab_ldap.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab_ldap.conf}
 echo 'LoadModule        mod_ratio.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_ratio.conf
 echo 'LoadModule        mod_readme.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_readme.conf
+echo 'LoadModule        mod_readme.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_rewrite.conf
 %if %{with mysql} || %{with pgsql}
 echo 'LoadModule        mod_quotatab_sql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab_sql.conf
 echo 'LoadModule        mod_sql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql.conf
@@ -595,6 +607,7 @@ fi
 %module_scripts mod_quotatab_sql
 %module_scripts mod_ratio
 %module_scripts mod_readme
+%module_scripts mod_rewrite
 %module_scripts mod_sql
 %module_scripts mod_sql_mysql
 %module_scripts mod_sql_postgres
@@ -702,6 +715,11 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_readme.conf
 %attr(755,root,root) %{_libexecdir}/mod_readme.so
+
+%files mod_rewrite
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_rewrite.conf
+%attr(755,root,root) %{_libexecdir}/mod_rewrite.so
 
 %if %{with mysql} || %{with pgsql}
 %files mod_sql
