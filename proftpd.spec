@@ -352,6 +352,9 @@ Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 %description mod_rewrite
 Runtime rewrite engine.
 
+%description mod_rewrite -l pl.UTF-8
+Silnik przepisujący adresy w locie.
+
 %package mod_sql
 Summary:	ProFTPD SQL support module
 Summary(pl.UTF-8):	Moduł obsługi SQL dla ProFTPD
