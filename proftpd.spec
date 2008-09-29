@@ -44,6 +44,9 @@ Patch3:		%{name}-wtmp.patch
 Patch4:		%{name}-configure.patch
 Patch5:		%{name}-pool.patch
 URL:		http://www.proftpd.org/
+# http://securitytracker.com/alerts/2008/Sep/1020945.html
+# fix is in vendor cvs:
+BuildRequires:	security(CVE-2008-4247)
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libstdc++-devel
