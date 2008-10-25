@@ -58,7 +58,7 @@ condrestart() {
 		stop
 		start
 	else
-		msg_not_running proftpd
+		msg_not_running ProFTPD
 		RETVAL=$1
 	fi
 }
