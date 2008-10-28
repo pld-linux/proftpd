@@ -52,7 +52,6 @@ stop() {
 	fi
 }
 
-
 condrestart() {
 	if [ -f /var/lock/subsys/proftpd ]; then
 		stop
