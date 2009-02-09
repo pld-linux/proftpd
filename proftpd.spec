@@ -20,13 +20,13 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.1
-Release:	4
+Version:	1.3.2
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
-# Source0-md5:	175958df8de92d5209b7b1e2e23a5a28
+# Source0-md5:	89f5e31fc3d3e02b66424dfc6cc5892d
 Source1:	%{name}.conf
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
@@ -37,16 +37,11 @@ Source7:	ftpusers.tar.bz2
 Source9:	%{name}-mod_pam.conf
 Source10:	%{name}-mod_tls.conf
 Source11:	%{name}-anonftp.conf
-Patch0:		%{name}-umode_t.patch
-Patch1:		%{name}-paths.patch
-Patch2:		%{name}-noautopriv.patch
-Patch3:		%{name}-wtmp.patch
-Patch4:		%{name}-configure.patch
-Patch5:		%{name}-pool.patch
+Patch0:		%{name}-paths.patch
+Patch1:		%{name}-noautopriv.patch
+Patch2:		%{name}-wtmp.patch
+Patch3:		%{name}-pool.patch
 URL:		http://www.proftpd.org/
-# http://securitytracker.com/alerts/2008/Sep/1020945.html
-# fix is in vendor cvs:
-BuildRequires:	security(CVE-2008-4247)
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libstdc++-devel
@@ -443,8 +438,6 @@ dodaje hosty do pliku /etc/hosts.deny.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
-%patch5 -p1
 
 cp -f /usr/share/automake/config.sub .
 
@@ -662,6 +655,7 @@ fi
 %files devel
 %defattr(644,root,root,755)
 %{_includedir}/%{name}
+%{_pkgconfigdir}/%{name}.pc
 
 %files anonftp
 %defattr(644,root,root,755)
