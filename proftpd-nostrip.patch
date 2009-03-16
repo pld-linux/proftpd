@@ -1,0 +1,21 @@
+--- proftpd-1.3.2/configure.in~	2009-03-16 16:04:00.000000000 +0100
++++ proftpd-1.3.2/configure.in	2009-03-16 16:12:57.000000000 +0100
+@@ -2162,15 +2162,11 @@
+     dnl CFLAGS if supported.
+     PR_CHECK_CC_OPT(Wfloat-equal)
+   fi
+-
+-  dnl Do not strip symbols from developer object files.
+-  INSTALL_STRIP=""
+-else
+-
+-  dnl Make sure to strip symbols from non-developer object files.
+-  INSTALL_STRIP="-s"
+ fi
+ 
++dnl Do not strip symbols from any object files.
++INSTALL_STRIP=""
++
+ if test "$OSTYPE" = "-DDARWIN6" -o "$OSTYPE" = "-DDARWIN7" -o "$OSTYPE" = "-DDARWIN8"; then
+   dnl Check whether the C compiler accepts -Wno-long-double. This helps to
+   dnl quell unnecessary OSX compiler complaints.  Use of this macro should
