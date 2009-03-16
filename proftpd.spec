@@ -1,6 +1,7 @@
 # TODO
 # - mod_caps uses uname -r for detection
 # - don't use internal libltdl
+# - mod_pam does not work
 #
 # Conditional build:
 %bcond_without	pam		# disable PAM support
@@ -41,6 +42,7 @@ Patch0:		%{name}-paths.patch
 Patch1:		%{name}-noautopriv.patch
 Patch2:		%{name}-wtmp.patch
 Patch3:		%{name}-pool.patch
+Patch4:		%{name}-nostrip.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -438,6 +440,7 @@ dodaje hosty do pliku /etc/hosts.deny.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 cp -f /usr/share/automake/config.sub .
 
