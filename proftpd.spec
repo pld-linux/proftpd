@@ -22,7 +22,7 @@ Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração s
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.2
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL v2+
 Group:		Daemons
@@ -479,7 +479,7 @@ MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 	%{!?with_ssl:--disable-tls} \
 	--with-shared=$MODARG \
 
-%{__make}
+%{__make} -j1
 
 %install
 rm -rf $RPM_BUILD_ROOT
