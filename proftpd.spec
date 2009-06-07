@@ -621,7 +621,7 @@ fi
 %doc sample-configurations/*.conf CREDITS ChangeLog NEWS RELEASE_NOTES
 %doc README README.capabilities README.classes README.controls README.IPv6
 %doc README.modules
-%doc doc/*html
+%doc doc/*.html doc/contrib doc/howto doc/modules
 %dir %attr(750,root,ftp) %dir %{_sysconfdir}
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %ghost %{_sysconfdir}/ftpusers
@@ -711,6 +711,7 @@ fi
 
 %files mod_ratio
 %defattr(644,root,root,755)
+%doc contrib/README.ratio
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_ratio.conf
 %attr(755,root,root) %{_libexecdir}/mod_ratio.so
 
