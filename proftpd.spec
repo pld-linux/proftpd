@@ -1,7 +1,6 @@
 # TODO
 # - mod_caps uses uname -r for detection
 # - don't use internal libltdl
-# - mod_pam does not work
 #
 # Conditional build:
 %bcond_without	pam		# disable PAM support
@@ -65,7 +64,7 @@ BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir		/etc/ftpd
-%define		_localstatedir	/var/run
+%define		_localstatedir		/var/run
 %define		_libexecdir		%{_prefix}/%{_lib}/%{name}
 
 %description
@@ -632,7 +631,7 @@ fi
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/%{name}
-%dir /var/run/proftpd
+%dir %{_localstatedir}/proftpd
 %{_mandir}/man[18]/*
 %dir /var/lib/ftp
 %dir /var/lib/ftp/pub
