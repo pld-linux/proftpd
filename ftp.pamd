@@ -3,8 +3,12 @@ auth		required	pam_listfile.so item=user sense=deny file=/etc/ftpd/ftpusers oner
 auth		required	pam_listfile.so item=user sense=deny file=/etc/security/blacklist.ftp onerr=succeed
 #auth		required	pam_shells.so
 auth		include		system-auth
+# above line in chroot()ed environment (when using DefaultRoot) causes:
+#	pam_env(ftp:setcred): Unable to open config file: /etc/security/pam_env.conf: No such file or directory
+#	pam_tally(ftp:setcred): pam_get_uid; no such user
+# only with pam_unix in session component
 account		required	pam_nologin.so
 account		include		system-auth
 session		required	pam_limits.so
-# causes errors in chroot()ed environment (when using DefaultRoot)
 session		required	pam_unix.so
+# on logout: PAM audit_log_acct_message() failed: Operation not permitted
