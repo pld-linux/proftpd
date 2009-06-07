@@ -43,6 +43,7 @@ Patch1:		%{name}-noautopriv.patch
 Patch2:		%{name}-wtmp.patch
 Patch3:		%{name}-pool.patch
 Patch4:		%{name}-nostrip.patch
+Patch5:		%{name}-logout.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -441,6 +442,7 @@ dodaje hosty do pliku /etc/hosts.deny.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p0
 
 cp -f /usr/share/automake/config.sub .
 
