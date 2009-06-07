@@ -5,4 +5,6 @@ auth		required	pam_listfile.so item=user sense=deny file=/etc/security/blacklist
 auth		include		system-auth
 account		required	pam_nologin.so
 account		include		system-auth
+session		required	pam_limits.so
+# causes errors in chroot()ed environment (when using DefaultRoot)
 session		required	pam_unix.so
