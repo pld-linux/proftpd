@@ -21,7 +21,7 @@ Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração s
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.2
-Release:	3
+Release:	4
 Epoch:		2
 License:	GPL v2+
 Group:		Daemons
@@ -44,8 +44,10 @@ Patch3:		%{name}-pool.patch
 Patch4:		%{name}-nostrip.patch
 Patch5:		%{name}-logout.patch
 URL:		http://www.proftpd.org/
+BuildRequires:	acl-devel
 BuildRequires:	autoconf
 BuildRequires:	automake
+BuildRequires:	libcap-devel
 BuildRequires:	libstdc++-devel
 BuildRequires:	libwrap-devel
 %if %{with mysql} || %{with quotamysql}
@@ -452,10 +454,15 @@ find . '(' -name '*~' -o -name '*.orig' ')' -print0 | xargs -0 -r -l512 rm -f
 %{__autoconf}
 
 MODULES="
+mod_auth_file
+mod_ident
 mod_ratio
 mod_readme
 mod_rewrite
 mod_wrap
+mod_facl
+mod_ifsession
+mod_lang
 %{?with_ssl:mod_tls}
 %{?with_pam:mod_auth_pam}
 %{?with_ldap:mod_ldap}
@@ -463,7 +470,6 @@ mod_wrap
 %{?with_quotaldap:mod_quotatab mod_quotatab_ldap}
 %{?with_quotamysql:mod_quotatab mod_quotatab_sql}
 %{?with_quotapgsql:mod_quotatab mod_quotatab_sql}
-%{?with_linuxprivs:mod_linuxprivs}
 %{?with_mysql:mod_sql mod_sql_mysql}
 %{?with_pgsql:mod_sql mod_sql_postgres}
 "
@@ -471,10 +477,10 @@ mod_wrap
 MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 %configure \
 	--with-includes=/usr/include/ncurses%{?with_mysql::%{_includedir}/mysql} \
+	--disable-auth-file \
 	--enable-autoshadow \
 	--enable-ctrls \
 	--enable-dso \
-	--enable-facl \
 	%{?with_ipv6:--enable-ipv6} \
 	--enable-sendfile \
 	%{!?with_ssl:--disable-tls} \
@@ -498,21 +504,25 @@ rm $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_auth_pam.conf
-%{?with_ldap:echo 'LoadModule        mod_ldap.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_ldap.conf}
-echo 'LoadModule        mod_quotatab.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab.conf
-echo 'LoadModule        mod_quotatab_file.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab_file.conf
-%{?with_quotaldap:echo 'LoadModule        mod_quotatab_ldap.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab_ldap.conf}
-echo 'LoadModule        mod_ratio.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_ratio.conf
-echo 'LoadModule        mod_readme.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_readme.conf
-echo 'LoadModule        mod_rewrite.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_rewrite.conf
-%if %{with mysql} || %{with pgsql}
-echo 'LoadModule        mod_quotatab_sql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_quotatab_sql.conf
-echo 'LoadModule        mod_sql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql.conf
-%endif
-%{?with_mysql:echo 'LoadModule        mod_sql_mysql.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql_mysql.conf}
-%{?with_pgsql:echo 'LoadModule        mod_sql_postgres.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_sql_postgres.conf}
+MODULES="
+mod_auth_file
+mod_ident
+mod_ratio
+mod_readme
+mod_rewrite
+mod_wrap
+%{?with_ldap:mod_ldap}
+%{?with_quotafile:mod_quotatab mod_quotatab_file}
+%{?with_quotaldap:mod_quotatab mod_quotatab_ldap}
+%{?with_quotamysql:mod_quotatab mod_quotatab_sql}
+%{?with_quotapgsql:mod_quotatab mod_quotatab_sql}
+%{?with_mysql:mod_sql mod_sql_mysql}
+%{?with_pgsql:mod_sql mod_sql_postgres}
+"
+for module in $MODULES; do
+	echo "LoadModule	$module.c" > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/$module.conf
+done
 install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_tls.conf
-echo 'LoadModule        mod_wrap.c' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_wrap.conf
 install %{SOURCE11} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/anonftp.conf
 
 %{?with_pam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
@@ -531,8 +541,8 @@ ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 :> $RPM_BUILD_ROOT/etc/security/blacklist.ftp
 
-rm $RPM_BUILD_ROOT%{_libdir}/%{name}/*.a
-rm $RPM_BUILD_ROOT%{_libdir}/%{name}/*.la
+rm $RPM_BUILD_ROOT%{_libexecdir}/*.a
+rm $RPM_BUILD_ROOT%{_libexecdir}/*.la
 
 rm -f $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
 cp -aL include/* config.h $RPM_BUILD_ROOT%{_includedir}/%{name}
@@ -627,10 +637,17 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %ghost %{_sysconfdir}/ftpusers
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_auth_file.conf
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_ident.conf
 #%attr(640,root,root) %ghost /var/log/*
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
-%dir %{_libdir}/%{name}
+%dir %{_libexecdir}
+%attr(755,root,root) %{_libexecdir}/mod_auth_file.so
+%attr(755,root,root) %{_libexecdir}/mod_facl.so
+%attr(755,root,root) %{_libexecdir}/mod_ident.so
+%attr(755,root,root) %{_libexecdir}/mod_ifsession.so
+%attr(755,root,root) %{_libexecdir}/mod_lang.so
 %dir %{_localstatedir}/proftpd
 %{_mandir}/man[18]/*
 %dir /var/lib/ftp
