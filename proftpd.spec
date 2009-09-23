@@ -20,13 +20,13 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.2
-Release:	4
+Version:	1.3.2a
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
-# Source0-md5:	89f5e31fc3d3e02b66424dfc6cc5892d
+# Source0-md5:	ad3cbb5db30c5ae39e09b308892392b3
 Source1:	%{name}.conf
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
@@ -42,7 +42,6 @@ Patch1:		%{name}-noautopriv.patch
 Patch2:		%{name}-wtmp.patch
 Patch3:		%{name}-pool.patch
 Patch4:		%{name}-nostrip.patch
-Patch5:		%{name}-logout.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	acl-devel
 BuildRequires:	autoconf
@@ -443,7 +442,6 @@ dodaje hosty do pliku /etc/hosts.deny.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p0
 
 cp -f /usr/share/automake/config.sub .
 
