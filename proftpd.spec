@@ -20,13 +20,13 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.2a
+Version:	1.3.2b
 Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
-# Source0-md5:	ad3cbb5db30c5ae39e09b308892392b3
+# Source0-md5:	0d6777839f37115654ce384841f68131
 Source1:	%{name}.conf
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
