@@ -24,7 +24,7 @@ Version:	1.3.2e
 Release:	1
 Epoch:		2
 License:	GPL v2+
-Group:		Daemons
+Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
 # Source0-md5:	018e0eb1757d9cea2a0e17f2c9b1ca2d
 Source1:	%{name}.conf
@@ -99,8 +99,8 @@ servidor.
 
 %package common
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax - common files
-Summary(pl.UTF-8):	PROfesionalny serwer FTP  - wspólne pliki
-Group:		Daemons
+Summary(pl.UTF-8):	PROfesionalny serwer FTP - wspólne pliki
+Group:		Networking/Daemons
 Requires(post):	awk
 Requires(post):	fileutils
 Obsoletes:	proftpd < 0:1.2.2rc1-3
@@ -137,7 +137,7 @@ servidor.
 %package inetd
 Summary:	inetd configs for proftpd
 Summary(pl.UTF-8):	Pliki konfiguracyjne do użycia proftpd poprzez inetd
-Group:		Daemons
+Group:		Networking/Daemons
 Requires(post):	fileutils
 Requires(post):	grep
 Requires(post):	sed >= 4.0
@@ -172,7 +172,7 @@ Pliki konfiguracyjna ProFTPD do startowania demona poprzez inetd.
 %package standalone
 Summary:	Standalone daemon configs for proftpd
 Summary(pl.UTF-8):	Pliki konfiguracyjne do startowania proftpd w trybie standalone
-Group:		Daemons
+Group:		Networking/Daemons
 Requires(post):	fileutils
 Requires(post):	grep
 Requires(post):	sed >= 4.0
@@ -221,7 +221,7 @@ Ten pakiet zawiera pliki nagłówkowe ProFTPD
 %package anonftp
 Summary:	Anonymous FTP config for ProFTPD
 Summary(pl.UTF-8):	Konfiguracja anonimowego FTP dla ProFTPD
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description anonftp
@@ -233,7 +233,7 @@ Konfiguracja anonimowego FTP dla ProFTPD.
 %package mod_auth_pam
 Summary:	ProFTPD PAM auth module
 Summary(pl.UTF-8):	Moduł uwierzytelnienia PAM dla ProFTPD
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	pam >= 0.79.0
 
@@ -246,7 +246,7 @@ Metoda uwierzytelnienia PAM dla ProFTPD.
 %package mod_ldap
 Summary:	ProFTPD OpenLDAP module
 Summary(pl.UTF-8):	Moduł OpenLDAP dla ProFTPD
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_ldap
@@ -263,7 +263,7 @@ domowych.
 %package mod_quotatab
 Summary:	ProFTPD quotatab module
 Summary(pl.UTF-8):	Moduł quotatab dla ProFTPD
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_quotatab
@@ -276,7 +276,7 @@ scentralizowane tabele.
 %package mod_quotatab_file
 Summary:	ProFTPD quotatab file module
 Summary(pl.UTF-8):	Moduł quotatab_file dla ProFTPD
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
 
@@ -291,7 +291,7 @@ tabele zapisane w pliku.
 %package mod_quotatab_ldap
 Summary:	ProFTPD quotatab ldap module
 Summary(pl.UTF-8):	Moduł quotatab_ldap dla ProFTPD
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_ldap = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
@@ -307,7 +307,7 @@ katalogu LDAP.
 %package mod_quotatab_sql
 Summary:	ProFTPD quotatab sql module
 Summary(pl.UTF-8):	Moduł quotatab_sql dla ProFTPD
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
@@ -323,7 +323,7 @@ tabele SQL.
 %package mod_ratio
 Summary:	ProFTPD ratio module
 Summary(pl.UTF-8):	Moduł ratio dla ProFTPD
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_ratio
@@ -335,7 +335,7 @@ Obsługa współczynników upload/download.
 %package mod_readme
 Summary:	ProFTPD readme module
 Summary(pl.UTF-8):	Moduł readme dla ProFTPD
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_readme
@@ -347,7 +347,7 @@ Obsługa pliku "README".
 %package mod_rewrite
 Summary:	ProFTPD rewrite module
 Summary(pl.UTF-8):	Moduł rewrite dla ProFTPD
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_rewrite
@@ -359,7 +359,7 @@ Silnik przepisujący adresy w locie.
 %package mod_sql
 Summary:	ProFTPD SQL support module
 Summary(pl.UTF-8):	Moduł obsługi SQL dla ProFTPD
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_sql
@@ -373,7 +373,7 @@ i innych możliwości opartych o SQL.
 %package mod_sql_mysql
 Summary:	ProFTPD sql mysql module
 Summary(pl.UTF-8):	Moduł sql_mysql dla ProFTPD
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
 
@@ -386,7 +386,7 @@ Obsługa łączenia się z bazami danych MySQL.
 %package mod_sql_postgres
 Summary:	ProFTPD sql postgres module
 Summary(pl.UTF-8):	Moduł sql_postgres dla ProFTPD
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
 
@@ -399,7 +399,7 @@ Obsługa łączenia się z bazami danych PostgreSQL.
 %package mod_tls
 Summary:	ProFTPD TLS support
 Summary(pl.UTF-8):	Obsługa TLS dla ProFTPD
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 
 %description mod_tls
@@ -411,7 +411,7 @@ Moduł SSL/TLS zgodny z RFC2228 dla ProFTPD.
 %package mod_wrap
 Summary:	ProFTPD interface to libwrap
 Summary(pl.UTF-8):	Interfejs ProFTPD do libwrap
-Group:		Daemons
+Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	libwrap
 
