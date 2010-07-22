@@ -6,5 +6,3 @@ FLAGS=nowait
 USER=root
 SERVER=tcpd
 DAEMON=/usr/sbin/proftpd
-# No longer needed :) - baggins
-# FAMILY=ipv4
