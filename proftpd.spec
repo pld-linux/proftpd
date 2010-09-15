@@ -14,20 +14,24 @@
 %bcond_without	quotamysql	# disable quota mysql support
 %bcond_without	quotapgsql	# disable quota pgsql support
 #
+%define		mod_clamav_version	0.11rc
+
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es.UTF-8):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
 Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.2e
-Release:	2
+Version:	1.3.3b
+Release:	0.3
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
-# Source0-md5:	018e0eb1757d9cea2a0e17f2c9b1ca2d
-Source1:	%{name}.conf
+# Source0-md5:	721b8232fcac36317a6a1d29fa86250e
+Source1:	https://secure.thrallingpenguin.com/redmine/attachments/download/1/mod_clamav-%{mod_clamav_version}.tar.gz
+# Source1-md5:	42e560ec0bd5964e13fad1b2bb7afe21
+Source2:	%{name}.conf
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
 Source5:	%{name}.sysconfig
@@ -437,13 +441,17 @@ na przykład program portsentry: przy próbie niedozwolonego dostępu
 dodaje hosty do pliku /etc/hosts.deny.
 
 %prep
-%setup -q -n %{name}-%{version}%{?_rc}
+%setup -q -n %{name}-%{version}%{?_rc} -a1
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+
+# mod_clamav
+patch -p0 < mod_clamav-%{mod_clamav_version}/proftpd.patch
+cp -a mod_clamav-%{mod_clamav_version}/*.{c,h} contrib/
 
 cp -f /usr/share/automake/config.sub .
 
@@ -485,13 +493,14 @@ MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 	--enable-sendfile \
 	%{!?with_ssl:--disable-tls} \
 	--with-shared=$MODARG \
+	--with-modules=mod_clamav
 
 %{__make} -j1
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/{pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
-	$RPM_BUILD_ROOT/var/{lib/ftp/pub/Incoming,log} \
+	$RPM_BUILD_ROOT/var/{lib/ftp/pub/Incoming,log,run/proftpd} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/conf.d \
 	$RPM_BUILD_ROOT%{_includedir}/%{name}
 
@@ -502,7 +511,7 @@ install -d $RPM_BUILD_ROOT/etc/{pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
 
 rm $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
-install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}
+install %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_auth_pam.conf
 MODULES="
 mod_auth_file
