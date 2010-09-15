@@ -41,6 +41,7 @@ Source7:	ftpusers.tar.bz2
 Source9:	%{name}-mod_pam.conf
 Source10:	%{name}-mod_tls.conf
 Source11:	%{name}-anonftp.conf
+Source12:	%{name}-mod_clamav.conf
 Patch0:		%{name}-paths.patch
 Patch1:		%{name}-noautopriv.patch
 Patch2:		%{name}-wtmp.patch
@@ -533,6 +534,7 @@ for module in $MODULES; do
 done
 install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_tls.conf
 install %{SOURCE11} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/anonftp.conf
+install %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_clamav.conf
 
 %{?with_pam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/ftpd
@@ -648,6 +650,7 @@ fi
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_auth_file.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_ident.conf
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_clamav.conf
 #%attr(640,root,root) %ghost /var/log/*
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
