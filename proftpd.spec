@@ -23,7 +23,7 @@ Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração s
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.3b
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
@@ -486,6 +486,7 @@ mod_lang
 MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 %configure \
 	--with-includes=/usr/include/ncurses%{?with_mysql::%{_includedir}/mysql} \
+	--enable-buffer-size=4096 \
 	--disable-auth-file \
 	--enable-autoshadow \
 	--enable-ctrls \
