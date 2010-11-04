@@ -595,6 +595,13 @@ if [ "$1" = "0" ]; then
 	/sbin/chkconfig --del proftpd
 fi
 
+%triggerin standalone -- pam
+# restart proftpd if pam is upgraded
+# (proftpd is linked with old libpam but tries to open modules linked with new libpam)
+if [ "$2" != 1 ]; then
+	%service -q proftpd restart
+fi
+
 # macro called at module post scriptlet
 %define	module_post \
 if [ "$1" = "1" ]; then \
