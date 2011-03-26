@@ -28,7 +28,7 @@ Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
-# Source0-md5:	8571bd78874b557e98480ed48e2df1d2
+# Source0-md5:	69650e91e05b3a10fa3ac54ee261679b
 Source1:	https://secure.thrallingpenguin.com/redmine/attachments/download/1/mod_clamav-%{mod_clamav_version}.tar.gz
 # Source1-md5:	42e560ec0bd5964e13fad1b2bb7afe21
 Source2:	%{name}.conf
