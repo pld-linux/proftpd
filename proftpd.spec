@@ -1,6 +1,7 @@
 # TODO
 # - mod_caps uses uname -r for detection
 # - don't use internal libltdl
+# - package contrib/ftp* perl scripts.
 #
 # Conditional build:
 %bcond_without	pam		# disable PAM support
@@ -22,13 +23,13 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.3d
-Release:	2
+Version:	1.3.3e
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
-# Source0-md5:	69650e91e05b3a10fa3ac54ee261679b
+# Source0-md5:	acc49b6589bc8c9fdf1dce9000bebdbd
 Source1:	https://secure.thrallingpenguin.com/redmine/attachments/download/1/mod_clamav-%{mod_clamav_version}.tar.gz
 # Source1-md5:	42e560ec0bd5964e13fad1b2bb7afe21
 Source2:	%{name}.conf
