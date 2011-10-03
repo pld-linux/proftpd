@@ -23,13 +23,13 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.3e
-Release:	2
+Version:	1.3.3f
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.bz2
-# Source0-md5:	acc49b6589bc8c9fdf1dce9000bebdbd
+# Source0-md5:	e9416d2aa7ac1246af4fc8a80fd73f27
 Source1:	https://secure.thrallingpenguin.com/redmine/attachments/download/1/mod_clamav-%{mod_clamav_version}.tar.gz
 # Source1-md5:	42e560ec0bd5964e13fad1b2bb7afe21
 Source2:	%{name}.conf
@@ -47,8 +47,7 @@ Patch0:		%{name}-paths.patch
 Patch1:		%{name}-noautopriv.patch
 Patch2:		%{name}-wtmp.patch
 Patch3:		%{name}-pool.patch
-Patch4:		%{name}-nostrip.patch
-Patch5:		%{name}-link.patch
+Patch4:		%{name}-link.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	acl-devel
 BuildRequires:	autoconf
@@ -449,7 +448,6 @@ dodaje hosty do pliku /etc/hosts.deny.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
 
 # mod_clamav
 patch -p0 < mod_clamav-%{mod_clamav_version}/proftpd.patch
@@ -487,6 +485,7 @@ mod_lang
 MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 %configure \
 	--with-includes=/usr/include/ncurses%{?with_mysql::%{_includedir}/mysql} \
+	--disable-strip \
 	--enable-buffer-size=4096 \
 	--disable-auth-file \
 	--enable-autoshadow \
