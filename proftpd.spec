@@ -43,6 +43,7 @@ Source9:	%{name}-mod_pam.conf
 Source10:	%{name}-mod_tls.conf
 Source11:	%{name}-anonftp.conf
 Source12:	%{name}-mod_clamav.conf
+Source13:	%{name}.tmpfiles
 Patch0:		%{name}-paths.patch
 Patch1:		%{name}-noautopriv.patch
 Patch2:		%{name}-wtmp.patch
@@ -502,7 +503,8 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/{pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
 	$RPM_BUILD_ROOT/var/{lib/ftp/pub/Incoming,log,run/proftpd} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/conf.d \
-	$RPM_BUILD_ROOT%{_includedir}/%{name}
+	$RPM_BUILD_ROOT%{_includedir}/%{name} \
+	$RPM_BUILD_ROOT/usr/lib/tmpfiles.d
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
@@ -545,6 +547,8 @@ bzip2 -dc %{SOURCE7} | tar xf - -C $RPM_BUILD_ROOT%{_mandir}
 
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers.default
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers
+
+install %{SOURCE13} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/%{name}.conf
 
 # only for -inetd package?
 ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
@@ -667,6 +671,7 @@ fi
 %attr(755,root,root) %{_libexecdir}/mod_ifsession.so
 %attr(755,root,root) %{_libexecdir}/mod_lang.so
 %dir %{_localstatedir}/proftpd
+/usr/lib/tmpfiles.d/%{name}.conf
 %{_mandir}/man[18]/*
 %dir /var/lib/ftp
 %dir /var/lib/ftp/pub
