@@ -24,7 +24,7 @@ Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração s
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.4a
-Release:	3
+Release:	4
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
@@ -672,6 +672,11 @@ fi
 %attr(755,root,root) %{_libexecdir}/mod_lang.so
 %dir %{_localstatedir}/proftpd
 /usr/lib/tmpfiles.d/%{name}.conf
+%{_mandir}/man5/*
+%lang(ja) %{_mandir}/ja/man5/ftpusers*
+%lang(pl) %{_mandir}/pl/man5/ftpusers*
+%lang(pt_BR) %{_mandir}/pt_BR/man5/ftpusers*
+%lang(ru) %{_mandir}/ru/man5/ftpusers*
 %{_mandir}/man[18]/*
 %dir /var/lib/ftp
 %dir /var/lib/ftp/pub
@@ -680,21 +685,11 @@ fi
 %files inetd
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/rc-inetd/ftpd
-%{_mandir}/man5/*
-%lang(ja) %{_mandir}/ja/man5/ftpusers*
-%lang(pl) %{_mandir}/pl/man5/ftpusers*
-%lang(pt_BR) %{_mandir}/pt_BR/man5/ftpusers*
-%lang(ru) %{_mandir}/ru/man5/ftpusers*
 
 %files standalone
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/proftpd
 %attr(754,root,root) /etc/rc.d/init.d/proftpd
-%{_mandir}/man5/*
-%lang(ja) %{_mandir}/ja/man5/ftpusers*
-%lang(pl) %{_mandir}/pl/man5/ftpusers*
-%lang(pt_BR) %{_mandir}/pt_BR/man5/ftpusers*
-%lang(ru) %{_mandir}/ru/man5/ftpusers*
 
 %files devel
 %defattr(644,root,root,755)
