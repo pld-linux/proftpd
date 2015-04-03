@@ -1,7 +1,7 @@
-diff -burNp proftpd-1.3.2.orig/src/log.c proftpd-1.3.2-dud/src/log.c
---- proftpd-1.3.2.orig/src/wtmp.c	2008-12-17 00:43:55.000000000 +0100
-+++ proftpd-1.3.2-dud/src/wtmp.c	2009-02-09 14:24:34.271689801 +0100
-@@ -129,9 +129,31 @@ int log_wtmp(char *line, const char *nam
+diff -ruNp proftpd-1.3.5.orig/src/wtmp.c proftpd-1.3.5/src/wtmp.c
+--- proftpd-1.3.5.orig/src/wtmp.c	2013-12-09 20:16:15.000000000 +0100
++++ proftpd-1.3.5/src/wtmp.c	2015-04-03 11:47:21.710554599 +0200
+@@ -136,11 +136,33 @@ int log_wtmp(const char *line, const cha
    struct utmp ut;
    static int fd = -1;
  
@@ -29,9 +29,11 @@ diff -burNp proftpd-1.3.2.orig/src/log.c proftpd-1.3.2-dud/src/log.c
 +#endif
    if (fd < 0 &&
 -      (fd = open(WTMP_FILE, O_WRONLY|O_APPEND, 0)) < 0) {
--    pr_log_pri(PR_LOG_WARNING, "wtmp %s: %s", WTMP_FILE, strerror(errno));
 +      (fd = open(wtmp_file, O_WRONLY|O_APPEND, 0)) < 0) {
-+    pr_log_pri(PR_LOG_WARNING, "wtmp %s: %s", wtmp_file, strerror(errno));
-     return -1;
-   }
+     int xerrno = errno;
  
+-    pr_log_pri(PR_LOG_WARNING, "failed to open wtmp %s: %s", WTMP_FILE,
++    pr_log_pri(PR_LOG_WARNING, "failed to open wtmp %s: %s", wtmp_file,
+       strerror(xerrno));
+ 
+     errno = xerrno;

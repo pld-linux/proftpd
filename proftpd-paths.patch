@@ -1,12 +1,6 @@
 --- proftpd-1.2.0pre3/contrib/xferstats.holger-preiss	Sun Oct 18 04:24:41 1998
 +++ proftpd-1.2.0pre3.pld/contrib/xferstats.holger-preiss	Fri May 28 10:49:08 1999
-@@ -1,4 +1,4 @@
--#! /usr/bin/perl
-+#!/usr/bin/perl
- # ---------------------------------------------------------------------------
- #
- # USAGE: xferstats <options>
-@@ -40,7 +40,7 @@
+@@ -52,7 +52,7 @@
  # If you want to specify $mydom1 and $mydom2 manually you should edit the
  # next two lines to customize for your domain. This will allow your domain
  # to be separated in the domain listing.
