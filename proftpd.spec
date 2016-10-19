@@ -23,13 +23,13 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.5
+Version:	1.3.5b
 Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.gz
-# Source0-md5:	aff1bff40e675244d72c4667f203e5bb
+# Source0-md5:	f7b8e3a383b34a894c2502db74ccccde
 Source1:	https://secure.thrallingpenguin.com/redmine/attachments/download/1/mod_clamav-%{mod_clamav_version}.tar.gz
 # Source1-md5:	42e560ec0bd5964e13fad1b2bb7afe21
 Source2:	%{name}.conf
@@ -73,6 +73,8 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		_sysconfdir		/etc/ftpd
 %define		_localstatedir		/var/run
 %define		_libexecdir		%{_prefix}/%{_lib}/%{name}
+
+%define         filterout               -flto
 
 %description
 ProFTPD is a highly configurable FTP daemon for Unix and Unix-like
@@ -469,7 +471,6 @@ mod_rewrite
 mod_wrap
 mod_facl
 mod_ifsession
-mod_lang
 %{?with_ssl:mod_tls}
 %{?with_pam:mod_auth_pam}
 %{?with_ldap:mod_ldap}
@@ -489,6 +490,7 @@ MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 	--disable-auth-file \
 	--enable-autoshadow \
 	--enable-ctrls \
+	--enable-nls \
 	--enable-dso \
 	%{?with_ipv6:--enable-ipv6} \
 	--enable-sendfile \
@@ -669,7 +671,6 @@ fi
 %attr(755,root,root) %{_libexecdir}/mod_facl.so
 %attr(755,root,root) %{_libexecdir}/mod_ident.so
 %attr(755,root,root) %{_libexecdir}/mod_ifsession.so
-%attr(755,root,root) %{_libexecdir}/mod_lang.so
 %dir %{_localstatedir}/proftpd
 /usr/lib/tmpfiles.d/%{name}.conf
 %{_mandir}/man5/*
