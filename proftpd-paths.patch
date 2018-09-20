@@ -20,24 +20,25 @@
  #endif
  
  /* The location of your `shells' file; a newline delimited list of
-@@ -80,6 +80,6 @@
- /* Location of the file containing users that *cannot* use ftp
+@@ -84,7 +84,7 @@
   * services (odd, eh?)
   */
--#define PR_FTPUSERS_PATH	"/etc/ftpusers"
-+#define PR_FTPUSERS_PATH	"/etc/ftpd/ftpusers"
+ #ifndef PR_FTPUSERS_PATH
+-# define PR_FTPUSERS_PATH	"/etc/ftpusers"
++# define PR_FTPUSERS_PATH	"/etc/ftpd/ftpusers"
+ #endif
  
  #endif /* PROFTPD_PATHS_H */
 --- proftpd-1.3.3b/configure.in~	2010-09-15 11:59:14.956175001 +0200
 +++ proftpd-1.3.3b/configure.in	2010-09-15 12:05:20.368863997 +0200
-@@ -2276,7 +2276,7 @@
+@@ -3832,7 +3832,7 @@ locale_dir="`eval echo ${localedir}`"
  locale_dir="`eval echo ${locale_dir}`"
- AC_DEFINE_UNQUOTED(PR_LOCALE_DIR, "`eval echo "${locale_dir}"`")
+ AC_DEFINE_UNQUOTED(PR_LOCALE_DIR, "`eval echo "${locale_dir}"`", [Define the locale directory])
  
--AC_DEFINE_UNQUOTED(PR_RUN_DIR, "`eval echo "${localstatedir}"`")
-+AC_DEFINE_UNQUOTED(PR_RUN_DIR, "`eval echo "${localstatedir}/proftpd"`")
- AC_DEFINE_UNQUOTED(PR_CONFIG_FILE_PATH, "`eval echo "${sysconfdir}/proftpd.conf"`")
- AC_DEFINE_UNQUOTED(PR_PID_FILE_PATH, "`eval echo "${localstatedir}/proftpd.pid"`")
+-AC_DEFINE_UNQUOTED(PR_RUN_DIR, "`eval echo "${localstatedir}"`", [Define the run directory])
++AC_DEFINE_UNQUOTED(PR_RUN_DIR, "`eval echo "${localstatedir}/proftpd"`", [Define the run directory])
+ AC_DEFINE_UNQUOTED(PR_CONFIG_FILE_PATH, "`eval echo "${sysconfdir}/proftpd.conf"`", [Define the configuration file path])
+ AC_DEFINE_UNQUOTED(PR_PID_FILE_PATH, "`eval echo "${localstatedir}/proftpd.pid"`", [Define the PID file path])
  
 diff -ur proftpd-1.3.2e/Make.rules.in proftpd-1.3.3b/Make.rules.in
 --- proftpd-1.3.2e/Make.rules.in	2008-11-19 04:51:38.000000000 +0100
