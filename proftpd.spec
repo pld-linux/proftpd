@@ -24,7 +24,7 @@ Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração s
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.6a
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
@@ -48,6 +48,7 @@ Patch0:		%{name}-paths.patch
 Patch1:		%{name}-noautopriv.patch
 Patch2:		%{name}-wtmp.patch
 Patch3:		%{name}-pool.patch
+Patch4:		args.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	acl-devel
 BuildRequires:	autoconf
@@ -449,6 +450,7 @@ dodaje hosty do pliku /etc/hosts.deny.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 # mod_clamav
 patch -p0 < mod_clamav-%{mod_clamav_version}/proftpd.patch
