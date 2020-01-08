@@ -23,13 +23,14 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.6a
-Release:	2
+Version:	1.3.6b
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.gz
-# Source0-md5:	43d0b9c4107fb91d360a3c813d7a9e29
+# Source0-md5:	4040f6a6b86173e2a03f4ccdb9b9af6e
+# https://github.com/jbenden/mod_clamav
 Source1:	https://secure.thrallingpenguin.com/redmine/attachments/download/1/mod_clamav-%{mod_clamav_version}.tar.gz
 # Source1-md5:	42e560ec0bd5964e13fad1b2bb7afe21
 Source2:	%{name}.conf
@@ -460,6 +461,13 @@ cp -f /usr/share/automake/config.sub .
 
 # cleanup backups after patching
 find . '(' -name '*~' -o -name '*.orig' ')' -print0 | xargs -0 -r -l512 rm -f
+
+sed -E -i -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+perl,#!%{__perl},' \
+        contrib/ftpasswd \
+        contrib/ftpmail \
+        contrib/ftpquota \
+        contrib/xferstats.holger-preiss \
+	src/prxs.in
 
 %build
 %{__autoconf}
