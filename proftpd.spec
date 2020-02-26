@@ -23,13 +23,13 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.6b
+Version:	1.3.6c
 Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.gz
-# Source0-md5:	4040f6a6b86173e2a03f4ccdb9b9af6e
+# Source0-md5:	5680a462144e94770d6e5478ffd60254
 # https://github.com/jbenden/mod_clamav
 Source1:	https://secure.thrallingpenguin.com/redmine/attachments/download/1/mod_clamav-%{mod_clamav_version}.tar.gz
 # Source1-md5:	42e560ec0bd5964e13fad1b2bb7afe21
@@ -49,7 +49,6 @@ Patch0:		%{name}-paths.patch
 Patch1:		%{name}-noautopriv.patch
 Patch2:		%{name}-wtmp.patch
 Patch3:		%{name}-pool.patch
-Patch4:		args.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	acl-devel
 BuildRequires:	autoconf
@@ -451,10 +450,9 @@ dodaje hosty do pliku /etc/hosts.deny.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
 
 # mod_clamav
-patch -p0 < mod_clamav-%{mod_clamav_version}/proftpd.patch
+patch -p0 < mod_clamav-%{mod_clamav_version}/proftpd.patch || exit 1
 cp -a mod_clamav-%{mod_clamav_version}/*.{c,h} contrib/
 
 cp -f /usr/share/automake/config.sub .
@@ -573,6 +571,8 @@ rm $RPM_BUILD_ROOT%{_libexecdir}/*.la
 rm -f $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
 cp -aL include/* config.h $RPM_BUILD_ROOT%{_includedir}/%{name}
 
+%find_lang %{name}
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -659,7 +659,7 @@ fi
 %module_scripts mod_tls
 %module_scripts mod_wrap
 
-%files common
+%files common -f %{name}.lang
 %defattr(644,root,root,755)
 %doc sample-configurations/*.conf CREDITS ChangeLog NEWS RELEASE_NOTES
 %doc README.md README.capabilities README.classes README.controls README.IPv6
