@@ -24,7 +24,7 @@ Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração s
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.6c
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
@@ -570,6 +570,14 @@ rm $RPM_BUILD_ROOT%{_libexecdir}/*.la
 
 rm -f $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
 cp -aL include/* config.h $RPM_BUILD_ROOT%{_includedir}/%{name}
+
+mv $RPM_BUILD_ROOT%{_datadir}/locale/bg{_BG,}
+mv $RPM_BUILD_ROOT%{_datadir}/locale/es{_ES,}
+mv $RPM_BUILD_ROOT%{_datadir}/locale/fr{_FR,}
+mv $RPM_BUILD_ROOT%{_datadir}/locale/it{_IT,}
+mv $RPM_BUILD_ROOT%{_datadir}/locale/ja{_JP,}
+mv $RPM_BUILD_ROOT%{_datadir}/locale/ko{_KR,}
+mv $RPM_BUILD_ROOT%{_datadir}/locale/ru{_RU,}
 
 %find_lang %{name}
 
