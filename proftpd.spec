@@ -1,21 +1,22 @@
 # TODO
+# - test mod_clamav as DSO (README says it's allowed)
 # - mod_caps uses uname -r for detection
 # - don't use internal libltdl
 # - package contrib/ftp* perl scripts.
 #
 # Conditional build:
-%bcond_without	pam		# disable PAM support
-%bcond_without	ipv6		# disable IPv6 and TCPD support
-%bcond_without	ssl		# disbale TLS/SSL support
-%bcond_without	ldap		# disable LDAP support
-%bcond_without	mysql		# disable MySQL support
-%bcond_without	pgsql		# disable PostgreSQL support
-%bcond_without	quotafile	# disable quota file support
-%bcond_without	quotaldap	# disable quota ldap support
-%bcond_without	quotamysql	# disable quota mysql support
-%bcond_without	quotapgsql	# disable quota pgsql support
+%bcond_without	pam		# PAM support
+%bcond_without	ipv6		# IPv6 and TCPD support
+%bcond_without	ssl		# TLS/SSL support
+%bcond_without	ldap		# LDAP support
+%bcond_without	mysql		# MySQL support
+%bcond_without	pgsql		# PostgreSQL support
+%bcond_without	quotafile	# quota file support
+%bcond_without	quotaldap	# quota ldap support
+%bcond_without	quotamysql	# quota mysql support
+%bcond_without	quotapgsql	# quota pgsql support
 #
-%define		mod_clamav_version	0.11rc
+%define		mod_clamav_version	0.13
 
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es.UTF-8):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
@@ -23,16 +24,16 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.6c
-Release:	2
+Version:	1.3.7a
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.gz
-# Source0-md5:	5680a462144e94770d6e5478ffd60254
-# https://github.com/jbenden/mod_clamav
-Source1:	https://secure.thrallingpenguin.com/redmine/attachments/download/1/mod_clamav-%{mod_clamav_version}.tar.gz
-# Source1-md5:	42e560ec0bd5964e13fad1b2bb7afe21
+# Source0-md5:	4a9b8877b2e9b08d70e71ad56c19e2c9
+# https://github.com/jbenden/mod_clamav/releases
+Source1:	https://github.com/jbenden/mod_clamav/archive/v%{mod_clamav_version}/mod_clamav-%{mod_clamav_version}.tar.gz
+# Source1-md5:	955269eb8b00ebcc217bbd6f74df4e1c
 Source2:	%{name}.conf
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
@@ -49,6 +50,7 @@ Patch0:		%{name}-paths.patch
 Patch1:		%{name}-noautopriv.patch
 Patch2:		%{name}-wtmp.patch
 Patch3:		%{name}-pool.patch
+Patch4:		%{name}-link.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	acl-devel
 BuildRequires:	autoconf
@@ -68,7 +70,8 @@ BuildRequires:	openldap-devel
 %if %{with pgsql} || %{with quotapgsql}
 BuildRequires:	postgresql-devel
 %endif
-BuildRequires:	rpmbuild(macros) >= 1.268
+BuildRequires:	rpm-perlprov
+BuildRequires:	rpmbuild(macros) >= 1.745
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir		/etc/ftpd
@@ -450,9 +453,11 @@ dodaje hosty do pliku /etc/hosts.deny.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 # mod_clamav
-patch -p0 < mod_clamav-%{mod_clamav_version}/proftpd.patch || exit 1
+# no patch as of 0.13
+#patch -p0 < mod_clamav-%{mod_clamav_version}/proftpd.patch || exit 1
 cp -a mod_clamav-%{mod_clamav_version}/*.{c,h} contrib/
 
 cp -f /usr/share/automake/config.sub .
@@ -492,19 +497,22 @@ mod_ifsession
 
 MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
 %configure \
-	--with-includes=/usr/include/ncurses%{?with_mysql::%{_includedir}/mysql} \
-	--disable-strip \
-	--enable-buffer-size=4096 \
+	ac_cv_lib_iconv_iconv_open=no \
+	ac_cv_lib_iconv_libiconv_open=no \
+	ac_cv_lib_intl_bindtextdomain=no \
 	--disable-auth-file \
+	--enable-buffer-size=4096 \
 	--enable-autoshadow \
 	--enable-ctrls \
-	--enable-nls \
 	--enable-dso \
 	%{?with_ipv6:--enable-ipv6} \
+	--enable-nls \
 	--enable-sendfile \
+	--disable-strip \
 	%{!?with_ssl:--disable-tls} \
-	--with-shared=$MODARG \
-	--with-modules=mod_clamav
+	--with-includes=/usr/include/ncurses%{?with_mysql::%{_includedir}/mysql} \
+	--with-modules=mod_clamav \
+	--with-shared=$MODARG
 
 %{__make} -j1
 
@@ -514,14 +522,14 @@ install -d $RPM_BUILD_ROOT/etc/{pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
 	$RPM_BUILD_ROOT/var/{lib/ftp/pub/Incoming,log,run/proftpd} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/conf.d \
 	$RPM_BUILD_ROOT%{_includedir}/%{name} \
-	$RPM_BUILD_ROOT/usr/lib/tmpfiles.d
+	$RPM_BUILD_ROOT%{systemdtmpfilesdir}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
 	INSTALL_USER=%(id -u) \
 	INSTALL_GROUP=%(id -g)
 
-rm $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
+%{__rm} $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
 install %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_auth_pam.conf
@@ -558,26 +566,27 @@ bzip2 -dc %{SOURCE7} | tar xf - -C $RPM_BUILD_ROOT%{_mandir}
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers.default
 :> $RPM_BUILD_ROOT%{_sysconfdir}/ftpusers
 
-install %{SOURCE13} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/%{name}.conf
+cp -p %{SOURCE13} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/%{name}.conf
 
 # only for -inetd package?
 ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
 :> $RPM_BUILD_ROOT/etc/security/blacklist.ftp
 
-rm $RPM_BUILD_ROOT%{_libexecdir}/*.a
-rm $RPM_BUILD_ROOT%{_libexecdir}/*.la
+# cannot just --disable-static because build process depend on static objects
+%{__rm} $RPM_BUILD_ROOT%{_libexecdir}/*.a
+%{__rm} $RPM_BUILD_ROOT%{_libexecdir}/*.la
 
-rm -f $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
+%{__rm} $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
 cp -aL include/* config.h $RPM_BUILD_ROOT%{_includedir}/%{name}
 
-mv $RPM_BUILD_ROOT%{_datadir}/locale/bg{_BG,}
-mv $RPM_BUILD_ROOT%{_datadir}/locale/es{_ES,}
-mv $RPM_BUILD_ROOT%{_datadir}/locale/fr{_FR,}
-mv $RPM_BUILD_ROOT%{_datadir}/locale/it{_IT,}
-mv $RPM_BUILD_ROOT%{_datadir}/locale/ja{_JP,}
-mv $RPM_BUILD_ROOT%{_datadir}/locale/ko{_KR,}
-mv $RPM_BUILD_ROOT%{_datadir}/locale/ru{_RU,}
+%{__mv} $RPM_BUILD_ROOT%{_datadir}/locale/bg{_BG,}
+%{__mv} $RPM_BUILD_ROOT%{_datadir}/locale/es{_ES,}
+%{__mv} $RPM_BUILD_ROOT%{_datadir}/locale/fr{_FR,}
+%{__mv} $RPM_BUILD_ROOT%{_datadir}/locale/it{_IT,}
+%{__mv} $RPM_BUILD_ROOT%{_datadir}/locale/ja{_JP,}
+%{__mv} $RPM_BUILD_ROOT%{_datadir}/locale/ko{_KR,}
+%{__mv} $RPM_BUILD_ROOT%{_datadir}/locale/ru{_RU,}
 
 %find_lang %{name}
 
@@ -669,12 +678,10 @@ fi
 
 %files common -f %{name}.lang
 %defattr(644,root,root,755)
-%doc sample-configurations/*.conf CREDITS ChangeLog NEWS RELEASE_NOTES
-%doc README.md README.capabilities README.classes README.controls README.IPv6
-%doc README.modules
-%doc doc/*.html doc/contrib doc/howto doc/modules
+%doc CREDITS ChangeLog NEWS README.md README.modules RELEASE_NOTES
+%doc doc/{*.html,contrib,howto,modules} sample-configurations/*.conf
 %dir %attr(750,root,ftp) %dir %{_sysconfdir}
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.conf
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/proftpd.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %ghost %{_sysconfdir}/ftpusers
 %attr(640,root,root) %{_sysconfdir}/ftpusers.default
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
@@ -682,21 +689,43 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_ident.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_clamav.conf
 #%attr(640,root,root) %ghost /var/log/*
-%attr(755,root,root) %{_bindir}/*
-%attr(755,root,root) %{_sbindir}/*
+%attr(755,root,root) %{_bindir}/ftpasswd
+%attr(755,root,root) %{_bindir}/ftpcount
+%attr(755,root,root) %{_bindir}/ftpdctl
+%attr(755,root,root) %{_bindir}/ftpmail
+%attr(755,root,root) %{_bindir}/ftpquota
+%attr(755,root,root) %{_bindir}/ftptop
+%attr(755,root,root) %{_bindir}/ftpwho
+%attr(755,root,root) %{_bindir}/prxs
+%attr(755,root,root) %{_bindir}/xferstat
+%attr(755,root,root) %{_sbindir}/ftpscrub
+%attr(755,root,root) %{_sbindir}/ftpshut
+%attr(755,root,root) %{_sbindir}/proftpd
+%attr(755,root,root) %{_sbindir}/ftpd
 %dir %{_libexecdir}
 %attr(755,root,root) %{_libexecdir}/mod_auth_file.so
 %attr(755,root,root) %{_libexecdir}/mod_facl.so
 %attr(755,root,root) %{_libexecdir}/mod_ident.so
 %attr(755,root,root) %{_libexecdir}/mod_ifsession.so
 %dir %{_localstatedir}/proftpd
-/usr/lib/tmpfiles.d/%{name}.conf
-%{_mandir}/man5/*
-%lang(ja) %{_mandir}/ja/man5/ftpusers*
-%lang(pl) %{_mandir}/pl/man5/ftpusers*
-%lang(pt_BR) %{_mandir}/pt_BR/man5/ftpusers*
-%lang(ru) %{_mandir}/ru/man5/ftpusers*
-%{_mandir}/man[18]/*
+%{systemdtmpfilesdir}/%{name}.conf
+%{_mandir}/man1/ftpasswd.1*
+%{_mandir}/man1/ftpcount.1*
+%{_mandir}/man1/ftpmail.1*
+%{_mandir}/man1/ftpquota.1*
+%{_mandir}/man1/ftptop.1*
+%{_mandir}/man1/ftpwho.1*
+%{_mandir}/man5/ftpusers.5*
+%{_mandir}/man5/proftpd.conf.5*
+%{_mandir}/man5/xferlog.5*
+%{_mandir}/man8/ftpdctl.8*
+%{_mandir}/man8/ftpscrub.8*
+%{_mandir}/man8/ftpshut.8*
+%{_mandir}/man8/proftpd.8*
+%lang(ja) %{_mandir}/ja/man5/ftpusers.5*
+%lang(pl) %{_mandir}/pl/man5/ftpusers.5*
+%lang(pt_BR) %{_mandir}/pt_BR/man5/ftpusers.5*
+%lang(ru) %{_mandir}/ru/man5/ftpusers.5*
 %dir /var/lib/ftp
 %dir /var/lib/ftp/pub
 %attr(711,ftp,ftp) %dir /var/lib/ftp/pub/Incoming
@@ -713,7 +742,7 @@ fi
 %files devel
 %defattr(644,root,root,755)
 %{_includedir}/%{name}
-%{_pkgconfigdir}/%{name}.pc
+%{_pkgconfigdir}/proftpd.pc
 
 %files anonftp
 %defattr(644,root,root,755)
@@ -722,8 +751,7 @@ fi
 %if %{with pam}
 %files mod_auth_pam
 %defattr(644,root,root,755)
-%doc README.PAM
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/*
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/ftp
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/security/blacklist.ftp
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_auth_pam.conf
 %attr(755,root,root) %{_libexecdir}/mod_auth_pam.so
