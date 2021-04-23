@@ -25,7 +25,7 @@ Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração s
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.7a
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
@@ -52,10 +52,14 @@ Patch2:		%{name}-wtmp.patch
 Patch3:		%{name}-pool.patch
 Patch4:		%{name}-link.patch
 URL:		http://www.proftpd.org/
+BuildRequires:	GeoIP-devel
 BuildRequires:	acl-devel
 BuildRequires:	autoconf
 BuildRequires:	automake
+BuildRequires:	hiredis-devel
 BuildRequires:	libcap-devel
+BuildRequires:	libmemcached-devel
+BuildRequires:	libnsl-devel
 BuildRequires:	libstdc++-devel
 BuildRequires:	libwrap-devel
 %if %{with mysql} || %{with quotamysql}
@@ -152,8 +156,7 @@ Summary(pl.UTF-8):	Pliki konfiguracyjne do użycia proftpd poprzez inetd
 Group:		Networking/Daemons
 Requires(post):	fileutils
 Requires(post):	grep
-Requires(post):	sed >= 4.0
-Requires(triggerpostun):	sed >= 4.0
+Requires(post,postun):	sed >= 4.0
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	rc-inetd
 Provides:	ftpserver
@@ -187,9 +190,8 @@ Summary(pl.UTF-8):	Pliki konfiguracyjne do startowania proftpd w trybie standalo
 Group:		Networking/Daemons
 Requires(post):	fileutils
 Requires(post):	grep
-Requires(post):	sed >= 4.0
+Requires(post,postun):	sed >= 4.0
 Requires(post,preun):	/sbin/chkconfig
-Requires(triggerpostun):	sed >= 4.0
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	rc-scripts
 Provides:	ftpserver
@@ -447,6 +449,95 @@ w trybie samodzielnym adaptować te wpisy w miarę dodawania. Robi tak
 na przykład program portsentry: przy próbie niedozwolonego dostępu
 dodaje hosty do pliku /etc/hosts.deny.
 
+%package mod_wrap2
+Summary:	ProFTPD mod_wrap2 module
+Summary(pl.UTF-8):	Moduł mod_wrap2 dla ProFTPD
+Group:		Networking/Daemons
+Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+
+%description mod_wrap2
+The mod_wrap2 package allows the proftpd daemon to provide
+tcpwrapper-like access control rules while running in standalone mode.
+It also allows for those access rules to be stored in various formats,
+such as files (e.g. /etc/hosts.allow and /etc/hosts.deny) or in SQL
+tables. Note that the mod_wrap2 module does not require or use the
+standard tcpwrappers libwrap library, and instead implements the same
+functionality internally (in order to support SQL-based access rules).
+
+%description mod_wrap2 -l pl.UTF-8
+Udostępnia funkcjonalność kontroli dostępu podobną do modułu mod_wrap,
+ale do działanie nie wymaga systemowej biblioteki libwrap.
+http://www.proftpd.org/docs/contrib/mod_wrap2.html
+
+%package mod_dnsbl
+Summary:	ProFTPD mod_dnsbl module
+Summary(pl.UTF-8):	Moduł mod_dnsbl dla ProFTPD
+Group:		Networking/Daemons
+Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+
+%description mod_dnsbl
+DNSBL module for ProFTPD.
+http://www.proftpd.org/docs/contrib/mod_dnsbl.html
+
+%description mod_dnsbl -l pl.UTF-8
+Moduł zapewniający kontrolę dostępu przy użyciu DNS blacklist (dnsbl).
+http://www.proftpd.org/docs/contrib/mod_dnsbl.html
+
+%package mod_geoip
+Summary:	ProFTPD mod_geoip module
+Summary(pl.UTF-8):	Moduł mod_geoip dla ProFTPD
+Group:		Networking/Daemons
+Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+
+%description mod_geoip
+GeoIP module for ProFTPD.
+http://www.proftpd.org/docs/contrib/mod_geoip.html
+
+%description mod_geoip -l pl.UTF-8
+Moduł zapewniający kontrolę dostępu przy użyciu bibliotek
+geolokalizacji firmy MaxMind.
+http://www.proftpd.org/docs/contrib/mod_geoip.html
+
+%package mod_memcache
+Summary:	ProFTPD mod_memcache module
+Summary(pl.UTF-8):	Moduł mod_memcache dla ProFTPD
+Group:		Networking/Daemons
+Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+
+%description mod_memcache
+Memcache module for ProFTPD.
+http://www.proftpd.org/docs/howto/Memcache.html
+
+%description mod_geoip -l pl.UTF-8
+Moduł zapewniający dostęp do wydajnego systemu cache'owania Memcache
+http://www.proftpd.org/docs/howto/Memcache.html
+
+%package mod_redis
+Summary:	ProFTPD mod_redis module
+Summary(pl.UTF-8):	Moduł mod_redis dla ProFTPD
+Group:		Networking/Daemons
+Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+
+%description mod_redis
+Redis module for ProFTPD. http://www.proftpd.org/docs/howto/Redis.html
+
+%description mod_redis -l pl.UTF-8
+Moduł zapewniający dostęp do wydajnego systemu cache'owania Redis
+http://www.proftpd.org/docs/howto/Redis.html
+
+%package mod_sftp
+Summary:	ProFTPD mod_sftp module
+Summary(pl.UTF-8):	Moduł mod_sftp dla ProFTPD
+Group:		Networking/Daemons
+Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+
+%description mod_sftp
+http://www.proftpd.org/docs/contrib/mod_sftp.html
+
+%description mod_sftp -l pl.UTF-8
+Moduł zapewniający serwerowi ProFTPD obsługę protokołu SFTP
+http://www.proftpd.org/docs/contrib/mod_sftp.html
+
 %prep
 %setup -q -n %{name}-%{version}%{?_rc} -a1
 %patch0 -p1
@@ -483,6 +574,12 @@ mod_readme
 mod_rewrite
 mod_wrap
 mod_facl
+mod_dnsbl
+mod_geoip
+mod_memcache
+mod_redis
+mod_sftp
+mod_wrap2
 mod_ifsession
 %{?with_ssl:mod_tls}
 %{?with_pam:mod_auth_pam}
@@ -531,8 +628,8 @@ install -d $RPM_BUILD_ROOT/etc/{pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
 
 %{__rm} $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
-install %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}
-install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_auth_pam.conf
+cp -p %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}
+cp -p %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_auth_pam.conf
 MODULES="
 mod_auth_file
 mod_ident
@@ -540,6 +637,12 @@ mod_ratio
 mod_readme
 mod_rewrite
 mod_wrap
+mod_wrap2
+mod_dnsbl
+mod_geoip
+mod_memcache
+mod_redis
+mod_sftp
 %{?with_ldap:mod_ldap}
 %{?with_quotafile:mod_quotatab mod_quotatab_file}
 %{?with_quotaldap:mod_quotatab mod_quotatab_ldap}
@@ -551,15 +654,15 @@ mod_wrap
 for module in $MODULES; do
 	echo "LoadModule	$module.c" > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/$module.conf
 done
-install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_tls.conf
-install %{SOURCE11} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/anonftp.conf
-install %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_clamav.conf
+cp -p %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_tls.conf
+cp -p %{SOURCE11} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/anonftp.conf
+cp -p %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_clamav.conf
 
 %{?with_pam:install %{SOURCE3} $RPM_BUILD_ROOT/etc/pam.d/ftp}
-install %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/ftpd
-install %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/proftpd
-install %{SOURCE6} $RPM_BUILD_ROOT/etc/rc.d/init.d/proftpd
-install contrib/xferstats.holger-preiss $RPM_BUILD_ROOT%{_bindir}/xferstat
+cp -p %{SOURCE4} $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/ftpd
+cp -p %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/proftpd
+cp -p %{SOURCE6} $RPM_BUILD_ROOT/etc/rc.d/init.d/proftpd
+cp -p contrib/xferstats.holger-preiss $RPM_BUILD_ROOT%{_bindir}/xferstat
 
 bzip2 -dc %{SOURCE7} | tar xf - -C $RPM_BUILD_ROOT%{_mandir}
 
@@ -580,13 +683,13 @@ ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 %{__rm} $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
 cp -aL include/* config.h $RPM_BUILD_ROOT%{_includedir}/%{name}
 
-%{__mv} $RPM_BUILD_ROOT%{_datadir}/locale/bg{_BG,}
-%{__mv} $RPM_BUILD_ROOT%{_datadir}/locale/es{_ES,}
-%{__mv} $RPM_BUILD_ROOT%{_datadir}/locale/fr{_FR,}
-%{__mv} $RPM_BUILD_ROOT%{_datadir}/locale/it{_IT,}
-%{__mv} $RPM_BUILD_ROOT%{_datadir}/locale/ja{_JP,}
-%{__mv} $RPM_BUILD_ROOT%{_datadir}/locale/ko{_KR,}
-%{__mv} $RPM_BUILD_ROOT%{_datadir}/locale/ru{_RU,}
+%{__mv} $RPM_BUILD_ROOT%{_localedir}/bg{_BG,}
+%{__mv} $RPM_BUILD_ROOT%{_localedir}/es{_ES,}
+%{__mv} $RPM_BUILD_ROOT%{_localedir}/fr{_FR,}
+%{__mv} $RPM_BUILD_ROOT%{_localedir}/it{_IT,}
+%{__mv} $RPM_BUILD_ROOT%{_localedir}/ja{_JP,}
+%{__mv} $RPM_BUILD_ROOT%{_localedir}/ko{_KR,}
+%{__mv} $RPM_BUILD_ROOT%{_localedir}/ru{_RU,}
 
 %find_lang %{name}
 
@@ -675,6 +778,12 @@ fi
 %module_scripts mod_sql_postgres
 %module_scripts mod_tls
 %module_scripts mod_wrap
+%module_scripts mod_wrap2
+%module_scripts mod_dnsbl
+%module_scripts mod_geoip
+%module_scripts mod_memcache
+%module_scripts mod_redis
+%module_scripts mod_sftp
 
 %files common -f %{name}.lang
 %defattr(644,root,root,755)
@@ -837,3 +946,33 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_wrap.conf
 %attr(755,root,root) %{_libexecdir}/mod_wrap.so
+
+%files mod_wrap2
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_wrap2.conf
+%attr(755,root,root) %{_libexecdir}/mod_wrap2.so
+
+%files mod_dnsbl
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_dnsbl.conf
+%attr(755,root,root) %{_libexecdir}/mod_dnsbl.so
+
+%files mod_geoip
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_geoip.conf
+%attr(755,root,root) %{_libexecdir}/mod_geoip.so
+
+%files mod_memcache
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_memcache.conf
+%attr(755,root,root) %{_libexecdir}/mod_memcache.so
+
+%files mod_redis
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_redis.conf
+%attr(755,root,root) %{_libexecdir}/mod_redis.so
+
+%files mod_sftp
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_sftp.conf
+%attr(755,root,root) %{_libexecdir}/mod_sftp.so
