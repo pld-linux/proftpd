@@ -15,6 +15,8 @@
 %bcond_without	quotaldap	# quota ldap support
 %bcond_without	quotamysql	# quota mysql support
 %bcond_without	quotapgsql	# quota pgsql support
+%bcond_without	wrap2file	# wrap2 file support
+
 #
 %define		mod_clamav_version	0.13
 
@@ -25,7 +27,7 @@ Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração s
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
 Version:	1.3.7a
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
@@ -469,6 +471,19 @@ Udostępnia funkcjonalność kontroli dostępu podobną do modułu mod_wrap,
 ale do działanie nie wymaga systemowej biblioteki libwrap.
 http://www.proftpd.org/docs/contrib/mod_wrap2.html
 
+%package mod_wrap2_file
+Summary:	ProFTPD wrap2 file module
+Summary(pl.UTF-8):	Moduł wrap2_file dla ProFTPD
+Group:		Networking/Daemons
+Requires:	%{name}-common = %{epoch}:%{version}-%{release}
+Requires:	%{name}-mod_wrap2 = %{epoch}:%{version}-%{release}
+
+%description mod_wrap2_file
+A mod_wrap2 sub-module for file-based access tables.
+
+%description mod_wrap2_file -l pl.UTF-8
+Podmoduł mod_wrap2 wymagany jeśli tabele dostępu trzymane są w plikach.
+
 %package mod_dnsbl
 Summary:	ProFTPD mod_dnsbl module
 Summary(pl.UTF-8):	Moduł mod_dnsbl dla ProFTPD
@@ -590,6 +605,7 @@ mod_ifsession
 %{?with_quotapgsql:mod_quotatab mod_quotatab_sql}
 %{?with_mysql:mod_sql mod_sql_mysql}
 %{?with_pgsql:mod_sql mod_sql_postgres}
+%{?with_wrap2file:mod_wrap2 mod_wrap2_file}
 "
 
 MODARG=$(echo $MODULES | tr ' ' '\n' | sort -u | xargs | tr ' ' ':')
@@ -650,6 +666,7 @@ mod_sftp
 %{?with_quotapgsql:mod_quotatab mod_quotatab_sql}
 %{?with_mysql:mod_sql mod_sql_mysql}
 %{?with_pgsql:mod_sql mod_sql_postgres}
+%{?with_wrap2file:mod_wrap2 mod_wrap2_file}
 "
 for module in $MODULES; do
 	echo "LoadModule	$module.c" > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/$module.conf
@@ -951,6 +968,13 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_wrap2.conf
 %attr(755,root,root) %{_libexecdir}/mod_wrap2.so
+
+%if %{with wrap2file}
+%files mod_wrap2_file
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_wrap2_file.conf
+%attr(755,root,root) %{_libexecdir}/mod_wrap2_file.so
+%endif
 
 %files mod_dnsbl
 %defattr(644,root,root,755)
