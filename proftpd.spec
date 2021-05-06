@@ -999,4 +999,6 @@ fi
 %files mod_sftp
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_sftp.conf
+%{_sysconfdir}/blacklist.dat
+%{_sysconfdir}/dhparams.pem
 %attr(755,root,root) %{_libexecdir}/mod_sftp.so
