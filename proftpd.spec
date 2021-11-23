@@ -26,13 +26,13 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.7a
-Release:	5
+Version:	1.3.7c
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.gz
-# Source0-md5:	4a9b8877b2e9b08d70e71ad56c19e2c9
+# Source0-md5:	bee3df0bc3c945c62657410610fedeb3
 # https://github.com/jbenden/mod_clamav/releases
 Source1:	https://github.com/jbenden/mod_clamav/archive/v%{mod_clamav_version}/mod_clamav-%{mod_clamav_version}.tar.gz
 # Source1-md5:	955269eb8b00ebcc217bbd6f74df4e1c
@@ -523,7 +523,7 @@ Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Memcache module for ProFTPD.
 http://www.proftpd.org/docs/howto/Memcache.html
 
-%description mod_geoip -l pl.UTF-8
+%description mod_memcache -l pl.UTF-8
 Moduł zapewniający dostęp do wydajnego systemu cache'owania Memcache
 http://www.proftpd.org/docs/howto/Memcache.html
 
