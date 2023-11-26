@@ -637,7 +637,7 @@ install -d $RPM_BUILD_ROOT/etc/{pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
 	$RPM_BUILD_ROOT%{_includedir}/%{name} \
 	$RPM_BUILD_ROOT%{systemdtmpfilesdir}
 
-%{__make} install \
+%{__make} -j1  install \
 	DESTDIR=$RPM_BUILD_ROOT \
 	INSTALL_USER=%(id -u) \
 	INSTALL_GROUP=%(id -g)
