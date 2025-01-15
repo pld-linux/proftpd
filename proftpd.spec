@@ -18,7 +18,7 @@
 %bcond_without	wrap2file	# wrap2 file support
 
 #
-%define		mod_clamav_version	0.13
+%define		mod_clamav_version	0.14rc2
 
 Summary:	PROfessional FTP Daemon with apache-like configuration syntax
 Summary(es.UTF-8):	Servidor FTP profesional, con sintaxis de configuración semejante a la del apache
@@ -26,16 +26,16 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.7f
-Release:	4
+Version:	1.3.8c
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.gz
-# Source0-md5:	5dab21933de54926fa0bb0a51a5a8578
+# Source0-md5:	790e3d6221eb5a195dde6da5e4f17dff
 # https://github.com/jbenden/mod_clamav/releases
 Source1:	https://github.com/jbenden/mod_clamav/archive/v%{mod_clamav_version}/mod_clamav-%{mod_clamav_version}.tar.gz
-# Source1-md5:	955269eb8b00ebcc217bbd6f74df4e1c
+# Source1-md5:	7d1e7e33added5a6ce1c4d96ca572167
 Source2:	%{name}.conf
 Source3:	ftp.pamd
 Source4:	%{name}.inetd
@@ -698,6 +698,10 @@ ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 %{__rm} $RPM_BUILD_ROOT%{_libexecdir}/*.la
 
 %{__rm} $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
+
+# symlink that points to not existing file
+[ ! -r contrib/mod_sftp/confdefs.h ] && rm include/mod_sftp/confdefs.h
+
 cp -aL include/* config.h $RPM_BUILD_ROOT%{_includedir}/%{name}
 
 %{__mv} $RPM_BUILD_ROOT%{_localedir}/bg{_BG,}
