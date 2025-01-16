@@ -172,7 +172,7 @@ Obsoletes:	heimdal-ftpd
 Obsoletes:	krb5-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
-Obsoletes:	proftpd-standalone
+Obsoletes:	proftpd-standalone <= %{epoch}:%{version}-%{release}
 Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
 Obsoletes:	vsftpd
@@ -207,7 +207,7 @@ Obsoletes:	heimdal-ftpd
 Obsoletes:	krb5-ftpd
 Obsoletes:	linux-ftpd
 Obsoletes:	muddleftpd
-Obsoletes:	proftpd-inetd
+Obsoletes:	proftpd-inetd <= %{epoch}:%{version}-%{release}
 Obsoletes:	pure-ftpd
 Obsoletes:	troll-ftpd
 Obsoletes:	vsftpd
