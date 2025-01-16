@@ -555,11 +555,11 @@ http://www.proftpd.org/docs/contrib/mod_sftp.html
 
 %prep
 %setup -q -n %{name}-%{version}%{?_rc} -a1
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
+%patch -P0 -p1
+%patch -P1 -p1
+%patch -P2 -p1
+%patch -P3 -p1
+%patch -P4 -p1
 
 # mod_clamav
 # no patch as of 0.13
