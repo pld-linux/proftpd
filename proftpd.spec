@@ -26,13 +26,13 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.8c
+Version:	1.3.9
 Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.gz
-# Source0-md5:	790e3d6221eb5a195dde6da5e4f17dff
+# Source0-md5:	760b2bf912e4ac26b5f1aa9d25b440c6
 # https://github.com/jbenden/mod_clamav/releases
 Source1:	https://github.com/jbenden/mod_clamav/archive/v%{mod_clamav_version}/mod_clamav-%{mod_clamav_version}.tar.gz
 # Source1-md5:	7d1e7e33added5a6ce1c4d96ca572167
@@ -52,7 +52,7 @@ Patch0:		%{name}-paths.patch
 Patch1:		%{name}-noautopriv.patch
 Patch2:		%{name}-wtmp.patch
 Patch3:		%{name}-pool.patch
-Patch4:		%{name}-link.patch
+Patch5:		mod_clamav-compat.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	GeoIP-devel
 BuildRequires:	acl-devel
@@ -559,12 +559,13 @@ http://www.proftpd.org/docs/contrib/mod_sftp.html
 %patch -P1 -p1
 %patch -P2 -p1
 %patch -P3 -p1
-%patch -P4 -p1
 
 # mod_clamav
 # no patch as of 0.13
 #patch -p0 < mod_clamav-%{mod_clamav_version}/proftpd.patch || exit 1
 cp -a mod_clamav-%{mod_clamav_version}/*.{c,h} contrib/
+
+%patch -P5 -p1
 
 cp -f /usr/share/automake/config.sub .
 
@@ -700,7 +701,7 @@ ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 %{__rm} $RPM_BUILD_ROOT%{_mandir}/ftpusers-path.diff*
 
 # symlink that points to not existing file
-[ ! -r contrib/mod_sftp/confdefs.h ] && rm include/mod_sftp/confdefs.h
+[ ! -r contrib/mod_sftp/confdefs.h ] && %{__rm} -f include/mod_sftp/confdefs.h
 
 cp -aL include/* config.h $RPM_BUILD_ROOT%{_includedir}/%{name}
 
@@ -808,7 +809,7 @@ fi
 
 %files common -f %{name}.lang
 %defattr(644,root,root,755)
-%doc CREDITS ChangeLog NEWS README.md README.modules RELEASE_NOTES
+%doc CREDITS ChangeLog NEWS README.md RELEASE_NOTES
 %doc doc/{*.html,contrib,howto,modules} sample-configurations/*.conf
 %dir %attr(750,root,ftp) %dir %{_sysconfdir}
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/proftpd.conf
@@ -890,7 +891,6 @@ fi
 %if %{with ldap}
 %files mod_ldap
 %defattr(644,root,root,755)
-%doc README.LDAP
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_ldap.conf
 %attr(755,root,root) %{_libexecdir}/mod_ldap.so
 %endif
