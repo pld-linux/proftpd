@@ -26,13 +26,13 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.9
-Release:	3
+Version:	1.3.9c
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.gz
-# Source0-md5:	760b2bf912e4ac26b5f1aa9d25b440c6
+# Source0-md5:	96c30417d992b396e6a76f4edb0a2bf8
 # https://github.com/jbenden/mod_clamav/releases
 Source1:	https://github.com/jbenden/mod_clamav/archive/v%{mod_clamav_version}/mod_clamav-%{mod_clamav_version}.tar.gz
 # Source1-md5:	7d1e7e33added5a6ce1c4d96ca572167
