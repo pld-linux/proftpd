@@ -26,13 +26,13 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.9c
+Version:	1.3.9d
 Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.gz
-# Source0-md5:	96c30417d992b396e6a76f4edb0a2bf8
+# Source0-md5:	d7773e706687ffdaec3d56f285bd9aab
 # https://github.com/jbenden/mod_clamav/releases
 Source1:	https://github.com/jbenden/mod_clamav/archive/v%{mod_clamav_version}/mod_clamav-%{mod_clamav_version}.tar.gz
 # Source1-md5:	7d1e7e33added5a6ce1c4d96ca572167
@@ -53,6 +53,9 @@ Patch1:		%{name}-noautopriv.patch
 Patch2:		%{name}-wtmp.patch
 Patch3:		%{name}-pool.patch
 Patch5:		mod_clamav-compat.patch
+Patch6:		proftpd-issues-2256-2286.patch
+Patch7:		proftpd-issue-2319.patch
+Patch8:		proftpd-rewrite-utf8trans.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	GeoIP-devel
 BuildRequires:	acl-devel
@@ -60,6 +63,7 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	hiredis-devel
 BuildRequires:	libcap-devel
+BuildRequires:	libsodium-devel
 BuildRequires:	libmemcached-devel
 BuildRequires:	libnsl-devel
 BuildRequires:	libstdc++-devel
@@ -71,7 +75,7 @@ BuildRequires:	ncurses-devel
 %if %{with ldap} || %{with quotaldap}
 BuildRequires:	openldap-devel
 %endif
-%{?with_ssl:BuildRequires:	openssl-devel >= 0.9.7d}
+BuildRequires:	openssl-devel >= 0.9.7d
 %{?with_pam:BuildRequires:		pam-devel}
 %if %{with pgsql} || %{with quotapgsql}
 BuildRequires:	postgresql-devel
@@ -327,6 +331,12 @@ Group:		Networking/Daemons
 Requires:	%{name}-common = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_quotatab = %{epoch}:%{version}-%{release}
 Requires:	%{name}-mod_sql = %{epoch}:%{version}-%{release}
+%if %{with quotamysql}
+Requires:	%{name}-mod_sql_mysql = %{epoch}:%{version}-%{release}
+%endif
+%if %{with quotapgsql}
+Requires:	%{name}-mod_sql_postgres = %{epoch}:%{version}-%{release}
+%endif
 
 %description mod_quotatab_sql
 A mod_quotatab sub-module for managing quota data via SQL-based
@@ -566,6 +576,9 @@ http://www.proftpd.org/docs/contrib/mod_sftp.html
 cp -a mod_clamav-%{mod_clamav_version}/*.{c,h} contrib/
 
 %patch -P5 -p1
+%patch -P6 -p1
+%patch -P7 -p1
+%patch -P8 -p1
 
 cp -f /usr/share/automake/config.sub .
 
@@ -599,11 +612,13 @@ mod_wrap2
 mod_ifsession
 %{?with_ssl:mod_tls}
 %{?with_pam:mod_auth_pam}
-%{?with_ldap:mod_ldap}
+%if %{with ldap} || %{with quotaldap}
+mod_ldap
+%endif
 %{?with_quotafile:mod_quotatab mod_quotatab_file}
 %{?with_quotaldap:mod_quotatab mod_quotatab_ldap}
-%{?with_quotamysql:mod_quotatab mod_quotatab_sql}
-%{?with_quotapgsql:mod_quotatab mod_quotatab_sql}
+%{?with_quotamysql:mod_quotatab mod_quotatab_sql mod_sql mod_sql_mysql}
+%{?with_quotapgsql:mod_quotatab mod_quotatab_sql mod_sql mod_sql_postgres}
 %{?with_mysql:mod_sql mod_sql_mysql}
 %{?with_pgsql:mod_sql mod_sql_postgres}
 %{?with_wrap2file:mod_wrap2 mod_wrap2_file}
@@ -646,7 +661,7 @@ install -d $RPM_BUILD_ROOT/etc/{pam.d,security,sysconfig/rc-inetd,rc.d/init.d} \
 %{__rm} $RPM_BUILD_ROOT%{_sbindir}/in.proftpd
 
 cp -p %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}
-cp -p %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_auth_pam.conf
+%{?with_pam:cp -p %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_auth_pam.conf}
 MODULES="
 mod_auth_file
 mod_ident
@@ -660,11 +675,13 @@ mod_geoip
 mod_memcache
 mod_redis
 mod_sftp
-%{?with_ldap:mod_ldap}
+%if %{with ldap} || %{with quotaldap}
+mod_ldap
+%endif
 %{?with_quotafile:mod_quotatab mod_quotatab_file}
 %{?with_quotaldap:mod_quotatab mod_quotatab_ldap}
-%{?with_quotamysql:mod_quotatab mod_quotatab_sql}
-%{?with_quotapgsql:mod_quotatab mod_quotatab_sql}
+%{?with_quotamysql:mod_quotatab mod_quotatab_sql mod_sql mod_sql_mysql}
+%{?with_quotapgsql:mod_quotatab mod_quotatab_sql mod_sql mod_sql_postgres}
 %{?with_mysql:mod_sql mod_sql_mysql}
 %{?with_pgsql:mod_sql mod_sql_postgres}
 %{?with_wrap2file:mod_wrap2 mod_wrap2_file}
@@ -672,7 +689,7 @@ mod_sftp
 for module in $MODULES; do
 	echo "LoadModule	$module.c" > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/$module.conf
 done
-cp -p %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_tls.conf
+%{?with_ssl:cp -p %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_tls.conf}
 cp -p %{SOURCE11} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/anonftp.conf
 cp -p %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/mod_clamav.conf
 
@@ -692,7 +709,7 @@ cp -p %{SOURCE13} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/%{name}.conf
 # only for -inetd package?
 ln -sf proftpd $RPM_BUILD_ROOT%{_sbindir}/ftpd
 
-:> $RPM_BUILD_ROOT/etc/security/blacklist.ftp
+%{?with_pam::> $RPM_BUILD_ROOT/etc/security/blacklist.ftp}
 
 # cannot just --disable-static because build process depend on static objects
 %{__rm} $RPM_BUILD_ROOT%{_libexecdir}/*.a
@@ -833,7 +850,8 @@ fi
 %attr(755,root,root) %{_sbindir}/ftpscrub
 %attr(755,root,root) %{_sbindir}/ftpshut
 %attr(755,root,root) %{_sbindir}/proftpd
-%attr(755,root,root) %{_sbindir}/ftpd
+%{_sbindir}/ftpd
+%{_localedir}/en_US/LC_MESSAGES/proftpd.mo
 %dir %{_libexecdir}
 %attr(755,root,root) %{_libexecdir}/mod_auth_file.so
 %attr(755,root,root) %{_libexecdir}/mod_facl.so
@@ -889,17 +907,19 @@ fi
 %attr(755,root,root) %{_libexecdir}/mod_auth_pam.so
 %endif
 
-%if %{with ldap}
+%if %{with ldap} || %{with quotaldap}
 %files mod_ldap
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_ldap.conf
 %attr(755,root,root) %{_libexecdir}/mod_ldap.so
 %endif
 
+%if %{with quotafile} || %{with quotaldap} || %{with quotamysql} || %{with quotapgsql}
 %files mod_quotatab
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_quotatab.conf
 %attr(755,root,root) %{_libexecdir}/mod_quotatab.so
+%endif
 
 %if %{with quotafile}
 %files mod_quotatab_file
@@ -938,31 +958,33 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_rewrite.conf
 %attr(755,root,root) %{_libexecdir}/mod_rewrite.so
 
-%if %{with mysql} || %{with pgsql}
+%if %{with mysql} || %{with pgsql} || %{with quotamysql} || %{with quotapgsql}
 %files mod_sql
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_sql.conf
 %attr(755,root,root) %{_libexecdir}/mod_sql.so
 %endif
 
-%if %{with mysql}
+%if %{with mysql} || %{with quotamysql}
 %files mod_sql_mysql
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_sql_mysql.conf
 %attr(755,root,root) %{_libexecdir}/mod_sql_mysql.so
 %endif
 
-%if %{with pgsql}
+%if %{with pgsql} || %{with quotapgsql}
 %files mod_sql_postgres
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_sql_postgres.conf
 %attr(755,root,root) %{_libexecdir}/mod_sql_postgres.so
 %endif
 
+%if %{with ssl}
 %files mod_tls
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/mod_tls.conf
 %attr(755,root,root) %{_libexecdir}/mod_tls.so
+%endif
 
 %files mod_wrap
 %defattr(644,root,root,755)

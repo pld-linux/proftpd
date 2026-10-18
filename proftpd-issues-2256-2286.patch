@@ -1,0 +1,613 @@
+# Reject invalid transfer offsets and preserve symlink semantics on EXDEV renames.
+# Upstream Issue #2286: https://github.com/proftpd/proftpd/issues/2286
+# Commits: 16e5d14, c8bf3c6, 7e810ca, 9ad4b03
+# Upstream Issue #2256: https://github.com/proftpd/proftpd/issues/2256
+# Commits: bdb4901, 8255a02, 7610f88, 0fa0f97
+diff --git a/contrib/mod_copy.c b/contrib/mod_copy.c
+index a87a4363acd45715743f706019135bfce86c27b9..a807c2fca3b46e370feb6b80ba79161c3acf4efe 100644
+--- a/contrib/mod_copy.c
++++ b/contrib/mod_copy.c
+@@ -160,31 +159,0 @@ static int create_path(pool *p, const char *path) {
+-static int copy_symlink(pool *p, const char *src_path, const char *dst_path,
+-    int flags) {
+-  char *link_path = pcalloc(p, PR_TUNABLE_BUFFER_SIZE);
+-  int len;
+-
+-  len = pr_fsio_readlink(src_path, link_path, PR_TUNABLE_BUFFER_SIZE-1);
+-  if (len < 0) {
+-    int xerrno = errno;
+-
+-    pr_log_pri(PR_LOG_WARNING, MOD_COPY_VERSION ": error reading link '%s': %s",
+-      src_path, strerror(xerrno));
+-
+-    errno = xerrno;
+-    return -1;
+-  }
+-  link_path[len] = '\0';
+-
+-  if (pr_fsio_symlink(link_path, dst_path) < 0) {
+-    int xerrno = errno;
+-
+-    pr_log_pri(PR_LOG_WARNING, MOD_COPY_VERSION
+-      ": error symlinking '%s' to '%s': %s", link_path, dst_path,
+-      strerror(xerrno));
+-
+-    errno = xerrno;
+-    return -1;
+-  }
+-
+-  return 0;
+-}
+-
+@@ -320 +289 @@ static int copy_dir(pool *p, const char *src_dir, const char *dst_dir,
+-      if (copy_symlink(iter_pool, src_path, dst_path, flags) < 0) {
++      if (pr_fs_copy_symlink(src_path, dst_path, flags) < 0) {
+@@ -471,0 +441,4 @@ static int copy_paths(pool *p, const char *from, const char *to) {
++
++    } else {
++      pr_trace_msg(trace_channel, 19,
++        "lstat(2) error for destination path '%s': %s", to, strerror(errno));
+@@ -474 +447 @@ static int copy_paths(pool *p, const char *from, const char *to) {
+-    res = copy_symlink(p, from, to, flags);
++    res = pr_fs_copy_file2(from, to, flags, NULL);
+diff --git a/contrib/mod_sftp/fxp.c b/contrib/mod_sftp/fxp.c
+index 6bcbf29955698c02ab4a878d6b87500b905e2e3b..ba60840a3244b0a41f254dc9b5a45da8e085b2d1 100644
+--- a/contrib/mod_sftp/fxp.c
++++ b/contrib/mod_sftp/fxp.c
+@@ -4328 +4328,2 @@ static int fxp_handle_ext_check_file(struct fxp_packet *fxp, char *digest_list,
+-  if (offset >= st.st_size) {
++  if (offset < 0 ||
++      offset >= st.st_size) {
+@@ -4333 +4334 @@ static int fxp_handle_ext_check_file(struct fxp_packet *fxp, char *digest_list,
+-      " >= %" PR_LU " file size)", (pr_off_t) offset, (pr_off_t) st.st_size);
++      " vs %" PR_LU " file size)", (pr_off_t) offset, (pr_off_t) st.st_size);
+@@ -5337,0 +5339,116 @@ static int fxp_handle_ext_limits(struct fxp_packet *fxp) {
++static int rename_across_mounts(pool *p, const char *src_path,
++    const char *dst_path) {
++  int res, xerrno;
++  struct stat src_st, dst_st;
++
++  pr_fs_clear_cache2(src_path);
++  res = pr_fsio_lstat(src_path, &src_st);
++  if (res < 0) {
++    xerrno = errno;
++
++    pr_trace_msg(trace_channel, 3, "rename: lstat(2) error on '%s': %s",
++      src_path, strerror(xerrno));
++
++    errno = xerrno;
++    return -1;
++  }
++
++  if (S_ISDIR(src_st.st_mode)) {
++    xerrno = EISDIR;
++
++    pr_trace_msg(trace_channel, 3,
++      "rename: cannot rename '%s' across mounts: %s", src_path,
++      strerror(xerrno));
++
++    errno = xerrno;
++    return -1;
++  }
++
++  if (!S_ISREG(src_st.st_mode) &&
++      !S_ISLNK(src_st.st_mode)) {
++    xerrno = EPERM;
++
++    pr_trace_msg(trace_channel, 3,
++      "rename: cannot rename unsupported file type '%s' across mounts: %s",
++      src_path, strerror(xerrno));
++
++    errno = xerrno;
++    return -1;
++  }
++
++  pr_fs_clear_cache2(dst_path);
++  res = pr_fsio_lstat(dst_path, &dst_st);
++  if (res < 0 &&
++      errno != ENOENT) {
++    xerrno = errno;
++
++    pr_trace_msg(trace_channel, 3, "rename: lstat(2) error on '%s': %s",
++      dst_path, strerror(xerrno));
++
++    errno = xerrno;
++    return -1;
++  }
++
++  if (res == 0) {
++    if (S_ISDIR(dst_st.st_mode)) {
++      xerrno = EPERM;
++
++      pr_trace_msg(trace_channel, 3,
++        "rename: cannot rename '%s' across mounts into directory '%s': %s",
++        src_path, dst_path, strerror(xerrno));
++
++      errno = xerrno;
++      return -1;
++    }
++
++    res = pr_fsio_unlink(dst_path);
++    if (res < 0) {
++      xerrno = errno;
++
++      pr_trace_msg(trace_channel, 3, "rename: unlink(2) error on '%s': %s",
++        dst_path, strerror(xerrno));
++
++      errno = xerrno;
++      return -1;
++    }
++  }
++
++  /* At this point, we know that the source path exists, and is a regular file
++   * or a symlink.  And we know that the destination path does not exist.
++   */
++
++  if (S_ISREG(src_st.st_mode)) {
++    res = pr_fs_copy_file(src_path, dst_path);
++    xerrno = errno;
++
++  } else if (S_ISLNK(src_st.st_mode)) {
++    res = pr_fs_copy_symlink(src_path, dst_path, 0);
++    xerrno = errno;
++
++  } else {
++    res = -1;
++    xerrno = EPERM;
++  }
++
++  if (res < 0) {
++    (void) pr_trace_msg("fileperms", 1, "RENAME, user '%s' (UID %s, "
++      "GID %s): error copying '%s' to '%s': %s", session.user,
++      pr_uid2str(p, session.uid), pr_gid2str(p, session.gid), src_path,
++      dst_path, strerror(xerrno));
++
++    (void) pr_log_writefile(sftp_logfd, MOD_SFTP_VERSION,
++      "error copying '%s' to '%s': %s", src_path, dst_path, strerror(xerrno));
++
++    errno = xerrno;
++    return -1;
++  }
++
++  /* Once copied, remove the original path. */
++  if (pr_fsio_unlink(src_path) < 0) {
++    (void) pr_log_writefile(sftp_logfd, MOD_SFTP_VERSION,
++      "error deleting '%s': %s", src_path, strerror(errno));
++  }
++
++  return 0;
++}
++
+@@ -5599 +5716 @@ static int fxp_handle_ext_posix_rename(struct fxp_packet *fxp, char *src,
+-      res = pr_fs_copy_file2(src, dst, 0, NULL);
++      res = rename_across_mounts(fxp->pool, src, dst);
+@@ -5613,9 +5729,0 @@ static int fxp_handle_ext_posix_rename(struct fxp_packet *fxp, char *src,
+-
+-      } else {
+-        /* Once copied, remove the original path. */
+-        if (pr_fsio_unlink(src) < 0) {
+-          (void) pr_log_writefile(sftp_logfd, MOD_SFTP_VERSION,
+-            "error deleting '%s': %s", src, strerror(errno));
+-        }
+-
+-        xerrno = errno = 0;
+@@ -5637 +5745 @@ static int fxp_handle_ext_posix_rename(struct fxp_packet *fxp, char *src,
+-  if (session.xfer.p) {
++  if (session.xfer.p != NULL) {
+@@ -10527,0 +10636,25 @@ static int fxp_handle_read(struct fxp_packet *fxp) {
++  if (((off_t) offset) < 0) {
++    int xerrno = EINVAL;
++    uint32_t status_code;
++    const char *reason;
++
++    (void) pr_log_writefile(sftp_logfd, MOD_SFTP_VERSION,
++      "requested invalid read offset (%" PR_LU " bytes)", (pr_off_t) offset);
++
++    status_code = fxp_errno2status(xerrno, &reason);
++
++    pr_trace_msg(trace_channel, 8, "sending response: STATUS %lu '%s'",
++      (unsigned long) status_code, fxp_strerror(status_code));
++
++    fxp_status_write(fxp->pool, &buf, &buflen, fxp->request_id, status_code,
++      reason, NULL);
++
++    fxp_cmd_dispatch_err(cmd);
++
++    resp = fxp_packet_create(fxp->pool, fxp->channel_id);
++    resp->payload = ptr;
++    resp->payload_sz = (bufsz - buflen);
++
++    return fxp_packet_write(resp);
++  }
++
+@@ -12330,0 +12464,2 @@ static int fxp_handle_rename(struct fxp_packet *fxp) {
++      errno = 0;
++
+@@ -12334,2 +12469 @@ static int fxp_handle_rename(struct fxp_packet *fxp) {
+-      errno = 0;
+-      if (pr_fs_copy_file2(old_path, new_path, 0, NULL) < 0) {
++      if (rename_across_mounts(fxp->pool, old_path, new_path) < 0) {
+@@ -12339 +12473 @@ static int fxp_handle_rename(struct fxp_packet *fxp) {
+-          "GID %s): error copying '%s' to '%s': %s", session.user,
++          "GID %s): error renaming '%s' to '%s': %s", session.user,
+@@ -12345,2 +12479,2 @@ static int fxp_handle_rename(struct fxp_packet *fxp) {
+-          "error copying '%s' to '%s': %s", old_path, new_path,
+-          strerror(xerrno));
++          "RENAME of '%s' to '%s' across mounts failed: %s", old_path,
++          new_path, strerror(xerrno));
+@@ -12349,9 +12482,0 @@ static int fxp_handle_rename(struct fxp_packet *fxp) {
+-
+-      } else {
+-        /* Once copied, remove the original path. */
+-        if (pr_fsio_unlink(old_path) < 0) {
+-          (void) pr_log_writefile(sftp_logfd, MOD_SFTP_VERSION,
+-            "error deleting '%s': %s", old_path, strerror(errno));
+-        }
+-
+-        xerrno = errno = 0;
+@@ -12373 +12498 @@ static int fxp_handle_rename(struct fxp_packet *fxp) {
+-  if (session.xfer.p) {
++  if (session.xfer.p != NULL) {
+@@ -13584,0 +13710,25 @@ static int fxp_handle_write(struct fxp_packet *fxp) {
++  if (((off_t) offset) < 0) {
++    int xerrno = EINVAL;
++    uint32_t status_code;
++    const char *reason;
++
++    (void) pr_log_writefile(sftp_logfd, MOD_SFTP_VERSION,
++      "requested invalid write offset (%" PR_LU " bytes)", (pr_off_t) offset);
++
++    status_code = fxp_errno2status(xerrno, &reason);
++
++    pr_trace_msg(trace_channel, 8, "sending response: STATUS %lu '%s'",
++      (unsigned long) status_code, fxp_strerror(status_code));
++
++    fxp_status_write(fxp->pool, &buf, &buflen, fxp->request_id, status_code,
++      reason, NULL);
++
++    fxp_cmd_dispatch_err(cmd);
++
++    resp = fxp_packet_create(fxp->pool, fxp->channel_id);
++    resp->payload = ptr;
++    resp->payload_sz = (bufsz - buflen);
++
++    return fxp_packet_write(resp);
++  }
++
+diff --git a/contrib/mod_sftp/scp.c b/contrib/mod_sftp/scp.c
+index 4fb6cb232bd4a5006333da8ece4908058b122808..02c7ea02c6f38a6b5e146ced9631228491c6c257 100644
+--- a/contrib/mod_sftp/scp.c
++++ b/contrib/mod_sftp/scp.c
+@@ -607,0 +608 @@ static int recv_filesz(pool *p, uint32_t channel_id, char *size_str,
++  int res = 0;
+@@ -609,0 +611 @@ static int recv_filesz(pool *p, uint32_t channel_id, char *size_str,
++
+@@ -611,0 +614 @@ static int recv_filesz(pool *p, uint32_t channel_id, char *size_str,
++  errno = 0;
+@@ -613,0 +617,4 @@ static int recv_filesz(pool *p, uint32_t channel_id, char *size_str,
++  if (sz == ULLONG_MAX &&
++      errno == ERANGE) {
++    res = -1;
++  }
+@@ -615,0 +623,4 @@ static int recv_filesz(pool *p, uint32_t channel_id, char *size_str,
++  if (sz == ULONG_MAX &&
++      errno == ERANGE) {
++    res = -1;
++  }
+@@ -617,0 +629,7 @@ static int recv_filesz(pool *p, uint32_t channel_id, char *size_str,
++  /* Watch for cases where the sent file size might overflow our size type. */
++  if (res < 0) {
++    pr_trace_msg(trace_channel, 2, "file size '%s' out of range", size_str);
++    write_confirm(p, channel_id, 1, "file size out of range");
++    return -1;
++  }
++
+@@ -620,3 +638,2 @@ static int recv_filesz(pool *p, uint32_t channel_id, char *size_str,
+-  /* Watch for cases where the sent file size might overflow our size type. */
+-  if (*filesz < 0) {
+-    pr_trace_msg(trace_channel, 2, "file size out of range");
++  if (*filesz < 0 || (unsigned long long) *filesz != sz) {
++    pr_trace_msg(trace_channel, 2, "file size '%s' out of range", size_str);
+diff --git a/include/fsio.h b/include/fsio.h
+index 5ac00183a40f3bc70e665ff5179a9530d8807abb..b9b184aa77dca40adf53b508d2ca2467009e11bb 100644
+--- a/include/fsio.h
++++ b/include/fsio.h
+@@ -416,0 +417,5 @@ int pr_fs_copy_file2(const char *src, const char *dst, int flags,
++/* Copy a symlink from the given source path to the destination path, creating
++ * a symlink pointing to the same file at the destination.
++ */
++int pr_fs_copy_symlink(const char *src, const char *dst, int flags);
++
+diff --git a/modules/mod_core.c b/modules/mod_core.c
+index e2b38ae87c1a4a13299d2d1b5a76c8c8013559a3..18766f323ec14e5158373912d03eea2ed05fb620 100644
+--- a/modules/mod_core.c
++++ b/modules/mod_core.c
+@@ -6136,0 +6137,119 @@ MODRET core_dele(cmd_rec *cmd) {
++static int handle_cross_mount_rename(cmd_rec *cmd, const char *src_path,
++    const char *dst_path, struct stat *dst_st) {
++  int res, xerrno;
++  struct stat src_st;
++
++  pr_fs_clear_cache2(src_path);
++  res = pr_fsio_lstat(src_path, &src_st);
++  if (res < 0) {
++    xerrno = errno;
++
++    pr_log_debug(DEBUG4, "Unable to stat '%s' for cross filesystem mount "
++      "point rename: %s", src_path, strerror(xerrno));
++
++    pr_response_add_err(R_550, _("%s: %s"), cmd->arg, strerror(xerrno));
++    pr_cmd_set_errno(cmd, xerrno);
++    errno = xerrno;
++
++    return -1;
++  }
++
++  if (S_ISDIR(src_st.st_mode)) {
++    xerrno = EPERM;
++
++    pr_log_debug(DEBUG4, "Cannot rename directory '%s' across a filesystem "
++      "mount", src_path);
++
++    pr_response_add_err(R_550, _("%s: %s"), cmd->arg, strerror(xerrno));
++    pr_cmd_set_errno(cmd, xerrno);
++    errno = xerrno;
++
++    return -1;
++  }
++
++  if (!S_ISREG(src_st.st_mode) &&
++      !S_ISLNK(src_st.st_mode)) {
++    xerrno = EPERM;
++
++    pr_log_debug(DEBUG4, "Cannot rename unsupported file type '%s' across "
++      "a filesystem mount", src_path);
++
++    pr_response_add_err(R_550, _("%s: %s"), cmd->arg, strerror(xerrno));
++    pr_cmd_set_errno(cmd, xerrno);
++    errno = xerrno;
++
++    return -1;
++  }
++
++  /* If the destination exists, unlink it first.  Unless it is a directory,
++   * in which case we error out now; we do not copy into directories across
++   * mounts at the moment.
++   */
++  if (dst_st != NULL) {
++    if (S_ISDIR(dst_st->st_mode)) {
++      xerrno = EPERM;
++
++      pr_log_debug(DEBUG4, "Cannot rename path '%s' across a filesystem mount "
++        "point into directory '%s'", src_path, dst_path);
++
++      pr_response_add_err(R_550, _("%s: %s"), cmd->arg, strerror(xerrno));
++      pr_cmd_set_errno(cmd, xerrno);
++      errno = xerrno;
++
++      return -1;
++    }
++
++    res = pr_fsio_unlink(dst_path);
++    if (res < 0) {
++      xerrno = errno;
++
++      pr_log_debug(DEBUG4, "Unable to delete '%s' for cross filesystem mount "
++        "point rename: %s", dst_path, strerror(xerrno));
++
++      pr_response_add_err(R_550, _("%s: %s"), cmd->arg, strerror(xerrno));
++      pr_cmd_set_errno(cmd, xerrno);
++      errno = xerrno;
++
++      return -1;
++    }
++
++    dst_st = NULL;
++  }
++
++  /* At this point, we know that the source path exists, and is a regular file
++   * or symlink.  And we know that the destination path does not exist.
++   */
++
++  if (S_ISREG(src_st.st_mode)) {
++    res = pr_fs_copy_file(src_path, dst_path);
++    xerrno = errno;
++
++  } else if (S_ISLNK(src_st.st_mode)) {
++    res = pr_fs_copy_symlink(src_path, dst_path, 0);
++    xerrno = errno;
++  }
++
++  if (res < 0) {
++    (void) pr_trace_msg("fileperms", 1, "%s, user '%s' (UID %s, GID %s): "
++      "error copying '%s' to '%s': %s", (char *) cmd->argv[0], session.user,
++      pr_uid2str(cmd->tmp_pool, session.uid),
++      pr_gid2str(cmd->tmp_pool, session.gid), src_path, dst_path,
++      strerror(xerrno));
++
++    pr_response_add_err(R_550, _("Rename %s: %s"), cmd->arg,
++      strerror(xerrno));
++    pr_cmd_set_errno(cmd, xerrno);
++    errno = xerrno;
++
++    return -1;
++  }
++
++  /* Once copied, unlink the original file. */
++  res = pr_fsio_unlink(src_path);
++  if (res < 0) {
++    pr_log_debug(DEBUG0, "error deleting '%s': %s", src_path, strerror(errno));
++  }
++
++  return 0;
++}
++
+@@ -6138 +6257 @@ MODRET core_rnto(cmd_rec *cmd) {
+-  int res;
++  int res, xerrno, dst_exists = FALSE;
+@@ -6162 +6281 @@ MODRET core_rnto(cmd_rec *cmd) {
+-    int xerrno = errno;
++    xerrno = errno;
+@@ -6202,2 +6320,0 @@ MODRET core_rnto(cmd_rec *cmd) {
+-  allow_overwrite = get_param_ptr(CURRENT_CONF, "AllowOverwrite", FALSE);
+-
+@@ -6206,0 +6324,2 @@ MODRET core_rnto(cmd_rec *cmd) {
++  allow_overwrite = get_param_ptr(CURRENT_CONF, "AllowOverwrite", FALSE);
++
+@@ -6208,4 +6327,3 @@ MODRET core_rnto(cmd_rec *cmd) {
+-  if ((!allow_overwrite || *allow_overwrite == FALSE) &&
+-      pr_fsio_stat(path, &st) == 0) {
+-    pr_log_debug(DEBUG6, "AllowOverwrite denied permission for %s", path);
+-    pr_response_add_err(R_550, _("%s: Rename permission denied"), cmd->arg);
++  res = pr_fsio_lstat(path, &st);
++  if (res == 0) {
++    dst_exists = TRUE;
+@@ -6213,3 +6331,9 @@ MODRET core_rnto(cmd_rec *cmd) {
+-    pr_cmd_set_errno(cmd, EACCES);
+-    errno = EACCES;
+-    return PR_ERROR(cmd);
++    if (allow_overwrite == NULL ||
++        *allow_overwrite == FALSE) {
++      pr_log_debug(DEBUG6, "AllowOverwrite denied permission for %s", path);
++      pr_response_add_err(R_550, _("%s: Rename permission denied"), cmd->arg);
++
++      pr_cmd_set_errno(cmd, EACCES);
++      errno = EACCES;
++      return PR_ERROR(cmd);
++    }
+@@ -6218 +6342 @@ MODRET core_rnto(cmd_rec *cmd) {
+-  if (!path ||
++  if (path == NULL ||
+@@ -6231 +6355 @@ MODRET core_rnto(cmd_rec *cmd) {
+-    int xerrno = errno;
++    xerrno = errno;
+@@ -6298,14 +6422,2 @@ MODRET core_rnto(cmd_rec *cmd) {
+-    if (pr_fs_copy_file(session.xfer.path, path) < 0) {
+-      xerrno = errno;
+-
+-      (void) pr_trace_msg("fileperms", 1, "%s, user '%s' (UID %s, GID %s): "
+-        "error copying '%s' to '%s': %s", (char *) cmd->argv[0], session.user,
+-        pr_uid2str(cmd->tmp_pool, session.uid),
+-        pr_gid2str(cmd->tmp_pool, session.gid), session.xfer.path, path,
+-        strerror(xerrno));
+-
+-      pr_response_add_err(R_550, _("Rename %s: %s"), cmd->arg,
+-        strerror(xerrno));
+-
+-      pr_cmd_set_errno(cmd, xerrno);
+-      errno = xerrno;
++    if (handle_cross_mount_rename(cmd, session.xfer.path, path,
++        dst_exists == TRUE ? &st : NULL) < 0) {
+@@ -6314,20 +6425,0 @@ MODRET core_rnto(cmd_rec *cmd) {
+-
+-    /* Once copied, unlink the original file. */
+-    res = pr_fsio_unlink_with_error(cmd->pool, session.xfer.path, &err);
+-    if (res < 0) {
+-      xerrno = errno;
+-
+-      pr_error_set_where(err, &core_module, __FILE__, __LINE__ - 4);
+-      pr_error_set_why(err, pstrcat(cmd->pool, "delete file '",
+-        session.xfer.path, "'", NULL));
+-
+-      if (err != NULL) {
+-        pr_log_debug(DEBUG0, "%s", pr_error_strerror(err, 0));
+-        pr_error_destroy(err);
+-        err = NULL;
+-
+-      } else {
+-        pr_log_debug(DEBUG0, "error deleting '%s': %s", session.xfer.path,
+-          strerror(xerrno));
+-      }
+-    }
+diff --git a/modules/mod_xfer.c b/modules/mod_xfer.c
+index f93922c2b594a795075ee476191c027a17219c5e..68938514965245d7ed234bb8720152edbe358494 100644
+--- a/modules/mod_xfer.c
++++ b/modules/mod_xfer.c
+@@ -2449,0 +2450 @@ static int parse_offset(char *str, off_t *num) {
++  int res = 0;
+@@ -2450,0 +2452,2 @@ static int parse_offset(char *str, off_t *num) {
++  unsigned long long n;
++  off_t sz;
+@@ -2461,2 +2464,8 @@ static int parse_offset(char *str, off_t *num) {
+-#ifdef HAVE_STRTOULL
+-  *num = strtoull(ptr, &tmp, 10);
++  errno = 0;
++
++#if defined(HAVE_STRTOULL)
++  n = strtoull(ptr, &tmp, 10);
++  if (n == ULLONG_MAX &&
++      errno == ERANGE) {
++    res = -1;
++  }
+@@ -2464 +2473,5 @@ static int parse_offset(char *str, off_t *num) {
+-  *num = strtoul(ptr, &tmp, 10);
++  n = strtoul(ptr, &tmp, 10);
++  if (n == ULONG_MAX &&
++      errno == ERANGE) {
++    res = -1;
++  }
+@@ -2466,0 +2480,7 @@ static int parse_offset(char *str, off_t *num) {
++  if (res < 0) {
++    pr_trace_msg(trace_channel, 3,
++      "client-sent offset '%s' conversion error: %s", ptr, strerror(errno));
++    errno = EINVAL;
++    return -1;
++  }
++
+@@ -2471,0 +2492,12 @@ static int parse_offset(char *str, off_t *num) {
++  /* Watch for cases where the sent file offset might overflow our size
++   * type (Issue #2286).
++   */
++  sz = n;
++  if (sz < 0 || (unsigned long long) sz != n) {
++    pr_trace_msg(trace_channel, 3,
++      "client-sent offset '%s' out of range, rejecting", ptr);
++    errno = EINVAL;
++    return -1;
++  }
++
++  *num = sz;
+diff --git a/src/fsio.c b/src/fsio.c
+index 999aebd0a8bb182ac2cd4159b3d6e575e8a4b2b2..90c4906b486ff669975bfce585571200491fa7de 100644
+--- a/src/fsio.c
++++ b/src/fsio.c
+@@ -2237,0 +2238,39 @@ int pr_fs_copy_file(const char *src, const char *dst) {
++int pr_fs_copy_symlink(const char *src, const char *dst, int flags) {
++  char link_path[PR_TUNABLE_BUFFER_SIZE];
++  int len;
++
++  /* Currently unused. */
++  (void) flags;
++
++  if (src == NULL ||
++      dst == NULL) {
++    errno = EINVAL;
++    return -1;
++  }
++
++  memset(link_path, '\0', sizeof(link_path));
++  len = pr_fsio_readlink(src, link_path, sizeof(link_path)-1);
++  if (len < 0) {
++    int xerrno = errno;
++
++    pr_log_pri(PR_LOG_WARNING, "error reading symlink '%s': %s", src,
++      strerror(xerrno));
++
++    errno = xerrno;
++    return -1;
++  }
++  link_path[len] = '\0';
++
++  if (pr_fsio_symlink(link_path, dst) < 0) {
++    int xerrno = errno;
++
++    pr_log_pri(PR_LOG_WARNING, "error symlinking '%s' to '%s': %s", link_path,
++      dst, strerror(xerrno));
++
++    errno = xerrno;
++    return -1;
++  }
++
++  return 0;
++}
++
