@@ -26,13 +26,13 @@ Summary(pl.UTF-8):	PROfesionalny serwer FTP
 Summary(pt_BR.UTF-8):	Servidor FTP profissional, com sintaxe de configuração semelhante à do apache
 Summary(zh_CN.UTF-8):	易于管理的,安全的 FTP 服务器
 Name:		proftpd
-Version:	1.3.9d
+Version:	1.3.9e
 Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons
 Source0:	ftp://ftp.proftpd.org/distrib/source/%{name}-%{version}.tar.gz
-# Source0-md5:	d7773e706687ffdaec3d56f285bd9aab
+# Source0-md5:	be360852af16c39434a0527234bf7db4
 # https://github.com/jbenden/mod_clamav/releases
 Source1:	https://github.com/jbenden/mod_clamav/archive/v%{mod_clamav_version}/mod_clamav-%{mod_clamav_version}.tar.gz
 # Source1-md5:	7d1e7e33added5a6ce1c4d96ca572167
@@ -53,9 +53,7 @@ Patch1:		%{name}-noautopriv.patch
 Patch2:		%{name}-wtmp.patch
 Patch3:		%{name}-pool.patch
 Patch5:		mod_clamav-compat.patch
-Patch6:		proftpd-issues-2256-2286.patch
-Patch7:		proftpd-issue-2319.patch
-Patch8:		proftpd-rewrite-utf8trans.patch
+Patch6:		proftpd-issue-2256.patch
 URL:		http://www.proftpd.org/
 BuildRequires:	GeoIP-devel
 BuildRequires:	acl-devel
@@ -577,8 +575,6 @@ cp -a mod_clamav-%{mod_clamav_version}/*.{c,h} contrib/
 
 %patch -P5 -p1
 %patch -P6 -p1
-%patch -P7 -p1
-%patch -P8 -p1
 
 cp -f /usr/share/automake/config.sub .
 
